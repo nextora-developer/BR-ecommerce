@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Admin Form Components ===== */
+@layer components {
+    .form-label {
+        @apply text-sm font-medium text-gray-700 mb-1 block;
+    }
+
+    .form-input {
+        @apply w-full rounded-xl border-gray-300
+               focus:border-[#D4AF37]
+               focus:ring-[#D4AF37]/30;
+    }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.trix-content {
+    min-height: 220px;
+}
+
+.trix-button-group--file-tools {
+    display: none !important; 
+}
+
+.trix-button--icon-link {
+    display: none !important; 
+}
+
+/* 让 Trix 编辑器里的列表有点点 */
+trix-editor ul {
+    list-style-type: disc;
+    margin-left: 1.25rem;
+}
+
+trix-editor ol {
+    list-style-type: decimal;
+    margin-left: 1.25rem;
+}
+
+/* 前台详情页描述区的列表也恢复点点 */
+#tab-desc ul {
+    list-style-type: disc;
+    margin-left: 1.25rem;
+}
+
+#tab-desc ol {
+    list-style-type: decimal;
+    margin-left: 1.25rem;
+}
