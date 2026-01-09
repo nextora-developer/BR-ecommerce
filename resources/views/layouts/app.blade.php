@@ -61,7 +61,7 @@
                             class="h-10 w-10 rounded-2xl object-cover shadow-lg shadow-[#D4AF37]/20" />
 
                         <div class="flex flex-col leading-tight">
-                            <span class="text-xl font-bold tracking-tight text-white">Shop</span>
+                            <span class="text-xl font-bold tracking-tight text-white">BRIF</span>
                             <span class="text-xs text-gray-400 tracking-wide">Premium Essentials</span>
                         </div>
                     </div>
@@ -89,18 +89,19 @@
                     <div class="h-px w-10 bg-white/15 mt-4 mb-6"></div>
 
                     <ul class="space-y-4">
-                        @foreach (['Shop All', 'New Arrivals', 'Best Sellers', 'Contact Us'] as $link)
+                        @foreach ([['label' => 'Shop All', 'route' => route('shop.index')], ['label' => 'Official Site', 'route' => 'https://brif.cloud'], ['label' => 'How to Order', 'route' => route('how-to-order')], ['label' => 'Faq', 'route' => route('faq')]] as $item)
                             <li>
-                                <a href="#"
+                                <a href="{{ $item['route'] }}"
                                     class="text-sm text-gray-300 hover:text-white transition relative inline-block
-                                      after:content-[''] after:absolute after:left-0 after:-bottom-1
-                                      after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
-                                      after:transition-all after:duration-300">
-                                    {{ $link }}
+                      after:content-[''] after:absolute after:left-0 after:-bottom-1
+                      after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
+                      after:transition-all after:duration-300">
+                                    {{ $item['label'] }}
                                 </a>
                             </li>
                         @endforeach
                     </ul>
+
                 </div>
 
                 {{-- Support --}}
@@ -111,19 +112,20 @@
                     <div class="h-px w-10 bg-white/15 mt-4 mb-6"></div>
 
                     <ul class="space-y-4">
-                        @foreach (['Privacy Policy', 'Shipping & Delivery', 'Returns & Refunds', 'Terms of Service'] as $link)
+                        @foreach ([['label' => 'Privacy Policy', 'route' => route('privacy')], ['label' => 'Shipping & Delivery', 'route' => route('shipping')], ['label' => 'Returns & Refunds', 'route' => route('returns')], ['label' => 'Terms of Service', 'route' => route('terms')]] as $item)
                             <li>
-                                <a href="#"
+                                <a href="{{ $item['route'] }}"
                                     class="text-sm text-gray-300 hover:text-white transition relative inline-block
-                                      after:content-[''] after:absolute after:left-0 after:-bottom-1
-                                      after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
-                                      after:transition-all after:duration-300">
-                                    {{ $link }}
+                          after:content-[''] after:absolute after:left-0 after:-bottom-1
+                          after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
+                          after:transition-all after:duration-300">
+                                    {{ $item['label'] }}
                                 </a>
                             </li>
                         @endforeach
                     </ul>
                 </div>
+
 
                 {{-- Account --}}
                 <div class="lg:col-span-2">
@@ -134,7 +136,7 @@
 
                     <ul class="space-y-4">
                         <li>
-                            <a href="{{ route('account.index') }}"
+                            <a href="{{ route('account.profile.edit') }}"
                                 class="text-sm text-gray-300 hover:text-white transition relative inline-block
                                   after:content-[''] after:absolute after:left-0 after:-bottom-1
                                   after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
@@ -152,7 +154,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="{{ route('account.favorites.index') }}"
                                 class="text-sm text-gray-300 hover:text-white transition relative inline-block
                                   after:content-[''] after:absolute after:left-0 after:-bottom-1
                                   after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
@@ -161,7 +163,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="{{ route('account.address.index') }}"
                                 class="text-sm text-gray-300 hover:text-white transition relative inline-block
                                   after:content-[''] after:absolute after:left-0 after:-bottom-1
                                   after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
@@ -181,7 +183,7 @@
 
                     <ul class="space-y-4">
                         <li>
-                            <a href="#"
+                            <a href="https://www.instagram.com/brinnovatefuture?igsh=eHgzM2prcHN2MWF2"
                                 class="text-sm text-gray-300 hover:text-white transition relative inline-block
                                   after:content-[''] after:absolute after:left-0 after:-bottom-1
                                   after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
@@ -190,7 +192,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="https://www.facebook.com/share/17CB8CgQRN/?mibextid=wwXIfr"
                                 class="text-sm text-gray-300 hover:text-white transition relative inline-block
                                   after:content-[''] after:absolute after:left-0 after:-bottom-1
                                   after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
@@ -199,18 +201,18 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="https://wa.me/60123011610"
                                 class="text-sm text-gray-300 hover:text-white transition relative inline-block
                                   after:content-[''] after:absolute after:left-0 after:-bottom-1
                                   after:h-px after:w-0 after:bg-[#D4AF37] hover:after:w-full
                                   after:transition-all after:duration-300">
-                                WhatsApp Support
+                                WhatsApp
                             </a>
                         </li>
 
                         <li class="text-sm text-gray-400">
-                            <a href="mailto:support@yourshop.com" class="hover:text-white transition">
-                                support@yourshop.com
+                            <a href="mailto:cs@brinnovatefuture.com" class="hover:text-white transition">
+                                cs@brinnovatefuture.com
                             </a>
                         </li>
                     </ul>
@@ -265,7 +267,7 @@
         </svg>
     </button>
 
-    <a href="https://wa.me/601156898898" target="_blank"
+    <a href="https://wa.me/60123011610" target="_blank"
         class="fixed right-4 bottom-4 z-50
           w-12 h-12 rounded-full
           bg-[#25D366] text-white

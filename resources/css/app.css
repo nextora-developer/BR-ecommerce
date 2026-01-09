@@ -28,11 +28,11 @@
 }
 
 .trix-button-group--file-tools {
-    display: none !important; 
+    display: none !important;
 }
 
 .trix-button--icon-link {
-    display: none !important; 
+    display: none !important;
 }
 
 /* 让 Trix 编辑器里的列表有点点 */
@@ -55,4 +55,8 @@ trix-editor ol {
 #tab-desc ol {
     list-style-type: decimal;
     margin-left: 1.25rem;
+}
+
+[x-cloak] {
+    display: none !important;
 }

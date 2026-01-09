@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminOrderController;
@@ -57,6 +58,7 @@ Route::get('/cart/count', function () {
     ]);
 })->name('cart.count');
 
+
 if (app()->environment('local')) {
     Route::get('/test-mail', function () {
         Mail::raw('This is a simple test email from Extech Ecommerce.', function ($message) {
@@ -67,6 +69,15 @@ if (app()->environment('local')) {
         return 'Test mail sent!';
     });
 }
+
+
+Route::get('/how-to-order', [PageController::class, 'howToOrder'])->name('how-to-order');
+Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/shipping-delivery', [PageController::class, 'shipping'])->name('shipping');
+Route::get('/returns-refunds', [PageController::class, 'returns'])->name('returns');
+Route::get('/terms-of-service', [PageController::class, 'terms'])->name('terms');
+
 
 
 

@@ -12,7 +12,7 @@
 
                         <span
                             class="text-xl font-bold tracking-tight text-white group-hover:text-[#D4AF37] transition-colors">
-                            Store
+                            BRIF
                         </span>
                     </a>
                 </div>
@@ -34,6 +34,12 @@
                         Shop
                     </a>
 
+                    <a href="https://brif.cloud/" target="_blank" rel="noopener noreferrer"
+                        class="{{ $baseClass }} {{ $inactiveClass }} hover:text-[#D4AF37] after:bg-[#D4AF37]">
+                        Official Site
+                    </a>
+
+
                     {{-- More Dropdown --}}
                     <div x-data="{ openMore: false }" class="relative">
                         <button @click="openMore = !openMore" @click.outside="openMore = false"
@@ -50,13 +56,10 @@
                             x-transition:enter-start="opacity-0 scale-95"
                             class="absolute left-0 mt-2 w-48 rounded-2xl border border-white/10 bg-black/95 backdrop-blur shadow-xl ring-1 ring-black/40 z-50 overflow-hidden">
                             <div class="p-1.5">
-                                <a href="#"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">About
-                                    Us</a>
-                                <a href="#"
+                                <a href="{{ route('how-to-order') }}"
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">How
                                     to Order</a>
-                                <a href="#"
+                                <a href="{{ route('faq') }}"
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">FAQ</a>
                             </div>
                         </div>

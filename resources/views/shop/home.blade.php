@@ -129,7 +129,7 @@
 
 
         {{-- New Arrivals products --}}
-        <section id="featured" class="bg-[#FAF9F6]">
+        <section id="new-arrivals" class="bg-[#FAF9F6]">
             <div class="max-w-7xl5 mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
 
                 {{-- Header Section --}}
