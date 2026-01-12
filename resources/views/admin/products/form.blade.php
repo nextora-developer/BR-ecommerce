@@ -127,6 +127,85 @@
                 </div>
             </div>
 
+            {{-- SECTION 2.5: Product Highlights (Dropdown, max 4) --}}
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="w-1.5 h-6 bg-[#D4AF37] rounded-full"></span>
+                    <h2 class="font-bold text-gray-900">Product Highlights</h2>
+                    <span class="text-xs text-gray-400">（Maximun 4）</span>
+                </div>
+
+                @php
+                    // 预设选项（value => label）
+                    $highlightOptions = [
+                        'ships_1_3' => 'Ships in 1–3 working days',
+                        'returns_7' => 'Easy returns within 7 days',
+                        'authentic' => '100% Authentic guarantee',
+                        'support' => 'Friendly customer support',
+                        'secure' => 'Secure payment checkout',
+                        'cod' => 'Cash on delivery available',
+                        'pickup' => 'Self-pickup available',
+                        'warranty' => 'Warranty included (if applicable)',
+                    ];
+
+                    // 回填：旧输入优先，否则 product highlights
+                    $selectedHighlights = old('highlights', $product->highlights ?? []);
+                    if (!is_array($selectedHighlights)) {
+                        $selectedHighlights = [];
+                    }
+                    $selectedHighlights = array_values(array_filter($selectedHighlights));
+
+                    // 默认至少一行空的
+                    if (empty($selectedHighlights)) {
+                        $selectedHighlights = [''];
+                    }
+                @endphp
+
+                    <div id="highlights-wrapper" class="space-y-2">
+                        @foreach ($selectedHighlights as $i => $val)
+                            <div class="flex gap-2 items-center highlight-row">
+                                <select name="highlights[{{ $i }}]" class="form-input flex-1 highlight-select">
+                                    <option value="">— Select highlight —</option>
+                                    @foreach ($highlightOptions as $k => $label)
+                                        <option value="{{ $k }}" @selected($val === $k)>
+                                            {{ $label }}</option>
+                                    @endforeach
+                                </select>
+
+                                <button type="button" class="px-2 text-xs text-red-500" onclick="removeHighlightRow(this)">
+                                    Remove
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="flex items-center justify-between mt-3">
+                        <button type="button" id="addHighlightBtn"
+                            class="inline-flex items-center px-3 py-1 text-xs border rounded-lg hover:bg-gray-50"
+                            onclick="addHighlightRow()">
+                            + Add Highlight
+                        </button>
+
+                        <span id="highlightHint" class="text-xs text-gray-500"></span>
+                    </div>
+
+                    <template id="highlightRowTemplate">
+                        <div class="flex gap-2 items-center highlight-row">
+                            <select class="form-input flex-1 highlight-select" data-name="highlight">
+                                <option value="">— Select highlight —</option>
+                                @foreach ($highlightOptions as $k => $label)
+                                    <option value="{{ $k }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+
+                            <button type="button" class="px-2 text-xs text-red-500" onclick="removeHighlightRow(this)">
+                                Remove
+                            </button>
+                        </div>
+                    </template>
+            </div>
+
+
             {{-- SECTION 3: Additional Info (Specs) --}}
             <div>
                 <div class="flex items-center gap-2 mb-4">
@@ -169,7 +248,8 @@
                                     <input type="text" name="specs[0][value]" class="form-input flex-1"
                                         placeholder="Value (e.g. 100% Cotton)">
 
-                                    <button type="button" class="px-2 text-xs text-red-500" onclick="removeSpecRow(this)">
+                                    <button type="button" class="px-2 text-xs text-red-500"
+                                        onclick="removeSpecRow(this)">
                                         Remove
                                     </button>
                                 </div>
@@ -876,5 +956,86 @@
             if (!row) return;
             row.remove();
         }
+    </script>
+
+    <script>
+        function updateHighlightUIState() {
+            const wrapper = document.getElementById('highlights-wrapper');
+            const btn = document.getElementById('addHighlightBtn');
+            const hint = document.getElementById('highlightHint');
+            if (!wrapper) return;
+
+            const rows = wrapper.querySelectorAll('.highlight-row');
+            const count = rows.length;
+
+            if (hint) hint.textContent = `${count} / 4 selected`;
+
+            if (btn) {
+                const disabled = count >= 4;
+                btn.disabled = disabled;
+                btn.classList.toggle('opacity-40', disabled);
+                btn.classList.toggle('pointer-events-none', disabled);
+            }
+
+            // 防重复：已选 value 不能再选
+            const selects = wrapper.querySelectorAll('.highlight-select');
+            const chosen = Array.from(selects).map(s => s.value).filter(Boolean);
+
+            selects.forEach(sel => {
+                const current = sel.value;
+                Array.from(sel.options).forEach(opt => {
+                    if (!opt.value) return;
+                    opt.disabled = chosen.includes(opt.value) && opt.value !== current;
+                });
+            });
+        }
+
+        function addHighlightRow() {
+            const wrapper = document.getElementById('highlights-wrapper');
+            const tpl = document.getElementById('highlightRowTemplate');
+            if (!wrapper || !tpl) return;
+
+            const rows = wrapper.querySelectorAll('.highlight-row');
+            if (rows.length >= 4) return;
+
+            const clone = tpl.content.cloneNode(true);
+
+            const index = rows.length;
+            const select = clone.querySelector('[data-name="highlight"]');
+            if (select) select.name = `highlights[${index}]`;
+
+            wrapper.appendChild(clone);
+            updateHighlightUIState();
+        }
+
+        function removeHighlightRow(btn) {
+            const row = btn.closest('.highlight-row');
+            if (!row) return;
+            row.remove();
+
+            const wrapper = document.getElementById('highlights-wrapper');
+            const selects = wrapper.querySelectorAll('.highlight-select');
+
+            // 重新编号 name
+            selects.forEach((s, i) => s.name = `highlights[${i}]`);
+
+            // 删到 0 行就自动留 1 行空的
+            if (selects.length === 0) {
+                addHighlightRow();
+                return;
+            }
+
+            updateHighlightUIState();
+        }
+
+        document.addEventListener('change', (e) => {
+            if (e.target && e.target.classList.contains('highlight-select')) {
+                updateHighlightUIState();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateHighlightUIState();
+        });
     </script>
 @endpush

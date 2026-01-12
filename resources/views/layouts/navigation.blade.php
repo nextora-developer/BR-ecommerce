@@ -61,6 +61,8 @@
                                     to Order</a>
                                 <a href="{{ route('faq') }}"
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">FAQ</a>
+                                <a href="{{ route('vouchers.index') }}"
+                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">Voucher</a>
                             </div>
                         </div>
                     </div>

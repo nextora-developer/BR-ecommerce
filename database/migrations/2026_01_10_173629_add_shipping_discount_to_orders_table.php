@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // up()
         Schema::table('orders', function (Blueprint $table) {
-            $table->decimal('shipping_discount', 10, 2)->default(0)->after('shipping_fee');
+            if (!Schema::hasColumn('orders', 'shipping_discount')) {
+                $table->decimal('shipping_discount', 10, 2)
+                    ->default(0)
+                    ->after('shipping_fee');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('orders', 'shipping_discount')) {
+                $table->dropColumn('shipping_discount');
+            }
         });
     }
 };

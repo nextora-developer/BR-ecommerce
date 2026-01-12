@@ -74,6 +74,10 @@ class AdminProductController extends Controller
             'variants.*.price'      => ['nullable', 'numeric', 'min:0'],
             'variants.*.stock'      => ['nullable', 'integer', 'min:0'],
 
+            // ⭐ Highlights dropdown (最多4个)
+            'highlights'   => ['nullable', 'array', 'max:4'],
+            'highlights.*' => ['nullable', 'string', 'max:50'],
+
             // ⭐ Shopee-style 规格（Additional Info）
             'specs'              => ['nullable', 'array'],
             'specs.*.name'       => ['nullable', 'string', 'max:255'],
@@ -101,8 +105,10 @@ class AdminProductController extends Controller
         // 先拿出来 variants & specs & images，剩下的是 products 表的数据
         $variantsInput = $data['variants'] ?? [];
         $specsInput    = $data['specs'] ?? [];
+        $highlightsInput = $data['highlights'] ?? [];
 
         unset($data['variants']);
+        unset($data['highlights']); // ✅ 新增
 
         $imagesInput = $request->file('images', []); // 这里直接从 request 拿 file
 
@@ -128,8 +134,19 @@ class AdminProductController extends Controller
             $data['stock'] = $data['stock'] ?? 0;
         }
 
+        // ⭐ 处理 highlights：过滤空 + 最多4个 + 去重（避免重复选）
+        $highlights = collect($highlightsInput)
+            ->filter(fn($v) => filled($v))
+            ->unique()
+            ->take(4)
+            ->values()
+            ->all();
+
+        $data['highlights'] = $highlights;
+
         // ⭐ 把处理好的 specs 塞回 data
         $data['specs'] = $specs;
+
 
         // 先创建产品（先不处理 image 字段）
         $product = Product::create($data);
@@ -296,6 +313,10 @@ class AdminProductController extends Controller
             'variants.*.price'      => ['nullable', 'numeric', 'min:0'],
             'variants.*.stock'      => ['nullable', 'integer', 'min:0'],
 
+            // ⭐ Highlights dropdown (最多4个)
+            'highlights'   => ['nullable', 'array', 'max:4'],
+            'highlights.*' => ['nullable', 'string', 'max:50'],
+
             // ⭐ Shopee-style 规格（Additional Info）
             'specs'              => ['nullable', 'array'],
             'specs.*.name'       => ['nullable', 'string', 'max:255'],
@@ -323,8 +344,12 @@ class AdminProductController extends Controller
         // 拆出 variants / specs，其余为 products 字段
         $variantsInput = $data['variants'] ?? [];
         $specsInput    = $data['specs'] ?? [];
+        $highlightsInput = $data['highlights'] ?? [];
+
 
         unset($data['variants']);
+        unset($data['highlights']); // ✅ 新增
+
 
         $imagesInput = $request->file('images', []);
 
@@ -347,6 +372,16 @@ class AdminProductController extends Controller
         } else {
             $data['stock'] = $data['stock'] ?? 0;
         }
+
+        $highlights = collect($highlightsInput)
+            ->filter(fn($v) => filled($v))
+            ->unique()
+            ->take(4)
+            ->values()
+            ->all();
+
+        $data['highlights'] = $highlights;
+
 
         // ⭐ 保存 specs
         $data['specs'] = $specs;

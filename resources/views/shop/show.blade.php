@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="bg-[#F8F8F9] min-h-screen font-sans antialiased text-gray-900 py-6 sm:py-10">
+    <div class="bg-[#FAF9F6] min-h-screen font-sans antialiased text-gray-900 py-6 sm:py-10">
         <div class="max-w-7xl5 mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Breadcrumb --}}
@@ -65,11 +65,11 @@
                                                 viewBox="0 0 24 24" class="h-6 w-6">
                                                 <path
                                                     d="M12 21.35l-1.45-1.32C5.4 15.36
-                                                                                               2 12.28 2 8.5 2 5.42 4.42
-                                                                                               3 7.5 3c1.74 0 3.41.81 4.5
-                                                                                               2.09C13.09 3.81 14.76 3 16.5
-                                                                                               3 19.58 3 22 5.42 22 8.5c0
-                                                                                               3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                                                                                                                                               2 12.28 2 8.5 2 5.42 4.42
+                                                                                                                                                                               3 7.5 3c1.74 0 3.41.81 4.5
+                                                                                                                                                                               2.09C13.09 3.81 14.76 3 16.5
+                                                                                                                                                                               3 19.58 3 22 5.42 22 8.5c0
+                                                                                                                                                                               3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                             </svg>
                                         </button>
                                     </form>
@@ -200,39 +200,126 @@
                                 </div>
                             </div>
 
-                            {{-- Feature Bar / 信任条 --}}
-                            <div class="grid grid-cols-2 gap-4 mb-6">
+                            {{-- Feature Bar / 信任条（Dynamic from Admin Highlights） --}}
+                            @php
+                                $highlightMap = [
+                                    'ships_1_3' => [
+                                        'text' => 'Ships in 1–3 working days',
+                                        'icon' => 'check',
+                                        'text_class' => 'text-[#8f6a10]',
+                                    ],
+                                    'returns_7' => [
+                                        'text' => 'Easy returns within 7 days',
+                                        'icon' => 'return',
+                                        'text_class' => 'text-gray-600',
+                                    ],
+                                    'authentic' => [
+                                        'text' => '100% Authentic guarantee',
+                                        'icon' => 'badge',
+                                        'text_class' => 'text-[#8f6a10]',
+                                    ],
+                                    'support' => [
+                                        'text' => 'Friendly customer support',
+                                        'icon' => 'support',
+                                        'text_class' => 'text-gray-600',
+                                    ],
+                                    'secure' => [
+                                        'text' => 'Secure payment checkout',
+                                        'icon' => 'lock',
+                                        'text_class' => 'text-[#8f6a10]',
+                                    ],
+                                    'cod' => [
+                                        'text' => 'Cash on delivery available',
+                                        'icon' => 'cash',
+                                        'text_class' => 'text-gray-600',
+                                    ],
+                                    'pickup' => [
+                                        'text' => 'Self-pickup available',
+                                        'icon' => 'pickup',
+                                        'text_class' => 'text-gray-600',
+                                    ],
+                                    'warranty' => [
+                                        'text' => 'Warranty included (if applicable)',
+                                        'icon' => 'warranty',
+                                        'text_class' => 'text-gray-600',
+                                    ],
+                                ];
+                            @endphp
 
-                                <div
-                                    class="flex items-center gap-3 p-3 rounded-2xl
-                                            bg-[#D4AF37]/10 border border-[#D4AF37]/20">
-                                    <div class="p-2 bg-white rounded-xl shadow-sm">
-                                        <svg class="w-4 h-4 text-[#8f6a10]" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24" stroke-width="1.8">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-[12px] font-medium text-[#8f6a10]">
-                                        Ships in 1–3 working days
-                                    </span>
+                            @if (!empty($product->highlights) && is_array($product->highlights))
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    @foreach ($product->highlights as $key)
+                                        @php $h = $highlightMap[$key] ?? null; @endphp
+                                        @continue(!$h)
+
+                                        <div
+                                            class="flex items-center gap-3 p-3 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/20">
+                                            <div class="p-2 bg-white rounded-xl shadow-sm">
+                                                {{-- Icons --}}
+                                                @if ($h['icon'] === 'check')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                @elseif($h['icon'] === 'return')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                                                    </svg>
+                                                @elseif($h['icon'] === 'lock')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.9" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                                    </svg>
+                                                @elseif($h['icon'] === 'support')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                                                    </svg>
+                                                @elseif($h['icon'] === 'cash')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                                                    </svg>
+                                                @elseif($h['icon'] === 'pickup')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+                                                    </svg>
+                                                @elseif($h['icon'] === 'warranty')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                                                    </svg>
+                                                @elseif($h['icon'] === 'badge')
+                                                    <svg class="w-4 h-4 text-[#8f6a10]" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z" />
+                                                    </svg>
+                                                @endif
+                                            </div>
+
+                                            <span class="text-[12px] font-medium {{ $h['text_class'] }}">
+                                                {{ $h['text'] }}
+                                            </span>
+                                        </div>
+                                    @endforeach
                                 </div>
-
-                                <div
-                                    class="flex items-center gap-3 p-3 rounded-2xl
-                                            bg-[#D4AF37]/10 border border-[#D4AF37]/20">
-                                    <div class="p-2 bg-white rounded-xl shadow-sm">
-                                        <svg class="w-4 h-4 text-[#8f6a10]" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24" stroke-width="1.8">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-[12px] font-medium text-gray-600">
-                                        Easy returns within 7 days
-                                    </span>
-                                </div>
-
-                            </div>
+                            @endif
 
 
                             {{-- Short Description --}}

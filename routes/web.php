@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\VoucherPageController;
 
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -76,6 +77,8 @@ if (app()->environment('local')) {
 
 Route::get('/how-to-order', [PageController::class, 'howToOrder'])->name('how-to-order');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/vouchers', [VoucherPageController::class, 'index'])->name('vouchers.index');
+
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/shipping-delivery', [PageController::class, 'shipping'])->name('shipping');
 Route::get('/returns-refunds', [PageController::class, 'returns'])->name('returns');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Voucher;
 use App\Models\Banner;
 use Illuminate\Http\Request;
 
@@ -16,16 +17,28 @@ class ShopController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $categories = Category::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
         $featured = Product::where('is_active', true)
             ->latest()
             ->limit(10)
             ->get();
 
-        $categories = Category::where('is_active', true)
-            ->orderBy('sort_order')
+        $homeVouchers = Voucher::query()
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })
+            ->latest()
+            ->take(2)
             ->get();
 
-        return view('shop.home', compact('featured', 'categories', 'banners'));
+        return view('shop.home', compact('featured', 'categories', 'banners', 'homeVouchers'));
     }
 
     // Shop listing + Search

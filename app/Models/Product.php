@@ -16,6 +16,7 @@ class Product extends Model
         'slug',
         'short_description',
         'description',
+        'highlights',
         'specs',
         'price',
         'stock',
@@ -27,6 +28,7 @@ class Product extends Model
 
     protected $casts = [
         'specs' => 'array',
+        'highlights' => 'array',
     ];
 
 

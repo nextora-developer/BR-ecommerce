@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="bg-[#FAF9F6] min-h-screen">
+    <div class="bg-[#F9F7F2] min-h-screen">
         <div class="max-w-7xl5 mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
 
             {{-- Header + 小标题 --}}
