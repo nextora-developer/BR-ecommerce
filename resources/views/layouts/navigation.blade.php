@@ -166,7 +166,7 @@
                                             class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
                                             text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
                                             {{ request()->routeIs('account.index') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            Account
+                                            Dashboard
                                         </a>
 
                                         <a href="{{ route('account.orders.index') }}"
@@ -180,7 +180,21 @@
                                             class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
                                             text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
                                             {{ request()->routeIs('account.favorites.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            Wishlist
+                                            My Wishlist
+                                        </a>
+
+                                        <a href="{{ route('account.address.index') }}"
+                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
+                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
+                                            {{ request()->routeIs('account.address.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
+                                            Shipping Addresses
+                                        </a>
+
+                                        <a href="{{ route('account.profile.edit') }}"
+                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
+                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
+                                            {{ request()->routeIs('account.profile.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
+                                            Profile Settings
                                         </a>
 
                                         <div class="my-1 border-t border-white/10"></div>

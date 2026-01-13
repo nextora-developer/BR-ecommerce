@@ -25,6 +25,9 @@ class User extends Authenticatable
         'phone',
         'is_active',
         'ic_number',
+        'birth_date',
+        'ic_image',
+        'is_verified',
     ];
 
     /**
@@ -46,9 +49,13 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'birth_date'        => 'date',
+            'password'          => 'hashed',
             'is_admin'          => 'boolean',
             'is_active'         => 'boolean',
+            'is_verified'       => 'boolean',
+            'verified_at'       => 'datetime',
+
         ];
     }
 

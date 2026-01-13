@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+
 
 class AdminUserController extends Controller
 {
@@ -67,17 +70,44 @@ class AdminUserController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
             'phone' => ['nullable', 'string', 'max:30'],
-            'password'  => ['nullable', 'string', 'min:8'],
-            'is_active' => ['nullable', 'boolean'],
+
+            'ic_number'  => ['nullable', 'string', 'max:30'],
+            'birth_date' => ['nullable', 'date'],
+            'ic_image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+
+            'password'   => ['nullable', 'string', 'min:8'],
+            'is_active'  => ['nullable', 'boolean'],
+            'is_verified' => ['nullable', 'boolean'],
         ]);
 
         $user->name  = $data['name'];
         $user->email = $data['email'];
         $user->phone = $data['phone'] ?? null;
+
+        // identity fields
+        $user->ic_number  = $data['ic_number'] ?? $user->ic_number;
+        $user->birth_date = $data['birth_date'] ?? $user->birth_date;
+
+        // active
         $user->is_active = (bool) ($data['is_active'] ?? false);
 
+        // verified
+        $isVerified = (bool) ($data['is_verified'] ?? false);
+        if ($isVerified && !$user->is_verified) $user->verified_at = now();
+        if (!$isVerified) $user->verified_at = null;
+        $user->is_verified = $isVerified;
+
+        // password
         if (!empty($data['password'])) {
-            $user->password = bcrypt($data['password']);
+            $user->password = Hash::make($data['password']);
+        }
+
+        // ic image upload
+        if ($request->hasFile('ic_image')) {
+            if ($user->ic_image && Storage::disk('public')->exists($user->ic_image)) {
+                Storage::disk('public')->delete($user->ic_image);
+            }
+            $user->ic_image = $request->file('ic_image')->store('ic-images', 'public');
         }
 
         $user->save();

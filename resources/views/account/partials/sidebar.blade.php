@@ -62,7 +62,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M4.318 6.318a5.5 5.5 0 017.778 0L12 6.586l-.096-.097a5.5 5.5 0 117.778 7.778L12 21.192l-7.682-7.682a5.5 5.5 0 010-7.192z" />
             </svg>
-            <span>Wishlist</span>
+            <span>My Wishlist</span>
         </a>
 
         {{-- Addresses --}}

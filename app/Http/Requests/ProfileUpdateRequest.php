@@ -17,6 +17,7 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name'       => ['required', 'string', 'max:255'],
+
             'email'      => [
                 'required',
                 'string',
@@ -24,8 +25,11 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+
             'phone'      => ['nullable', 'string', 'max:20'],
-            'ic_number'  => ['nullable', 'string', 'max:20'], // 👈 新加的
+            'ic_number'  => ['nullable', 'string', 'max:20'],
+            'birth_date' => ['nullable', 'date'],
+            'ic_image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 }
