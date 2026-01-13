@@ -52,6 +52,32 @@
                                     placeholder="auto-generated-if-empty">
                             </div>
                         </div>
+
+                        <div>
+                            <label class="block text-[13px] font-bold text-gray-700 mb-2">
+                                Parent Category
+                                <span class="text-gray-400 font-normal">(Optional)</span>
+                            </label>
+
+                            <div class="relative">
+                                <select name="parent_id"
+                                    class="w-full rounded-xl border-gray-200 bg-gray-50/50 px-4 py-3
+                                            focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 transition-all">
+                                    <option value="">— None (This is a Parent Category) —</option>
+
+                                    @foreach ($parents ?? collect() as $p)
+                                        <option value="{{ $p->id }}" @selected(old('parent_id', $category->parent_id) == $p->id)>
+                                            {{ $p->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                <p class="mt-2 text-xs text-gray-500">
+                                    Choose a parent to make this a sub-category.
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 

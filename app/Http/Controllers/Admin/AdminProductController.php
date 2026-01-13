@@ -43,13 +43,19 @@ class AdminProductController extends Controller
 
     public function create()
     {
-        $categories = Category::orderBy('sort_order')->orderBy('name')->get();
+        $categories = Category::whereNotNull('parent_id')
+            ->with('parent')
+            ->orderBy('parent_id')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.products.form', [
             'product'    => new Product(),
             'categories' => $categories,
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -282,13 +288,18 @@ class AdminProductController extends Controller
 
     public function edit(Product $product)
     {
-        // 多 load 一个 images
         $product->load('variants', 'images');
 
-        $categories = Category::orderBy('sort_order')->orderBy('name')->get();
+        $categories = Category::whereNotNull('parent_id')
+            ->with('parent')
+            ->orderBy('parent_id')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.products.form', compact('product', 'categories'));
     }
+
 
     public function update(Request $request, Product $product)
     {

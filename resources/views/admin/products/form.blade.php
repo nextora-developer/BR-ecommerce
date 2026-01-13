@@ -78,17 +78,23 @@
                         <label class="text-xs uppercase font-black tracking-widest text-gray-400">
                             Category
                         </label>
+
                         <select name="category_id"
-                            class="mt-1.5 w-full rounded-xl border-gray-200
-                                       focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 font-medium">
+                            class="mt-1.5 w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 font-medium">
                             <option value="">— None —</option>
+
                             @foreach ($categories as $c)
                                 <option value="{{ $c->id }}" @selected(old('category_id', $product->category_id) == $c->id)>
-                                    {{ $c->name }}
+                                    {{ $c->parent?->name ? $c->parent->name . ' › ' : '' }}{{ $c->name }}
                                 </option>
                             @endforeach
                         </select>
+
+                        <p class="mt-2 text-xs text-gray-400">
+                            Select a sub-category (recommended)
+                        </p>
                     </div>
+
                 </div>
             </div>
 
@@ -161,40 +167,14 @@
                     }
                 @endphp
 
-                    <div id="highlights-wrapper" class="space-y-2">
-                        @foreach ($selectedHighlights as $i => $val)
-                            <div class="flex gap-2 items-center highlight-row">
-                                <select name="highlights[{{ $i }}]" class="form-input flex-1 highlight-select">
-                                    <option value="">— Select highlight —</option>
-                                    @foreach ($highlightOptions as $k => $label)
-                                        <option value="{{ $k }}" @selected($val === $k)>
-                                            {{ $label }}</option>
-                                    @endforeach
-                                </select>
-
-                                <button type="button" class="px-2 text-xs text-red-500" onclick="removeHighlightRow(this)">
-                                    Remove
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="flex items-center justify-between mt-3">
-                        <button type="button" id="addHighlightBtn"
-                            class="inline-flex items-center px-3 py-1 text-xs border rounded-lg hover:bg-gray-50"
-                            onclick="addHighlightRow()">
-                            + Add Highlight
-                        </button>
-
-                        <span id="highlightHint" class="text-xs text-gray-500"></span>
-                    </div>
-
-                    <template id="highlightRowTemplate">
+                <div id="highlights-wrapper" class="space-y-2">
+                    @foreach ($selectedHighlights as $i => $val)
                         <div class="flex gap-2 items-center highlight-row">
-                            <select class="form-input flex-1 highlight-select" data-name="highlight">
+                            <select name="highlights[{{ $i }}]" class="form-input flex-1 highlight-select">
                                 <option value="">— Select highlight —</option>
                                 @foreach ($highlightOptions as $k => $label)
-                                    <option value="{{ $k }}">{{ $label }}</option>
+                                    <option value="{{ $k }}" @selected($val === $k)>
+                                        {{ $label }}</option>
                                 @endforeach
                             </select>
 
@@ -202,7 +182,33 @@
                                 Remove
                             </button>
                         </div>
-                    </template>
+                    @endforeach
+                </div>
+
+                <div class="flex items-center justify-between mt-3">
+                    <button type="button" id="addHighlightBtn"
+                        class="inline-flex items-center px-3 py-1 text-xs border rounded-lg hover:bg-gray-50"
+                        onclick="addHighlightRow()">
+                        + Add Highlight
+                    </button>
+
+                    <span id="highlightHint" class="text-xs text-gray-500"></span>
+                </div>
+
+                <template id="highlightRowTemplate">
+                    <div class="flex gap-2 items-center highlight-row">
+                        <select class="form-input flex-1 highlight-select" data-name="highlight">
+                            <option value="">— Select highlight —</option>
+                            @foreach ($highlightOptions as $k => $label)
+                                <option value="{{ $k }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+
+                        <button type="button" class="px-2 text-xs text-red-500" onclick="removeHighlightRow(this)">
+                            Remove
+                        </button>
+                    </div>
+                </template>
             </div>
 
 

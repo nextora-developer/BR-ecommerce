@@ -52,13 +52,24 @@
                             class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700
                                    focus:border-[#D4AF37] focus:ring-[#D4AF37]/30">
                             <option value="">All categories</option>
+
                             @isset($categories)
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>
-                                        {{ $category->name }}
-                                    </option>
+                                @foreach ($categories as $parent)
+                                    <optgroup label="{{ $parent->name }}">
+                                        {{-- 选 parent（显示该 parent 下所有 sub 的产品） --}}
+                                        <option value="{{ $parent->slug }}" @selected(request('category') === $parent->slug)>
+                                            All {{ $parent->name }}
+                                        </option>
+
+                                        @foreach ($parent->children as $child)
+                                            <option value="{{ $child->slug }}" @selected(request('category') === $child->slug)>
+                                                {{ $child->name }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
                                 @endforeach
                             @endisset
+
                         </select>
                     </div>
 

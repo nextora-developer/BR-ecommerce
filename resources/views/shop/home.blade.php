@@ -67,46 +67,63 @@
 
         {{-- Category Section: Boutique Shelf Look --}}
         <section id="categories" class="relative">
-            <div class="relative max-w-7xl5 mx-auto px-6 py-2">
-                <div class="flex items-center justify-between mb-10">
-                    <h3 class="text-sm uppercase tracking-[0.4em] text-[#D4AF37] font-bold">Browse by Category</h3>
+            <div class="relative max-w-7xl5 mx-auto px-6 py-6">
+                <div class="flex items-center justify-between mb-12">
+                    <h3 class="text-sm uppercase tracking-[0.4em] text-[#D4AF37] font-bold">
+                        Browse by Category
+                    </h3>
                 </div>
 
                 @if (isset($categories) && $categories->count())
                     <div class="overflow-x-auto scrollbar-hide select-none" data-scroll-x>
-                        <div class="flex gap-5 min-w-max pb-4">
+                        <div class="flex gap-3 min-w-max pb-6">
                             @foreach ($categories as $category)
                                 <a href="{{ route('shop.index', ['category' => $category->slug]) }}"
-                                    class="group block w-[100px] text-center">
+                                    class="group block w-[110px] sm:w-[130px] lg:w-[140px] text-center">
 
                                     {{-- Floating Icon Container --}}
-                                    <div class="relative mx-auto w-20 h-20 mb-4">
+                                    <div class="relative mx-auto w-24 h-24 sm:w-28 sm:h-28 mb-4 sm:mb-5">
+                                        {{-- Back floating card --}}
                                         <div
-                                            class="absolute inset-0 bg-white rounded-3xl rotate-0 group-hover:rotate-12 transition-transform duration-500 border border-black/[0.03] shadow-sm">
+                                            class="absolute inset-0 bg-white rounded-[1.75rem] sm:rounded-[2rem]
+                               rotate-0 group-hover:rotate-12 transition-transform duration-500
+                               border border-black/[0.03] shadow-sm">
                                         </div>
+
+                                        {{-- Main card --}}
                                         <div
-                                            class="relative w-full h-full rounded-3xl overflow-hidden bg-white border border-black/[0.05] shadow-sm flex items-center justify-center transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-xl group-hover:shadow-[#D4AF37]/10">
+                                            class="relative w-full h-full rounded-[1.75rem] sm:rounded-[2rem] overflow-hidden
+                               bg-white border border-black/[0.05] shadow-md
+                               flex items-center justify-center
+                               transition-all duration-500
+                               group-hover:-translate-y-2 sm:group-hover:-translate-y-3
+                               group-hover:shadow-xl group-hover:shadow-[#D4AF37]/15">
                                             @if ($category->icon)
                                                 <img src="{{ asset('storage/' . $category->icon) }}"
                                                     alt="{{ $category->name }}" class="w-full h-full object-cover">
                                             @else
                                                 <span
-                                                    class="text-[10px] text-black/20 font-bold uppercase tracking-tighter">Essence</span>
+                                                    class="text-[10px] sm:text-[11px] text-black/20 font-bold uppercase tracking-tight">
+                                                    No Image
+                                                </span>
                                             @endif
                                         </div>
                                     </div>
 
                                     <span
-                                        class="text-[12px] font-bold text-black/60 tracking-tight transition-colors duration-300 group-hover:text-black">
+                                        class="block text-[12px] sm:text-[13px] font-bold text-black/70 tracking-tight
+                           transition-colors duration-300 group-hover:text-black">
                                         {{ $category->name }}
                                     </span>
                                 </a>
                             @endforeach
                         </div>
                     </div>
+
                 @endif
             </div>
         </section>
+
 
         {{-- Partials --}}
         @include('shop.partials.new-arrivals')

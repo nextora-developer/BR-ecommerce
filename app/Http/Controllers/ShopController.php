@@ -18,8 +18,16 @@ class ShopController extends Controller
             ->get();
 
         $categories = Category::where('is_active', true)
+            ->whereNull('parent_id') // ✅ 只拿 parent
+            ->with(['children' => function ($q) {
+                $q->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('name');
+            }])
             ->orderBy('sort_order')
+            ->orderBy('name')
             ->get();
+
 
         $featured = Product::where('is_active', true)
             ->latest()
@@ -54,9 +62,24 @@ class ShopController extends Controller
         }
 
         if ($categorySlug = $request->category) {
-            $query->whereHas('category', function ($q) use ($categorySlug) {
-                $q->where('slug', $categorySlug);
-            });
+            $cat = Category::where('slug', $categorySlug)
+                ->where('is_active', true)
+                ->first();
+
+            if ($cat) {
+                if (is_null($cat->parent_id)) {
+                    // ✅ parent：筛选它所有 sub 的 products
+                    $subIds = Category::where('parent_id', $cat->id)
+                        ->where('is_active', true)
+                        ->pluck('id');
+
+                    // 没有 sub 就返回空（避免 parent 误显示全部产品）
+                    $query->whereIn('category_id', $subIds->all());
+                } else {
+                    // ✅ sub：直接筛
+                    $query->where('category_id', $cat->id);
+                }
+            }
         }
 
         switch ($request->sort) {
@@ -74,7 +97,16 @@ class ShopController extends Controller
         }
 
         $products = $query->paginate(15);
-        $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
+        
+        $categories = Category::where('is_active', true)
+            ->whereNull('parent_id')
+            ->with(['children' => function ($q) {
+                $q->where('is_active', true)->orderBy('sort_order')->orderBy('name');
+            }])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
 
         return view('shop.index', compact('products', 'categories'));
     }

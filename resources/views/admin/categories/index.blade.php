@@ -83,8 +83,38 @@
                                             </svg>
                                         @endif
                                     </div>
-                                    <span
-                                        class="font-bold text-gray-900 group-hover:text-[#8f6a10] transition-colors">{{ $c->name }}</span>
+                                    @php
+                                        $isSub = !is_null($c->parent_id);
+                                    @endphp
+
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="font-bold text-gray-900 group-hover:text-[#8f6a10] transition-colors
+                                                    {{ $isSub ? 'ml-6' : '' }}">
+                                            {{ $c->name }}
+                                        </span>
+
+                                        @if ($isSub)
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black
+                                                        bg-[#D4AF37]/10 text-[#8f6a10] border border-[#D4AF37]/20 uppercase tracking-wider">
+                                                Sub
+                                            </span>
+                                        @else
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black
+                                                        bg-gray-50 text-gray-500 border border-gray-100 uppercase tracking-wider">
+                                                Parent
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    @if ($isSub && $c->parent)
+                                        <div class="mt-1 text-[11px] text-gray-400 {{ $isSub ? 'ml-6' : '' }}">
+                                            {{ $c->parent->name }} <span class="mx-1">›</span> {{ $c->name }}
+                                        </div>
+                                    @endif
+
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500 font-mono italic">{{ $c->slug }}</td>
@@ -109,13 +139,25 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('admin.products.index', ['category' => $c->id]) }}"
-                                    class="inline-flex items-baseline gap-1 group/link">
-                                    <span
-                                        class="text-sm font-bold text-gray-900 group-hover/link:text-blue-600">{{ $c->products_count }}</span>
-                                    <span class="text-[11px] text-gray-400 uppercase font-medium">products</span>
-                                </a>
+                                @if (is_null($c->parent_id))
+                                    {{-- Parent category：只显示 sub --}}
+                                    <span class="inline-flex items-baseline gap-1">
+                                        <span class="text-sm font-bold text-gray-900">{{ $c->children_count }}</span>
+                                        <span class="text-[11px] text-gray-400 uppercase font-medium">sub</span>
+                                    </span>
+                                @else
+                                    {{-- Sub category：显示 products --}}
+                                    <a href="{{ route('admin.products.index', ['category' => $c->id]) }}"
+                                        class="inline-flex items-baseline gap-1 group/link">
+                                        <span class="text-sm font-bold text-gray-900 group-hover/link:text-blue-600">
+                                            {{ $c->products_count }}
+                                        </span>
+                                        <span class="text-[11px] text-gray-400 uppercase font-medium">products</span>
+                                    </a>
+                                @endif
                             </td>
+
+
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="{{ route('admin.categories.edit', $c) }}"
