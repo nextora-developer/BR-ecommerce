@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ReferralLog;
+use App\Models\PointTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -22,9 +23,21 @@ class AccountReferralController extends Controller
 
         $stats = [
             'total' => ReferralLog::where('referrer_id', $user->id)->count(),
-            'points' => 0,
+            'points' => (int) $user->points_balance,
         ];
 
-        return view('account.referral.index', compact('user', 'refLink', 'referrals', 'stats'));
+        $pointTransactions = PointTransaction::with(['user'])
+            ->where('user_id', $user->id)
+            ->where('source', 'referral')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('account.referral.index', compact(
+            'user',
+            'stats',
+            'referrals',
+            'pointTransactions'
+        ));
     }
 }

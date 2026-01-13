@@ -204,6 +204,89 @@
                             @endif
                         </div>
                     </section>
+
+                    {{-- Points Transactions --}}
+                    <section>
+                        <div class="flex items-center justify-between mb-5 px-2 mt-10">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <span class="w-1.5 h-6 bg-[#D4AF37] rounded-full"></span>
+                                Points History
+                            </h2>
+                        </div>
+
+                        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-gray-50/70 border-b border-gray-100">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-4 text-left text-[11px] font-black uppercase tracking-wider text-gray-400">
+                                                Date
+                                            </th>
+                                            <th
+                                                class="px-6 py-4 text-left text-[11px] font-black uppercase tracking-wider text-gray-400">
+                                                Source
+                                            </th>
+                                            <th
+                                                class="px-6 py-4 text-right text-[11px] font-black uppercase tracking-wider text-gray-400">
+                                                Points
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="divide-y divide-gray-50">
+                                        @forelse ($pointTransactions as $tx)
+                                            <tr class="hover:bg-[#FAF9F6] transition-colors">
+                                                <td class="px-6 py-4 text-gray-500">
+                                                    {{ $tx->created_at->format('M d, Y') }}
+                                                </td>
+
+                                                <td class="px-6 py-4">
+                                                    <div class="text-gray-900 font-semibold">
+                                                        Referral Order
+                                                    </div>
+                                                    <div class="text-xs text-gray-500">
+                                                        {{ $tx->note ?? 'Referral reward' }}
+                                                    </div>
+                                                </td>
+
+                                                <td class="px-6 py-4 text-right">
+                                                    <span class="font-black text-emerald-600">
+                                                        +{{ number_format($tx->points) }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="px-6 py-12 text-center">
+                                                    <div
+                                                        class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gray-50 text-gray-300 mb-4">
+                                                        <svg class="w-7 h-7" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                stroke-width="1.5" stroke-linecap="round"
+                                                                stroke-linejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                    <h3 class="text-gray-900 font-bold">No points yet</h3>
+                                                    <p class="text-sm text-gray-500 mt-1">
+                                                        Points will appear here after your referrals complete an order.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if ($pointTransactions->hasPages())
+                                <div class="px-6 py-4 border-t border-gray-100">
+                                    {{ $pointTransactions->links() }}
+                                </div>
+                            @endif
+                        </div>
+                    </section>
+
                 </main>
             </div>
         </div>

@@ -256,11 +256,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 |--------------------------------------------------------------------------
 */
 
-// 用户点击「去付款」→ 生成 HitPay Checkout Link
 Route::get('/pay/hitpay/{order}', [HitpayController::class, 'createPayment'])
     ->name('hitpay.pay');
 
-// 付款完成后浏览器跳回
 Route::get('/payment/hitpay/return', [HitpayController::class, 'handleReturn'])
     ->name('hitpay.return');
 

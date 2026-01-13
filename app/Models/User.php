@@ -31,6 +31,7 @@ class User extends Authenticatable
         'is_verified',
         'referral_code',
         'referred_by',
+        'points_balance',
     ];
 
     /**
@@ -111,5 +112,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(\App\Models\Voucher::class, 'voucher_user')
             ->withPivot('used_at');
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by');
     }
 }

@@ -71,7 +71,7 @@ class AccountOrderController extends Controller
 
         $oldStatus = $order->status;
 
-        // 更新为 completed
+        // 更新为 completed（会触发 OrderObserver → 发 points）
         $order->update([
             'status' => 'completed',
         ]);
@@ -79,24 +79,36 @@ class AccountOrderController extends Controller
         $order->refresh();
 
         // ✅ 通知 Admin（用户确认收货）
-        if ($order->customer_email) {
+        $adminTo = config('mail.admin_address') ?: env('MAIL_ADMIN_ADDRESS');
 
-            Log::info('📩 Sending AdminOrderCompletedMail', [
-                'order_no' => $order->order_no,
-                'user'     => $order->customer_email,
-                'to'       => config('mail.admin_address', env('MAIL_ADMIN_ADDRESS')),
-                'old'      => $oldStatus,
-                'new'      => $order->status,
-            ]);
+        if (!empty($adminTo)) {
+            try {
+                Log::info('📩 Sending AdminOrderCompletedMail', [
+                    'order_no' => $order->order_no,
+                    'customer' => $order->customer_email,
+                    'to'       => $adminTo,
+                    'old'      => $oldStatus,
+                    'new'      => $order->status,
+                ]);
 
-            Mail::to(config('mail.admin_address', env('MAIL_ADMIN_ADDRESS')))
-                ->send(new AdminOrderCompletedMail($order, $oldStatus, $order->status));
+                Mail::to($adminTo)->send(new AdminOrderCompletedMail($order, $oldStatus, $order->status));
 
-            Log::info('✅ AdminOrderCompletedMail sent successfully', [
+                Log::info('✅ AdminOrderCompletedMail sent successfully', [
+                    'order_no' => $order->order_no,
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('❌ AdminOrderCompletedMail failed', [
+                    'order_no' => $order->order_no,
+                    'to'       => $adminTo,
+                    'error'    => $e->getMessage(),
+                ]);
+                // 不要 return / throw，让订单照样完成
+            }
+        } else {
+            Log::warning('⚠️ MAIL_ADMIN_ADDRESS not set, skip AdminOrderCompletedMail', [
                 'order_no' => $order->order_no,
             ]);
         }
-
 
         return back()->with('success', 'Order marked as received. Thank you!');
     }

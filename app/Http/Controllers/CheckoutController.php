@@ -341,6 +341,10 @@ class CheckoutController extends Controller
 
     public function success(Order $order)
     {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         abort_if($order->user_id !== auth()->id(), 403);
 
         return view('checkout.success', compact('order'));
