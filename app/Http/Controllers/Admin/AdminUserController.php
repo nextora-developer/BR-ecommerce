@@ -26,12 +26,28 @@ class AdminUserController extends Controller
         }
 
         if ($request->filled('status')) {
-            if ($request->string('status') === 'active') {
+            if ($request->status === 'active') {
                 $q->where('is_active', true);
-            } elseif ($request->string('status') === 'inactive') {
-                $q->where('is_active', false);
+            } else {
+                $q->where(function ($qq) {
+                    $qq->where('is_active', false)
+                        ->orWhereNull('is_active');
+                });
             }
         }
+
+
+        if ($request->filled('verified')) {
+            if ($request->verified === 'verified') {
+                $q->where('is_verified', true);
+            } else {
+                $q->where(function ($qq) {
+                    $qq->where('is_verified', false)
+                        ->orWhereNull('is_verified');
+                });
+            }
+        }
+
 
         $users = $q->latest()->paginate(15)->withQueryString();
 

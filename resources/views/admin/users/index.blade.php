@@ -31,6 +31,15 @@
                 <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
             </select>
 
+            <select name="verified"
+                class="min-w-[160px] py-2.5 bg-gray-50 border-transparent rounded-xl text-sm
+                       focus:bg-white focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] transition-all">
+                <option value="">All Verification</option>
+                <option value="verified" @selected(request('verified') === 'verified')>Verified</option>
+                <option value="unverified" @selected(request('verified') === 'unverified')>Unverified</option>
+            </select>
+
+
             <button
                 class="px-6 py-2.5 rounded-xl bg-[#D4AF37]/10 text-[#8f6a10]
                        border border-[#D4AF37]/20 hover:bg-[#D4AF37] hover:text-white
@@ -58,6 +67,8 @@
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Registered
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            Verification</th>
                         <th class="px-6 py-4"></th>
                     </tr>
                 </thead>
@@ -99,21 +110,39 @@
                                 @endif
                             </td>
 
+                            <td class="px-6 py-4">
+                                @if ($u->is_verified ?? false)
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                                                text-[11px] font-bold bg-emerald-50 text-emerald-700
+                                                border border-emerald-100 uppercase tracking-wider">
+                                        Verified
+                                    </span>
+                                @else
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                                                text-[11px] font-bold bg-gray-50 text-gray-400
+                                                border border-gray-100 uppercase tracking-wider">
+                                        Unverified
+                                    </span>
+                                @endif
+                            </td>
+
+
                             <td class="px-6 py-4 text-right whitespace-nowrap">
                                 <div class="flex items-center justify-end gap-2">
 
                                     {{-- View --}}
                                     <a href="{{ route('admin.users.show', $u) }}"
-                                        class="p-2 rounded-lg text-gray-400 hover:text-[#8f6a10]
-              hover:bg-[#D4AF37]/10 transition-all mr-1"
+                                        class="p-2 rounded-lg text-gray-400 hover:text-[#8f6a10] hover:bg-[#D4AF37]/10 transition-all mr-1"
                                         title="View">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7
-                             -1.274 4.057-5.065 7-9.542 7
-                             -4.477 0-8.268-2.943-9.542-7z" />
+                                         -1.274 4.057-5.065 7-9.542 7
+                                         -4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </a>
 
@@ -125,7 +154,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414
-                             a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                         a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </a>
                                 </div>
