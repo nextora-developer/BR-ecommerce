@@ -276,51 +276,47 @@
             {{-- Home --}}
             <a href="{{ route('home') }}"
                 class="flex flex-col items-center justify-center py-2 rounded-xl
-                {{ request()->routeIs('home') ? 'text-[#D4AF37]' : 'text-gray-300' }}">
+               {{ request()->routeIs('home') ? 'text-[#D4AF37]' : 'text-gray-300' }}">
                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                 </svg>
-
                 <span class="text-[11px] font-bold mt-1">Home</span>
             </a>
 
             {{-- Shop --}}
             <a href="{{ route('shop.index') }}"
                 class="flex flex-col items-center justify-center py-2 rounded-xl
-                {{ request()->routeIs('shop.*') ? 'text-[#D4AF37]' : 'text-gray-300' }}">
+               {{ request()->routeIs('shop.*') ? 'text-[#D4AF37]' : 'text-gray-300' }}">
                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                 </svg>
-
                 <span class="text-[11px] font-bold mt-1">Shop</span>
             </a>
 
-            {{-- Chat (WhatsApp) --}}
-            <a href="https://wa.me/60123011610" target="_blank" rel="noopener noreferrer"
-                class="flex flex-col items-center justify-center py-2 rounded-xl text-gray-300 hover:text-white">
-                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-                </svg>
-
-                <span class="text-[11px] font-bold mt-1">Chat</span>
-            </a>
-
-            {{-- More (包含 Login / Dashboard) --}}
-            <button type="button" onclick="toggleMobileMore(true)"
+            {{-- More --}}
+            <button type="button" onclick="toggleMobileSheet(true, 'more')"
                 class="flex flex-col items-center justify-center py-2 rounded-xl text-gray-300 hover:text-white">
                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
-
                 <span class="text-[11px] font-bold mt-1">More</span>
+            </button>
+
+            {{-- Profile --}}
+            <button type="button" onclick="toggleMobileSheet(true, 'profile')"
+                class="flex flex-col items-center justify-center py-2 rounded-xl text-gray-300 hover:text-white">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0ZM4.5 20.25a7.5 7.5 0 0115 0" />
+                </svg>
+                <span class="text-[11px] font-bold mt-1">Profile</span>
             </button>
 
         </div>
@@ -341,40 +337,112 @@
 @endphp
 
 @if (!request()->routeIs(...$noTabRoutes))
-    {{-- ✅ Mobile More Bottom Sheet --}}
-    <div id="mobileMoreSheet"
+    {{-- ✅ Mobile Bottom Sheet (shared) --}}
+    <div id="mobileSheet"
         class="lg:hidden fixed inset-0 z-[70] invisible opacity-0 transition-all duration-300 overflow-hidden"
         aria-modal="true" role="dialog">
 
-        {{-- Backdrop with soft blur --}}
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleMobileMore(false)"></div>
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleMobileSheet(false)"></div>
 
         {{-- Sheet Container --}}
-        <div id="mobileMoreContent"
-            class="absolute inset-x-0 bottom-0 bg-[#0A0A0A] border-t border-white/10 rounded-t-[2.5rem] p-6 pb-10 transition-transform duration-300 translate-y-full shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <div id="mobileSheetContent"
+            class="absolute inset-x-0 bottom-0 bg-[#0A0A0A] border-t border-white/10 rounded-t-[2.5rem] p-6 pb-10
+                   transition-transform duration-300 translate-y-full shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
 
-            {{-- Handlebar for visual affordance --}}
-            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" onclick="toggleMobileMore(false)"></div>
+            {{-- Handlebar --}}
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" onclick="toggleMobileSheet(false)"></div>
 
-            <div class="flex items-center justify-between mb-8">
-                <div class="w-full">
+            {{-- ====== MORE CONTENT (Cart/Voucher/Help/FAQ) ====== --}}
+            <div id="sheetMore" class="space-y-6">
+                {{-- Title Row --}}
+                <div class="flex items-center justify-between">
+                    <div class="text-white font-black tracking-wide">More</div>
+                    <button type="button" onclick="toggleMobileSheet(false)"
+                        class="text-gray-400 text-sm">Close</button>
+                </div>
+
+                {{-- Core Grid --}}
+                <div class="grid grid-cols-4 gap-4">
+                    @php
+                        $menuItems = [
+                            [
+                                'route' => null,
+                                'label' => 'Chat',
+                                'url' => 'https://wa.me/60123011610',
+                                'icon' =>
+                                    'M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z',
+                            ],
+
+                            [
+                                'route' => 'vouchers.index',
+                                'label' => 'Vouchers',
+                                'icon' =>
+                                    'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
+                            ],
+                            [
+                                'route' => 'how-to-order',
+                                'label' => 'Help',
+                                'icon' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                            ],
+                            [
+                                'route' => 'faq',
+                                'label' => 'FAQ',
+                                'icon' =>
+                                    'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                            ],
+                        ];
+                    @endphp
+
+                    @foreach ($menuItems as $item)
+                        <a href="{{ $item['route'] ? route($item['route']) : $item['url'] }}"
+                            @if (empty($item['route'])) target="_blank" rel="noopener noreferrer" @endif
+                            class="flex flex-col items-center gap-2 group">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400
+                                        group-hover:bg-[#D4AF37]/20 group-hover:text-[#D4AF37] transition-all">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="{{ $item['icon'] }}" />
+                                </svg>
+                            </div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                {{ $item['label'] }}
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+
+                {{-- Highlighted Link --}}
+                <a href="https://brif.cloud/" target="_blank"
+                    class="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#D4AF37]/20 to-transparent border border-[#D4AF37]/20 text-[#D4AF37] mb-6 transition-all active:scale-95">
+                    <span class="font-black tracking-tight">Visit Official Website</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </a>
+
+            </div>
+
+            {{-- ====== PROFILE CONTENT (Auth/Account) ====== --}}
+            <div id="sheetProfile" class="space-y-6 hidden">
+                {{-- Top Card (你原本的 @auth / @else 那段放这里就对了) --}}
+                <div>
                     @auth
+                        {{-- 你原本的 user card 그대로 --}}
                         <div
                             class="flex items-center gap-4 w-full px-5 py-4 rounded-2xl
-                       bg-white/[0.04] border border-white/10
-                       shadow-[0_10px_30px_rgba(0,0,0,0.4)]
-                       hover:border-[#D4AF37]/30 transition-colors">
-
-                            {{-- Avatar --}}
+                                    bg-white/[0.04] border border-white/10
+                                    shadow-[0_10px_30px_rgba(0,0,0,0.4)]
+                                    hover:border-[#D4AF37]/30 transition-colors">
                             <div
                                 class="relative shrink-0 w-12 h-12 rounded-full
-                           bg-gradient-to-br from-[#D4AF37]/30 to-[#8f6a10]/30
-                           flex items-center justify-center
-                           text-[#D4AF37] font-black uppercase">
+                                        bg-gradient-to-br from-[#D4AF37]/30 to-[#8f6a10]/30
+                                        flex items-center justify-center text-[#D4AF37] font-black uppercase">
                                 {{ strtoupper(substr(auth()->user()->name ?? auth()->user()->email, 0, 1)) }}
                             </div>
 
-                            {{-- Name + Email --}}
                             <div class="flex-1 min-w-0">
                                 <div class="text-sm font-black uppercase tracking-wide text-white truncate">
                                     {{ auth()->user()->name ?? 'User' }}
@@ -384,7 +452,6 @@
                                 </div>
                             </div>
 
-                            {{-- Online Status --}}
                             <div class="relative flex h-2.5 w-2.5 shrink-0">
                                 <span
                                     class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-40"></span>
@@ -393,110 +460,37 @@
                         </div>
                     @else
                         <div
-                            class="flex items-center gap-4 w-full px-5 py-4 rounded-2xl
-                       bg-white/[0.04] border border-white/10">
-
+                            class="flex items-center gap-4 w-full px-5 py-4 rounded-2xl bg-white/[0.04] border border-white/10">
                             <div
                                 class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-gray-400 font-black">
-                                ?
-                            </div>
-
+                                ?</div>
                             <div class="flex-1">
-                                <div class="text-sm font-black uppercase tracking-wide text-gray-300">
-                                    Guest
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    Not signed in
-                                </div>
+                                <div class="text-sm font-black uppercase tracking-wide text-gray-300">Guest</div>
+                                <div class="text-sm text-gray-500">Not signed in</div>
                             </div>
                         </div>
                     @endauth
                 </div>
-            </div>
 
-
-            {{-- Core Grid --}}
-            <div class="grid grid-cols-4 gap-4 mb-8">
-                @php
-                    $menuItems = [
-                        [
-                            'route' => 'cart.index',
-                            'label' => 'Cart',
-                            'icon' =>
-                                'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z',
-                        ],
-                        [
-                            'route' => 'vouchers.index',
-                            'label' => 'Vouchers',
-                            'icon' =>
-                                'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
-                        ],
-                        [
-                            'route' => 'how-to-order',
-                            'label' => 'Help',
-                            'icon' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-                        ],
-                        [
-                            'route' => 'faq',
-                            'label' => 'FAQ',
-                            'icon' =>
-                                'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-                        ],
-                    ];
-                @endphp
-
-                @foreach ($menuItems as $item)
-                    <a href="{{ route($item['route']) }}" class="flex flex-col items-center gap-2 group">
-                        <div
-                            class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-[#D4AF37]/20 group-hover:text-[#D4AF37] transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="{{ $item['icon'] }}" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{{ $item['label'] }}</span>
-                    </a>
-                @endforeach
-            </div>
-
-            {{-- Highlighted Link --}}
-            {{-- <a href="https://brif.cloud/" target="_blank"
-                class="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#D4AF37]/20 to-transparent border border-[#D4AF37]/20 text-[#D4AF37] mb-6 transition-all active:scale-95">
-                <span class="font-black tracking-tight">Visit Official Website</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-            </a> --}}
-
-            {{-- ================= Account (App-style Sidebar) ================= --}}
-            @auth
-                <div class="space-y-3 mb-8">
-
+                {{-- Account links --}}
+                @auth
                     <div class="rounded-3xl bg-white/[0.04] border border-white/10 overflow-hidden">
-
-                        {{-- Dashboard --}}
                         <a href="{{ route('account.index') }}"
-                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white
-                  border-b border-white/10 active:bg-white/5 transition">
+                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white border-b border-white/10 active:bg-white/5 transition">
                             <div class="flex items-center gap-3">
-
                                 <svg class="w-5 h-5 text-[#D4AF37]" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
                                 </svg>
-
                                 <span>Dashboard</span>
                             </div>
+
                             <span class="w-2 h-2 border-r-2 border-b-2 border-white/40 rotate-[-45deg]"></span>
                         </a>
 
-                        {{-- Orders --}}
                         <a href="{{ route('account.orders.index') }}"
-                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white
-                  border-b border-white/10 active:bg-white/5 transition">
+                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white border-b border-white/10 active:bg-white/5 transition">
                             <div class="flex items-center gap-3">
                                 <svg class="w-5 h-5 text-[#D4AF37]" fill="none" stroke="currentColor"
                                     stroke-width="1.5" viewBox="0 0 24 24">
@@ -505,13 +499,12 @@
                                 </svg>
                                 <span>My Orders</span>
                             </div>
+
                             <span class="w-2 h-2 border-r-2 border-b-2 border-white/40 rotate-[-45deg]"></span>
                         </a>
 
-                        {{-- Wishlist --}}
                         <a href="{{ route('account.favorites.index') }}"
-                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white
-                  border-b border-white/10 active:bg-white/5 transition">
+                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white border-b border-white/10 active:bg-white/5 transition">
                             <div class="flex items-center gap-3">
                                 <svg class="w-5 h-5 text-[#D4AF37]" fill="none" stroke="currentColor"
                                     stroke-width="1.5" viewBox="0 0 24 24">
@@ -520,13 +513,12 @@
                                 </svg>
                                 <span>My Wishlist</span>
                             </div>
+
                             <span class="w-2 h-2 border-r-2 border-b-2 border-white/40 rotate-[-45deg]"></span>
                         </a>
 
-                        {{-- Referral --}}
                         <a href="{{ route('account.referral.index') }}"
-                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white
-                  border-b border-white/10 active:bg-white/5 transition">
+                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white border-b border-white/10 active:bg-white/5 transition">
                             <div class="flex items-center gap-3">
                                 <svg class="h-5 w-5 text-[#D4AF37]" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -535,14 +527,12 @@
                                 </svg>
                                 <span>Referral</span>
                             </div>
+
                             <span class="w-2 h-2 border-r-2 border-b-2 border-white/40 rotate-[-45deg]"></span>
                         </a>
 
-
-                        {{-- Addresses --}}
                         <a href="{{ route('account.address.index') }}"
-                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white
-                  border-b border-white/10 active:bg-white/5 transition">
+                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white border-b border-white/10 active:bg-white/5 transition">
                             <div class="flex items-center gap-3">
                                 <svg class="w-5 h-5 text-[#D4AF37]" fill="none" stroke="currentColor"
                                     stroke-width="1.5" viewBox="0 0 24 24">
@@ -553,61 +543,51 @@
                                 </svg>
                                 <span>Shipping Addresses</span>
                             </div>
+
                             <span class="w-2 h-2 border-r-2 border-b-2 border-white/40 rotate-[-45deg]"></span>
                         </a>
 
-                        {{-- Profile --}}
                         <a href="{{ route('account.profile.edit') }}"
-                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white
-                  active:bg-white/5 transition">
+                            class="flex items-center justify-between px-5 py-4 text-sm font-bold text-white active:bg-white/5 transition">
                             <div class="flex items-center gap-3">
                                 <svg class="w-5 h-5 text-[#D4AF37]" fill="none" stroke="currentColor"
                                     stroke-width="1.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0
-                                                               a1.724 1.724 0 002.573 1.066
-                                                               c1.543-.94 3.31.826 2.37 2.37
-                                                               a1.724 1.724 0 001.065 2.572
-                                                               c1.756.426 1.756 2.924 0 3.35
-                                                               a1.724 1.724 0 00-1.066 2.573
-                                                               c.94 1.543-.826 3.31-2.37 2.37
-                                                               a1.724 1.724 0 00-2.572 1.065
-                                                               c-.426 1.756-2.924 1.756-3.35 0
-                                                               a1.724 1.724 0 00-2.573-1.066
-                                                               c-1.543.94-3.31-.826-2.37-2.37
-                                                               a1.724 1.724 0 00-1.065-2.572
-                                                               c-1.756-.426-1.756-2.924 0-3.35
-                                                               a1.724 1.724 0 001.066-2.573
-                                                               c-.94-1.543.826-3.31 2.37-2.37
-                                                               a1.724 1.724 0 002.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0
+                                                                                                           a1.724 1.724 0 002.573 1.066
+                                                                                                           c1.543-.94 3.31.826 2.37 2.37
+                                                                                                           a1.724 1.724 0 001.065 2.572
+                                                                                                           c1.756.426 1.756 2.924 0 3.35
+                                                                                                           a1.724 1.724 0 00-1.066 2.573
+                                                                                                           c.94 1.543-.826 3.31-2.37 2.37
+                                                                                                           a1.724 1.724 0 00-2.572 1.065
+                                                                                                           c-.426 1.756-2.924 1.756-3.35 0
+                                                                                                           a1.724 1.724 0 00-2.573-1.066
+                                                                                                           c-1.543.94-3.31-.826-2.37-2.37
+                                                                                                           a1.724 1.724 0 00-1.065-2.572
+                                                                                                           c-1.756-.426-1.756-2.924 0-3.35
+                                                                                                           a1.724 1.724 0 001.066-2.573
+                                                                                                           c-.94-1.543.826-3.31 2.37-2.37
+                                                                                                           a1.724 1.724 0 002.572-1.065z" />
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                                 <span>Profile Settings</span>
                             </div>
+
                             <span class="w-2 h-2 border-r-2 border-b-2 border-white/40 rotate-[-45deg]"></span>
                         </a>
-
                     </div>
+                @endauth
 
-                </div>
-            @endauth
-
-
-            {{-- ================= Auth Section ================= --}}
-            <div class="space-y-3">
-
+                {{-- Auth buttons --}}
                 @auth
-                    {{-- Sign Out --}}
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
-                            class="w-full flex items-center justify-center gap-3
-                       p-4 rounded-2xl
-                       text-red-400 font-bold text-sm
-                       bg-white/[0.02] border border-white/10
-                       active:bg-red-500/10 active:scale-[0.97]
-                       transition">
-
+                            class="w-full flex items-center justify-center gap-3 p-4 rounded-2xl
+                                   text-red-400 font-bold text-sm bg-white/[0.02] border border-white/10
+                                   active:bg-red-500/10 active:scale-[0.97] transition">
                             {{-- Icon --}}
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5"
                                 viewBox="0 0 24 24">
@@ -619,46 +599,26 @@
                         </button>
                     </form>
                 @else
-                    {{-- Login | Register side by side --}}
                     <div class="grid grid-cols-2 gap-3">
-
-                        {{-- Login --}}
                         <a href="{{ route('login') }}"
-                            class="flex items-center justify-center gap-2
-                       p-4 rounded-2xl
-                       bg-[#D4AF37] text-black font-black text-center
-                       shadow-lg shadow-[#D4AF37]/20
-                       active:scale-[0.98] transition-transform">
-
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.8" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-                            </svg>
-
-
-                            <span>Login</span>
+                            class="flex items-center justify-center p-4 rounded-2xl bg-[#D4AF37] text-black font-black
+                                  shadow-lg shadow-[#D4AF37]/20 active:scale-[0.98] transition-transform">
+                            Login
                         </a>
-
-                        {{-- Register --}}
                         <a href="{{ route('register') }}"
-                            class="flex items-center justify-center gap-2
-                       p-4 rounded-2xl
-                       border border-white/10 text-white font-bold text-center
-                       active:scale-[0.98] transition-transform">
-
-                            <span>Register</span>
+                            class="flex items-center justify-center p-4 rounded-2xl border border-white/10 text-white font-bold
+                                  active:scale-[0.98] transition-transform">
+                            Register
                         </a>
-
                     </div>
                 @endauth
-
             </div>
-
 
         </div>
     </div>
 @endif
+
+
 
 <script>
     function toggleMobileSearch(show) {
@@ -678,15 +638,28 @@
 </script>
 
 <script>
-    function toggleMobileMore(show) {
-        const sheet = document.getElementById('mobileMoreSheet');
-        const content = document.getElementById('mobileMoreContent');
+    function toggleMobileSheet(show, type = 'more') {
+        const sheet = document.getElementById('mobileSheet');
+        const content = document.getElementById('mobileSheetContent');
+        const more = document.getElementById('sheetMore');
+        const profile = document.getElementById('sheetProfile');
+
+        if (!sheet || !content || !more || !profile) return;
+
+        // switch content
+        if (type === 'profile') {
+            profile.classList.remove('hidden');
+            more.classList.add('hidden');
+        } else {
+            more.classList.remove('hidden');
+            profile.classList.add('hidden');
+        }
 
         if (show) {
             sheet.classList.remove('invisible', 'opacity-0');
             sheet.classList.add('opacity-100');
             setTimeout(() => content.classList.remove('translate-y-full'), 10);
-            document.body.style.overflow = 'hidden'; // Prevent scroll
+            document.body.style.overflow = 'hidden';
         } else {
             content.classList.add('translate-y-full');
             sheet.classList.remove('opacity-100');

@@ -22,8 +22,8 @@
             <div class="text-center mb-8">
 
                 <!-- 小副标题（品牌名） -->
-                <p class="text-sm font-semibold tracking-[0.25em] text-[#8f6a10] uppercase mb-2">
-                    Extech Commerce
+                <p class="text-lg font-semibold tracking-[0.25em] text-[#8f6a10] uppercase mb-2">
+                    Brif.my
                 </p>
 
                 <!-- 主标题 -->

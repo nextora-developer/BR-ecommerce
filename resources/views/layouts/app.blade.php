@@ -38,7 +38,7 @@
         @endphp
 
         <!-- Page Content -->
-        <main class="flex-1 pb-24 lg:pb-0">
+        <main class="flex-1">
             {{ $slot }}
         </main>
     </div>
