@@ -157,17 +157,44 @@
                                                     {{ $tx->created_at->format('d M Y') }}
                                                 </td>
                                                 <td class="px-6 py-5">
-                                                    <div class="text-gray-900 font-bold">Cashback Reward</div>
+                                                    @php
+                                                        $isSpend =
+                                                            ($tx->type ?? '') === 'spend' ||
+                                                            ($tx->source ?? '') === 'redeem';
+                                                        $title = match ($tx->source) {
+                                                            'purchase' => 'Cashback Reward',
+                                                            'redeem' => 'Points Redeemed',
+                                                            default => ucfirst(
+                                                                str_replace('_', ' ', $tx->source ?? 'transaction'),
+                                                            ),
+                                                        };
+                                                        $defaultNote =
+                                                            $tx->source === 'redeem'
+                                                                ? 'Redeem points on checkout'
+                                                                : 'Purchase reward points earned';
+                                                    @endphp
+
+                                                    <div class="text-gray-900 font-bold">{{ $title }}</div>
                                                     <div class="text-[11px] text-gray-400 font-medium">
-                                                        {{ $tx->note ?? 'Purchase reward points earned' }}
+                                                        {{ $tx->note ?? $defaultNote }}
                                                     </div>
                                                 </td>
+
                                                 <td class="px-6 py-5 text-right">
+                                                    @php
+                                                        $points = (int) ($tx->points ?? 0);
+                                                        $sign = $isSpend ? '-' : '+';
+                                                        $badgeClass = $isSpend
+                                                            ? 'text-rose-600 bg-rose-50'
+                                                            : 'text-emerald-600 bg-emerald-50';
+                                                    @endphp
+
                                                     <span
-                                                        class="inline-flex items-center font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
-                                                        +{{ number_format($tx->points) }}
+                                                        class="inline-flex items-center font-black {{ $badgeClass }} px-3 py-1 rounded-lg">
+                                                        {{ $sign }}{{ number_format(abs($points)) }}
                                                     </span>
                                                 </td>
+
                                             </tr>
                                         @empty
                                             <tr>

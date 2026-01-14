@@ -23,10 +23,11 @@ class AccountController extends Controller
         $stats['points'] = (int) ($user->points_balance ?? 0);
 
         $pointTransactions = PointTransaction::where('user_id', $user->id)
-            ->where('source', 'purchase') // ✅ 只看自己的 cashback
+            ->whereIn('source', ['purchase', 'redeem']) // ✅ 只看 cashback + redeem
             ->latest()
-            ->limit(10) // overview 只 show 10
+            ->limit(10)
             ->get();
+
 
         $latestOrders = $user->orders()
             ->latest()

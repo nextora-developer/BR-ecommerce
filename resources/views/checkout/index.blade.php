@@ -616,6 +616,15 @@
                                         </span>
                                     </div>
 
+                                    {{-- Points Redeem Row --}}
+                                    <div id="pointsRedeemRow" class="hidden flex justify-between text-sm">
+                                        <span class="text-gray-500">
+                                            Points Redeem (<span id="pointsRedeemLabel">0</span> pts)
+                                        </span>
+                                        <span class="font-black text-green-700 text-right">
+                                            - RM <span id="pointsRedeemRm">0.00</span>
+                                        </span>
+                                    </div>
 
                                     <div class="border-t border-gray-200 my-1 pt-3 flex justify-between items-center">
                                         <span class="text-base font-bold text-gray-900">Total</span>
@@ -669,6 +678,67 @@
                                     data-discount="{{ $voucherDiscount }}"
                                     data-benefit="{{ $voucherBenefit ?? '' }}" class="hidden"></span>
 
+                                @php
+                                    $userPoints = (int) (auth()->user()->points_balance ?? 0);
+                                @endphp
+
+                                {{-- Redeem Points --}}
+                                <div class="mt-5">
+                                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Points
+                                    </h3>
+
+                                    <div class="bg-white border border-gray-100 rounded-2xl p-4">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <div class="min-w-0">
+                                                <p
+                                                    class="text-[10px] uppercase tracking-widest text-gray-400 font-black">
+                                                    Available</p>
+                                                <p class="text-sm font-black text-gray-900">
+                                                    <span
+                                                        id="availablePointsText">{{ number_format($userPoints) }}</span>
+                                                    points
+                                                </p>
+                                            </div>
+
+                                            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                                                <input id="toggleRedeemPoints" type="checkbox"
+                                                    class="h-4 w-4 text-[#D4AF37] border-gray-300 focus:ring-[#D4AF37] rounded">
+                                                <span class="text-sm font-bold text-gray-900">Use points</span>
+                                            </label>
+                                        </div>
+
+                                        <div id="redeemBox" class="hidden mt-4">
+                                            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                                <div class="flex-1">
+                                                    <label
+                                                        class="block text-[10px] uppercase tracking-widest text-gray-400 font-black mb-2">
+                                                        Points to redeem
+                                                    </label>
+
+                                                    <input id="redeemPointsInput" type="number" min="0"
+                                                        step="1" inputmode="numeric" value="0"
+                                                        class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
+                                                        placeholder="Eg: 132">
+
+                                                    <p class="text-[11px] text-gray-500 mt-2">
+                                                        Discount: <span class="font-black text-gray-900">RM <span
+                                                                id="redeemRmText">0.00</span></span>
+                                                    </p>
+                                                </div>
+
+                                                <button type="button" id="btnUseMaxPoints"
+                                                    class="px-5 py-3 rounded-2xl bg-gray-50 text-gray-900 border border-gray-100 text-sm font-bold hover:bg-gray-100 transition">
+                                                    Use Max
+                                                </button>
+                                            </div>
+
+                                            <p id="redeemMsg" class="mt-3 text-xs font-bold hidden"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- 送去后端 --}}
+                                <input type="hidden" name="points_redeem" id="pointsRedeemHidden" value="0">
 
 
                                 {{-- Remark / Order Notes --}}
@@ -925,7 +995,6 @@
             const payAmountEl = document.querySelector('[data-pay-amount]');
             const cashbackPointsText = document.getElementById('cashbackPointsText');
 
-
             const hasPhysical = @json($hasPhysical);
             const shippingRates = @json($shippingRates);
             const subtotal = Number({{ $subtotal }});
@@ -940,11 +1009,25 @@
             const shippingVoucherCodeText = document.getElementById('shippingVoucherCodeText');
             const shippingDiscountText = document.getElementById('shippingDiscountText');
 
-
             const voucherAppliedBox = document.getElementById('voucherAppliedBox');
             const voucherAppliedCode = document.getElementById('voucherAppliedCode');
             const voucherInputBox = document.getElementById('voucherInputBox');
             const voucherMsg = document.getElementById('voucherMsg');
+
+            // Points redeem UI
+            const availablePoints = Number(@json($userPoints)); // 从 blade 来
+            const toggleRedeemPoints = document.getElementById('toggleRedeemPoints');
+            const redeemBox = document.getElementById('redeemBox');
+            const redeemPointsInput = document.getElementById('redeemPointsInput');
+            const btnUseMaxPoints = document.getElementById('btnUseMaxPoints');
+            const redeemRmText = document.getElementById('redeemRmText');
+            const redeemMsg = document.getElementById('redeemMsg');
+
+            const pointsRedeemRow = document.getElementById('pointsRedeemRow');
+            const pointsRedeemLabel = document.getElementById('pointsRedeemLabel');
+            const pointsRedeemRm = document.getElementById('pointsRedeemRm');
+
+            const pointsRedeemHidden = document.getElementById('pointsRedeemHidden');
 
             const btnApplyVoucher = document.getElementById('btnApplyVoucher');
             const btnRemoveVoucher = document.getElementById('btnRemoveVoucher');
@@ -952,54 +1035,46 @@
 
             if (!stateSelect || !shippingText || !totalText) return;
 
-            // ✅ 让 voucherDiscount 可变（apply/remove 后会更新）
+            // ✅ Voucher state 可变
             let currentVoucherCode = (voucherStateEl?.dataset.code || '').trim();
             let currentVoucherDiscount = Number(voucherStateEl?.dataset.discount || 0);
-            let currentVoucherBenefit = (voucherStateEl?.dataset.benefit || '').trim(); // ✅
+            let currentVoucherBenefit = (voucherStateEl?.dataset.benefit || '').trim();
 
             function showMsg(text, ok = true) {
                 if (!voucherMsg) return;
                 voucherMsg.classList.remove('hidden');
                 voucherMsg.textContent = text;
-                voucherMsg.className = 'mt-3 text-xs font-bold rounded-xl px-3 py-2 ' + (ok ?
-                    'bg-green-50 text-green-700 border border-green-200' :
-                    'bg-red-50 text-red-700 border border-red-200');
+                voucherMsg.className =
+                    'mt-3 text-xs font-bold rounded-xl px-3 py-2 ' +
+                    (ok ?
+                        'bg-green-50 text-green-700 border border-green-200' :
+                        'bg-red-50 text-red-700 border border-red-200');
             }
 
             function getShippingFee() {
-                // Digital
                 if (!hasPhysical) return 0;
-
                 const selected = stateSelect.selectedOptions[0];
                 const zone = selected ? selected.dataset.zone : null;
                 if (!zone) return 0;
-
                 return Number(shippingRates[zone] ?? 0);
             }
 
             function getShippingDiscount(shippingFee) {
-                // free_shipping voucher 才抵运费
-                if (currentVoucherBenefit === 'free_shipping' && hasPhysical) {
-                    return shippingFee; // 全免
-                }
+                if (currentVoucherBenefit === 'free_shipping' && hasPhysical) return shippingFee;
                 return 0;
             }
-
 
             function renderShipping() {
                 if (!hasPhysical) {
                     shippingText.textContent = 'Digital Product (Free)';
                     return;
                 }
-
                 const selected = stateSelect.selectedOptions[0];
                 const zone = selected ? selected.dataset.zone : null;
-
                 if (!zone) {
                     shippingText.textContent = 'To be confirmed';
                     return;
                 }
-
                 const fee = getShippingFee();
                 shippingText.textContent = (fee === 0) ? 'Free' : 'RM ' + fee.toFixed(2);
             }
@@ -1008,12 +1083,10 @@
                 const has = !!currentVoucherCode;
 
                 if (has) {
-                    // Applied box show, input hide
                     voucherAppliedBox?.classList.remove('hidden');
                     if (voucherAppliedCode) voucherAppliedCode.textContent = currentVoucherCode;
                     voucherInputBox?.classList.add('hidden');
 
-                    // ✅ order discount 才显示 voucherRow
                     if (currentVoucherBenefit !== 'free_shipping' && currentVoucherDiscount > 0) {
                         voucherRow?.classList.remove('hidden');
                         if (voucherCodeText) voucherCodeText.textContent = currentVoucherCode;
@@ -1023,7 +1096,6 @@
                         voucherRow?.classList.add('hidden');
                     }
 
-                    // ✅ free shipping 才显示 shippingDiscountRow（金额在 renderTotals 里填）
                     if (currentVoucherBenefit === 'free_shipping') {
                         shippingDiscountRow?.classList.remove('hidden');
                         if (shippingVoucherCodeText) shippingVoucherCodeText.textContent = currentVoucherCode;
@@ -1038,26 +1110,87 @@
                 }
             }
 
+            // =========================
+            // ✅ Points Redeem (改这里)
+            // 规则：1 point = RM0.01
+            // =========================
+            let currentRedeemPoints = 0;
+
+            function showRedeemMsg(text, ok = true) {
+                if (!redeemMsg) return;
+                redeemMsg.classList.remove('hidden');
+                redeemMsg.textContent = text;
+                redeemMsg.className =
+                    'mt-3 text-xs font-bold rounded-xl px-3 py-2 ' +
+                    (ok ?
+                        'bg-green-50 text-green-700 border border-green-200' :
+                        'bg-red-50 text-red-700 border border-red-200');
+                setTimeout(() => redeemMsg.classList.add('hidden'), 1600);
+            }
+
+            function clamp(n, min, max) {
+                n = Number(n || 0);
+                if (Number.isNaN(n)) n = 0;
+                return Math.max(min, Math.min(max, n));
+            }
+
+            // subtotalAfterVoucher: RM10.90 -> 1090 points
+            function maxPointsBySubtotal(subtotalAfterVoucher) {
+                return Math.floor(Math.max(0, Number(subtotalAfterVoucher || 0)) * 100);
+            }
+
+            // 132 -> 1.32
+            function calcPointsDiscount(points) {
+                return Number(points || 0) / 100;
+            }
+
+            function applyRedeemPoints(rawPoints, discountedSubtotal) {
+                const maxBySub = maxPointsBySubtotal(discountedSubtotal);
+                const max = Math.min(availablePoints, maxBySub);
+
+                // ✅ 不再强制 100倍数！直接允许 1 point 级别
+                const points = clamp(parseInt(rawPoints || 0, 10), 0, max);
+                const discount = calcPointsDiscount(points);
+
+                currentRedeemPoints = points;
+
+                // UI
+                if (redeemPointsInput) redeemPointsInput.value = String(points);
+                if (redeemRmText) redeemRmText.textContent = discount.toFixed(2);
+
+                // Summary row
+                if (pointsRedeemRow) pointsRedeemRow.classList.toggle('hidden', points <= 0);
+                if (pointsRedeemLabel) pointsRedeemLabel.textContent = points.toLocaleString();
+                if (pointsRedeemRm) pointsRedeemRm.textContent = discount.toFixed(2);
+
+                // Hidden input to server
+                if (pointsRedeemHidden) pointsRedeemHidden.value = String(points);
+            }
 
             function renderTotals() {
                 const shippingFee = getShippingFee();
                 const shippingDiscount = getShippingDiscount(shippingFee);
 
+                // voucher 后 subtotal
                 const discountedSubtotal = Math.max(0, subtotal - currentVoucherDiscount);
-                const payableShipping = Math.max(0, shippingFee - shippingDiscount);
 
-                const finalTotal = discountedSubtotal + payableShipping;
+                // ✅ clamp 当前 points（基于 voucher 后 subtotal）
+                applyRedeemPoints(currentRedeemPoints, discountedSubtotal);
+
+                const pointsRm = calcPointsDiscount(currentRedeemPoints); // points -> RM
+                const subtotalAfterPoints = Math.max(0, discountedSubtotal - pointsRm);
+
+                const payableShipping = Math.max(0, shippingFee - shippingDiscount);
+                const finalTotal = subtotalAfterPoints + payableShipping;
 
                 totalText.textContent = 'RM ' + finalTotal.toFixed(2);
                 if (payAmountEl) payAmountEl.textContent = 'RM ' + finalTotal.toFixed(2);
 
                 if (shippingDiscountText) shippingDiscountText.textContent = shippingDiscount.toFixed(2);
 
-                // ✅ Cashback points (RM1=1pt, floor)
-                const cashbackPoints = Math.max(0, Math.floor(finalTotal));
-                if (cashbackPointsText) cashbackPointsText.textContent = cashbackPoints.toLocaleString();
+                // Estimated Earn: 你现在是 RM1=1point（按 finalTotal）
+                if (cashbackPointsText) cashbackPointsText.textContent = String(Math.floor(finalTotal));
             }
-
 
             function refreshAll() {
                 renderShipping();
@@ -1067,14 +1200,12 @@
 
             // ✅ 地址必须先填好才 allow apply voucher
             function validateAddressBeforeVoucher() {
-                const requiredNames = [
-                    'name', 'phone', 'email', 'address_line1', 'postcode', 'city', 'state', 'country'
+                const requiredNames = ['name', 'phone', 'email', 'address_line1', 'postcode', 'city', 'state',
+                    'country'
                 ];
-
                 for (const n of requiredNames) {
                     const el = document.querySelector(`[name="${n}"]`);
                     const v = (el?.value || '').trim();
-
                     if (!v) {
                         showMsg('Please fill your shipping details before applying voucher.', false);
                         el?.scrollIntoView({
@@ -1094,7 +1225,7 @@
             // init
             refreshAll();
 
-            // ✅ Apply voucher (no reload)
+            // Apply voucher (no reload)
             if (btnApplyVoucher) {
                 btnApplyVoucher.addEventListener('click', async () => {
                     if (!validateAddressBeforeVoucher()) return;
@@ -1125,7 +1256,6 @@
                             return;
                         }
 
-                        // ✅ 更新本地状态，不 reload
                         currentVoucherCode = data.code;
                         currentVoucherDiscount = Number(data.discount || 0);
                         currentVoucherBenefit = (data.benefit || '').trim();
@@ -1139,7 +1269,7 @@
                 });
             }
 
-            // ✅ Remove voucher (no reload)
+            // Remove voucher (no reload)
             if (btnRemoveVoucher) {
                 btnRemoveVoucher.addEventListener('click', async () => {
                     try {
@@ -1170,6 +1300,45 @@
                     }
                 });
             }
+
+            // Toggle redeem UI
+            if (toggleRedeemPoints && redeemBox) {
+                toggleRedeemPoints.addEventListener('change', () => {
+                    if (toggleRedeemPoints.checked) {
+                        redeemBox.classList.remove('hidden');
+                    } else {
+                        redeemBox.classList.add('hidden');
+                        currentRedeemPoints = 0;
+                        if (redeemPointsInput) redeemPointsInput.value = 0;
+                        refreshAll();
+                    }
+                });
+            }
+
+            // Input change
+            if (redeemPointsInput) {
+                redeemPointsInput.addEventListener('input', () => {
+                    const discountedSubtotal = Math.max(0, subtotal - currentVoucherDiscount);
+                    currentRedeemPoints = Number(redeemPointsInput.value || 0);
+                    applyRedeemPoints(currentRedeemPoints, discountedSubtotal);
+                    refreshAll(); // totals 更新
+                });
+            }
+
+            // ✅ Use max（不再变 100）
+            if (btnUseMaxPoints) {
+                btnUseMaxPoints.addEventListener('click', () => {
+                    const discountedSubtotal = Math.max(0, subtotal - currentVoucherDiscount);
+                    const maxBySub = maxPointsBySubtotal(discountedSubtotal);
+                    const max = Math.min(availablePoints, maxBySub);
+
+                    currentRedeemPoints = max;
+                    applyRedeemPoints(currentRedeemPoints, discountedSubtotal);
+                    refreshAll();
+                    showRedeemMsg('Max points applied.', true);
+                });
+            }
         });
     </script>
+
 </x-app-layout>

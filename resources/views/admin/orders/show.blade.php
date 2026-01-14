@@ -58,9 +58,9 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                         stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5
-                                         c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639
-                                         C20.577 16.49 16.64 19.5 12 19.5
-                                         c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                             c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639
+                                             C20.577 16.49 16.64 19.5 12 19.5
+                                             c-4.638 0-8.573-3.007-9.963-7.178z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
 
@@ -176,7 +176,7 @@
                                         </td>
 
                                         {{-- Price --}}
-                                        <td class="px-4 py-4 text-right text-gray-600 italic">
+                                        <td class="px-4 py-4 text-right text-gray-600">
                                             RM {{ number_format($item->unit_price, 2) }}
                                         </td>
 
@@ -212,7 +212,7 @@
                                 @if ($order->remark)
                                     <p class="text-gray-700 whitespace-pre-line break-words">{{ trim($order->remark) }}</p>
                                 @else
-                                    <p class="text-gray-400 italic font-light">No special instructions provided for this
+                                    <p class="text-gray-400 font-light">No special instructions provided for this
                                         order.</p>
                                 @endif
                             </div>
@@ -291,11 +291,26 @@
                                     </div>
                                 @endif
 
+                                {{-- ✅ Points Redeemed --}}
+                                @if (($order->points_discount ?? 0) > 0)
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-gray-500 font-medium flex items-center gap-1">
+                                            Points Redeemed
+                                            <span
+                                                class="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold tracking-wide">
+                                                {{ number_format((int) ($order->points_redeem ?? 0)) }} pts
+                                            </span>
+                                        </span>
+
+                                        <span class="font-bold tracking-tight text-amber-700">
+                                            - <span
+                                                class="text-sm font-normal mr-0.5">RM</span>{{ number_format((float) $order->points_discount, 2) }}
+                                        </span>
+                                    </div>
+                                @endif
+
                                 <div class="pt-4 mt-2 border-t border-gray-100 flex justify-between items-end">
                                     <div class="flex flex-col">
-                                        {{-- <span
-                                            class="text-[10px] uppercase tracking-widest text-gray-400 font-bold leading-none mb-1">Total
-                                            Amount</span> --}}
                                         <span class="text-base font-black text-gray-900 leading-none">Grand Total</span>
                                     </div>
                                     <div class="text-right">
@@ -308,11 +323,7 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-
-
-
 
                 {{-- Totals Area --}}
                 {{-- <div class="p-6 bg-white border-t border-gray-100 flex justify-end">

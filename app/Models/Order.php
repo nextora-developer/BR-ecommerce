@@ -48,10 +48,15 @@ class Order extends Model
         'voucher_code',
         'voucher_discount',
         'shipping_discount',
+
+        'points_redeem',
+        'points_discount',
     ];
 
     protected $casts = [
         'shipped_at' => 'datetime',
+        'points_redeem'   => 'integer',
+        'points_discount' => 'decimal:2',
     ];
 
     public function items(): HasMany

@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\ShippingRate;
 use App\Models\Voucher;
+use App\Models\PointTransaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Mail\OrderPlacedMail;
@@ -103,6 +105,7 @@ class CheckoutController extends Controller
             'country'        => 'required',
             'payment_method' => 'required|exists:payment_methods,code',
             'remark'         => 'nullable|string|max:500',
+            'points_redeem'  => 'nullable|integer|min:0',
         ];
 
         // 默认：收据可空（给 HitPay 用）
@@ -194,13 +197,28 @@ class CheckoutController extends Controller
             }
         }
 
-        // ✅ 折扣只扣 subtotal
         $payableSubtotal = max(0, $subtotal - $voucherDiscount);
-
-        // ✅ 免运费：shippingFee - shippingDiscount
         $payableShipping = max(0, $shippingFee - $shippingDiscount);
 
+        $pointsRedeem = (int) floor($request->input('points_redeem', 0));
+
+        $user = $request->user();
+        $availablePoints = (int) ($user->points_balance ?? 0);
+
+        $maxPointsBySubtotal = (int) floor($payableSubtotal * 100);
+
+        // ✅ 只要输入 > 0 就当作要用
+        if ($pointsRedeem > 0) {
+            $pointsRedeem = min($pointsRedeem, $availablePoints, $maxPointsBySubtotal);
+        } else {
+            $pointsRedeem = 0;
+        }
+
+        $pointsDiscount = min($pointsRedeem / 100, $payableSubtotal);
+        $payableSubtotal = max(0, $payableSubtotal - $pointsDiscount);
+
         $total = $payableSubtotal + $payableShipping;
+
 
 
 
@@ -242,6 +260,8 @@ class CheckoutController extends Controller
             $voucherCode,
             $voucherDiscount,
             $shippingDiscount,
+            $pointsRedeem,
+            $pointsDiscount,
             &$order
         ) {
             $order = Order::create([
@@ -268,7 +288,42 @@ class CheckoutController extends Controller
                 'payment_method_name' => $paymentMethod->name,
                 'payment_receipt_path' => $receiptPath,
                 'remark'               => $request->input('remark'),
+                'points_redeem'   => $pointsRedeem,
+                'points_discount' => $pointsDiscount,
             ]);
+
+            if ($pointsRedeem > 0) {
+                $lockedUser = User::whereKey(auth()->id())->lockForUpdate()->first();
+
+                // ✅ 防重复：同一订单同一用户只扣一次
+                $already = PointTransaction::where('source', 'redeem')
+                    ->where('order_id', $order->id)
+                    ->where('user_id', $lockedUser->id)
+                    ->exists();
+
+                if ($already) {
+                    throw new \Exception('Points already redeemed for this order.');
+                }
+
+                // ✅ 再检查余额
+                $safeBalance = (int) ($lockedUser->points_balance ?? 0);
+                if ($safeBalance < $pointsRedeem) {
+                    throw new \Exception('Insufficient points balance.');
+                }
+
+                PointTransaction::create([
+                    'user_id'  => $lockedUser->id,
+                    'type'     => 'spend',
+                    'source'   => 'redeem',
+                    'order_id' => $order->id,
+                    'points'   => $pointsRedeem,
+                    'note'     => 'Redeem points on checkout (1 pt = RM 0.01)',
+                ]);
+
+                $lockedUser->decrement('points_balance', $pointsRedeem);
+            }
+
+
 
             foreach ($items as $item) {
                 $order->items()->create([
