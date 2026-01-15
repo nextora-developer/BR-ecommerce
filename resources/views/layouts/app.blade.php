@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Ecommerce') }}</title>
+    <title>{{ config('app.name', 'BRIF.MY') }}</title>
 
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 
@@ -230,7 +230,7 @@
             <div
                 class="mt-14 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-sm text-gray-400 font-medium">
-                    © {{ date('Y') }} Shop. Built with pride in Malaysia.
+                    © {{ date('Y') }} BR INNOVATE FUTURE. Built with pride in Malaysia.
                 </p>
 
                 <div class="flex items-center gap-4">
