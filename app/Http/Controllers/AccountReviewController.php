@@ -19,7 +19,7 @@ class AccountReviewController extends Controller
             ->whereDoesntHave('review')
             ->with(['order:id,order_no,status,created_at', 'product:id,name,image'])
             ->latest('id')
-            ->paginate(10);
+            ->paginate(5);
 
         return view('account.reviews.index', compact('items'));
     }
