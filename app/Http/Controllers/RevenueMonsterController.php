@@ -178,16 +178,23 @@ class RevenueMonsterController extends Controller
             $order = Order::where('order_no', $orderNo)->first();
 
             if ($order && strtolower((string) $order->status) === 'pending') {
-                // ✅ 5分钟后检查：如果还是 pending 才 failed
-                MarkPendingOrderFailedIfUnpaid::dispatch($order->id)->delay(now()->addMinutes(5));
+                $order->update([
+                    'status' => 'failed',
+                ]);
+
+                Log::info('RM return: order marked failed immediately', [
+                    'order_no' => $order->order_no,
+                ]);
             }
         }
 
         return redirect()
             ->route('account.orders.index')
-            ->with('success', 'We received your payment return. Your order will update once confirmed.');
+            ->with(
+                'error',
+                'Payment was not completed. Your order has been cancelled.'
+            );
     }
-
 
     public function handleWebhook(Request $request)
     {
