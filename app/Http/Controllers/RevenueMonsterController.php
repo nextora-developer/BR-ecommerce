@@ -438,14 +438,21 @@ class RevenueMonsterController extends Controller
 
         if ($rawBody !== '') {
             $decoded = json_decode($rawBody, true);
-            if (is_array($decoded)) {
-                $sorted  = $this->ksortRecursive($decoded);
-                $compact = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            } else {
-                $compact = $rawBody;
+
+            if (!is_array($decoded) || !isset($decoded['data'])) {
+                return false;
             }
 
-            $compact = str_replace(['<', '>', '&'], ['\u003c', '\u003e', '\u0026'], $compact);
+            // ✅ 只用 payload.data
+            $sorted  = $this->ksortRecursive($decoded['data']);
+            $compact = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+            $compact = str_replace(
+                ['<', '>', '&'],
+                ['\u003c', '\u003e', '\u0026'],
+                $compact
+            );
+
             $parts[] = 'data=' . base64_encode($compact);
         }
 
