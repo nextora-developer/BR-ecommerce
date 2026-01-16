@@ -15,6 +15,7 @@ use App\Mail\OrderPlacedMail;
 use App\Mail\AdminOrderNotificationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
@@ -357,23 +358,34 @@ class CheckoutController extends Controller
         $isHitpay = $paymentMethod->code === 'hitpay';
 
         if ($order) {
-            \Log::info('Checkout order created: ' . $order->order_no);
-            \Log::info('Config admin_address is: ' . config('mail.admin_address'));
+            Log::info('Checkout order created: ' . $order->order_no);
+            Log::info('Config admin_address is: ' . (config('mail.admin_address') ?? 'NULL'));
 
-            // ⛔ HitPay 的订单先不要这里发邮件
             if (! $isHitpay) {
-                try {
-                    if ($order->customer_email) {
-                        \Log::info('Sending customer email for order: ' . $order->order_no);
-                        Mail::to($order->customer_email)->send(new OrderPlacedMail($order));
-                    }
 
-                    if (config('mail.admin_address')) {
-                        \Log::info('Sending admin email for order: ' . $order->order_no);
-                        Mail::to(config('mail.admin_address'))->send(new AdminOrderNotificationMail($order));
+                // ✅ Customer mail 独立
+                if ($order->customer_email) {
+                    try {
+                        Log::info('Sending customer email for order: ' . $order->order_no . ' -> ' . $order->customer_email);
+                        Mail::to($order->customer_email)->send(new OrderPlacedMail($order));
+                        Log::info('✅ Customer email sent OK: ' . $order->order_no);
+                    } catch (\Throwable $e) {
+                        Log::error('❌ Customer email failed ' . $order->order_no . ' : ' . $e->getMessage());
                     }
-                } catch (\Throwable $e) {
-                    \Log::error('Order email send failed for ' . $order->order_no . ' : ' . $e->getMessage());
+                }
+
+                // ✅ Admin mail 独立
+                $admin = config('mail.admin_address');
+                if ($admin) {
+                    try {
+                        Log::info('Sending admin email for order: ' . $order->order_no . ' -> ' . $admin);
+                        Mail::to($admin)->send(new AdminOrderNotificationMail($order));
+                        Log::info('✅ Admin email sent OK: ' . $order->order_no);
+                    } catch (\Throwable $e) {
+                        Log::error('❌ Admin email failed ' . $order->order_no . ' : ' . $e->getMessage());
+                    }
+                } else {
+                    Log::warning('⚠️ Admin email skipped, admin_address is empty for ' . $order->order_no);
                 }
             }
         }
