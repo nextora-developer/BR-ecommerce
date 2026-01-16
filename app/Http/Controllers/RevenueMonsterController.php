@@ -180,6 +180,15 @@ class RevenueMonsterController extends Controller
 
     public function handleWebhook(Request $request)
     {
+        Log::info('RM WEBHOOK HIT (POSTMAN)', [
+            'ip' => $request->ip(),
+            'headers' => $request->headers->all(),
+            'body' => $request->getContent(),
+        ]);
+
+        // 暂时直接 return
+        return response()->json(['ok' => true]);
+        
         Log::info('RM webhook headers', $request->headers->all());
 
         $rawBody = $request->getContent();
