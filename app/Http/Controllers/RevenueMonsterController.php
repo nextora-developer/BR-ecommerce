@@ -413,39 +413,31 @@ class RevenueMonsterController extends Controller
      */
     private function verifySignatureCallback(string $rawBody, array $headers): bool
     {
-        $nonceStr  = $this->headerValue($headers, 'x-nonce-str') ?? $this->headerValue($headers, 'nonceStr');
-        $timestamp = $this->headerValue($headers, 'x-timestamp') ?? $this->headerValue($headers, 'timestamp');
+        $nonceStr  = $this->headerValue($headers, 'x-nonce-str');
+        $timestamp = $this->headerValue($headers, 'x-timestamp');
 
-        // RM webhook 常见：x-signature = "sha256 <base64>"
         $sigHeader = $this->headerValue($headers, 'x-signature')
             ?? $this->headerValue($headers, 'signature')
             ?? $this->headerValue($headers, 'sign');
 
-        if (!$nonceStr || !$timestamp || !$sigHeader) return false;
-
-        $sigHeader = trim($sigHeader);
-
-        // ✅ 解析 "sha256 <sig>"（没有 x-sign-type 也没关系）
-        $signType = 'sha256';
-        $signatureBody = $sigHeader;
-
-        if (str_contains($sigHeader, ' ')) {
-            [$maybeType, $maybeSig] = array_pad(preg_split('/\s+/', $sigHeader, 2), 2, null);
-            if ($maybeType && $maybeSig) {
-                $signType = strtolower(trim($maybeType));
-                $signatureBody = trim($maybeSig);
-            }
+        if (!$nonceStr || !$timestamp || !$sigHeader) {
+            return false;
         }
 
-        if ($signatureBody === '') return false;
+        // x-signature: "sha256 <base64>"
+        $sigHeader = trim($sigHeader);
+        if (!str_contains($sigHeader, ' ')) {
+            return false;
+        }
 
-        // ✅ Step: body -> json decode -> sort -> compact json -> (replace special char) -> base64
+        [, $signatureBody] = explode(' ', $sigHeader, 2);
+        $signatureBody = trim($signatureBody);
+
+        // -------- plain string ----------
         $parts = [];
 
-        $rawBody = trim($rawBody);
         if ($rawBody !== '') {
             $decoded = json_decode($rawBody, true);
-
             if (is_array($decoded)) {
                 $sorted  = $this->ksortRecursive($decoded);
                 $compact = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -453,30 +445,26 @@ class RevenueMonsterController extends Controller
                 $compact = $rawBody;
             }
 
-            if ($compact === false) return false;
-
-            // ✅ 跟你 signRequest 一样处理 < > &
             $compact = str_replace(['<', '>', '&'], ['\u003c', '\u003e', '\u0026'], $compact);
-
             $parts[] = 'data=' . base64_encode($compact);
         }
 
-        // ✅ callback 验签：requestUrl 可以 skip（RM 文档）
+        // ⚠️ webhook 只有这 3 个
         $parts[] = 'method=post';
         $parts[] = 'nonceStr=' . $nonceStr;
-        $parts[] = 'signType=' . $signType;
         $parts[] = 'timestamp=' . $timestamp;
 
         $plain = implode('&', $parts);
 
-        $pubKey = (string) config('services.rm.public_key');
-        if ($pubKey === '') return false;
+        $pubKey = config('services.rm.public_key');
+        if (!$pubKey) return false;
 
         $sigBin = base64_decode($signatureBody, true);
         if ($sigBin === false) return false;
 
         return openssl_verify($plain, $sigBin, $pubKey, OPENSSL_ALGO_SHA256) === 1;
     }
+
 
 
     private function headerValue(array $headers, string $key): ?string
