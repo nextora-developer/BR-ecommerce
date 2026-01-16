@@ -17,6 +17,48 @@ class RevenueMonsterController extends Controller
      * 创建 Hosted Payment Checkout (v3/payment/online)
      * POST https://(sb-)open.revenuemonster.my/v3/payment/online
      */
+    private function rmAccessToken(): string
+    {
+        return cache()->remember('rm_access_token', now()->addDays(25), function () {
+
+            $clientId     = (string) config('services.rm.client_id');
+            $clientSecret = (string) config('services.rm.client_secret');
+            $oauthBase    = (string) config('services.rm.oauth_base');
+
+            if (!$clientId || !$clientSecret) {
+                throw new \RuntimeException('RM client_id / client_secret missing.');
+            }
+
+            $basic   = base64_encode($clientId . ':' . $clientSecret);
+            $tokenUrl = rtrim($oauthBase, '/') . '/v1/token';
+
+            $res = Http::asJson()
+                ->withHeaders([
+                    'Authorization' => 'Basic ' . $basic,
+                ])
+                ->post($tokenUrl, [
+                    'grantType' => 'client_credentials',
+                ]);
+
+            $json = $res->json();
+
+            if (!$res->ok() || empty($json['accessToken'])) {
+                Log::error('RM OAuth token failed', [
+                    'http' => $res->status(),
+                    'json' => $json,
+                    'body' => $res->body(),
+                ]);
+                throw new \RuntimeException('RM OAuth token failed.');
+            }
+
+            Log::info('RM OAuth token obtained', [
+                'expiresIn' => $json['expiresIn'] ?? null,
+            ]);
+
+            return (string) $json['accessToken'];
+        });
+    }
+
     public function pay(Order $order)
     {
         abort_unless(auth()->check(), 403);
@@ -32,24 +74,36 @@ class RevenueMonsterController extends Controller
         $amountCents = (int) round(((float) $order->grand_total) * 100);
         $rmOrderId   = Str::padLeft((string) $order->id, 24, '0');
 
-        // ✅ 读取配置（先取出来方便 log）
-        $storeId   = (string) config('services.rm.store_id');
-        $apiBase   = (string) config('services.rm.api_base');
-        $returnUrl = (string) config('services.rm.return_url');
-        $webhookUrl = (string) config('services.rm.webhook_url');
-        $apiKey    = (string) config('services.rm.api_key');
+        // 🔍 金额诊断（你之前出现过 0）
+        Log::info('RM amount debug', [
+            'grand_total_raw'   => $order->grand_total,
+            'grand_total_float' => (float) $order->grand_total,
+            'amount_cents'      => $amountCents,
+        ]);
 
-        // ✅ 安全诊断：不泄露 key，只打印长度+末尾
+        // 读取配置
+        $storeId    = (string) config('services.rm.store_id');
+        $apiBase    = (string) config('services.rm.api_base');
+        $returnUrl  = (string) config('services.rm.return_url');
+        $webhookUrl = (string) config('services.rm.webhook_url');
+
+        // OAuth access token（✅ 关键）
+        $accessToken = $this->rmAccessToken();
+
+        Log::info('RM access token snapshot', [
+            'token_length' => strlen($accessToken),
+            'token_head8'  => substr($accessToken, 0, 8),
+            'token_tail8'  => substr($accessToken, -8),
+        ]);
+
         Log::info('RM config snapshot', [
-            'store_id'         => $storeId,
-            'api_base'         => $apiBase,
-            'return_url'       => $returnUrl,
-            'webhook_url'      => $webhookUrl,
-            'api_key_length'   => strlen($apiKey),
-            'api_key_tail4'    => $apiKey ? substr($apiKey, -4) : null,
-            'order_no'         => $order->order_no,
-            'rm_order_id_24'   => $rmOrderId,
-            'amount_cents'     => $amountCents,
+            'store_id'       => $storeId,
+            'api_base'       => $apiBase,
+            'return_url'     => $returnUrl,
+            'webhook_url'    => $webhookUrl,
+            'order_no'       => $order->order_no,
+            'rm_order_id_24' => $rmOrderId,
+            'amount_cents'   => $amountCents,
         ]);
 
         $payload = [
@@ -73,18 +127,16 @@ class RevenueMonsterController extends Controller
             ],
         ];
 
-        $endpoint = rtrim($apiBase, '/') . '/v3/payment/online';
-
+        $endpoint  = rtrim($apiBase, '/') . '/v3/payment/online';
         $nonceStr  = Str::random(32);
         $timestamp = (string) time();
         $signType  = 'sha256';
 
-        // ✅ 签名前 log（不打印 payload 全量也可以）
         Log::info('RM signing request', [
-            'endpoint'   => $endpoint,
-            'nonce_len'  => strlen($nonceStr),
-            'timestamp'  => $timestamp,
-            'sign_type'  => $signType,
+            'endpoint'    => $endpoint,
+            'nonce_len'   => strlen($nonceStr),
+            'timestamp'   => $timestamp,
+            'sign_type'   => $signType,
             'payload_md5' => md5(json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)),
         ]);
 
@@ -97,9 +149,8 @@ class RevenueMonsterController extends Controller
             requestUrl: $endpoint
         );
 
-        // ✅ 签名结果 log（只看长度+前/后几位）
         Log::info('RM signature generated', [
-            'signature_len'  => strlen($signature),
+            'signature_len'   => strlen($signature),
             'signature_head8' => substr($signature, 0, 8),
             'signature_tail8' => substr($signature, -8),
         ]);
@@ -107,44 +158,37 @@ class RevenueMonsterController extends Controller
         $headers = [
             'Accept'        => 'application/json',
             'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer ' . $apiKey,
+            'Authorization' => 'Bearer ' . $accessToken, // ✅ 正确
             'X-Nonce-Str'   => $nonceStr,
             'X-Timestamp'   => $timestamp,
             'X-Sign-Type'   => $signType,
             'X-Signature'   => $signature,
         ];
 
-        // ✅ 请求前 log（不要打印 Authorization）
         Log::info('RM request headers snapshot', [
-            'has_auth'    => !empty($apiKey),
-            'nonce'       => $nonceStr,
-            'timestamp'   => $timestamp,
-            'sign_type'   => $signType,
-            'endpoint'    => $endpoint,
+            'has_auth'  => !empty($accessToken),
+            'endpoint'  => $endpoint,
+            'nonce'     => $nonceStr,
+            'timestamp' => $timestamp,
         ]);
 
-        $res = Http::withHeaders($headers)->post($endpoint, $payload);
-
+        $res  = Http::withHeaders($headers)->post($endpoint, $payload);
         $data = $res->json();
 
-        // ✅ 无论成功失败都打一次
         Log::info('RM response snapshot', [
             'http'     => $res->status(),
             'ok'       => $res->ok(),
             'json'     => $data,
-            'body'     => $res->body(), // 如果太长你可以删掉这行
+            'body'     => $res->body(),
             'order_no' => $order->order_no,
         ]);
 
         if (!$res->ok() || data_get($data, 'code') !== 'SUCCESS') {
             Log::error('RM create checkout failed', [
-                'http'      => $res->status(),
-                'json'      => $data,
-                'order_no'  => $order->order_no,
-                'endpoint'  => $endpoint,
-                // ✅ 关键字段再重复一次
-                'store_id'  => $storeId,
-                'api_key_len' => strlen($apiKey),
+                'http'     => $res->status(),
+                'json'     => $data,
+                'order_no' => $order->order_no,
+                'store_id' => $storeId,
             ]);
 
             return back()->with('error', data_get($data, 'error.message') ?? 'Unable to start payment.');

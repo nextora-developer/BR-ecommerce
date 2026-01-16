@@ -57,6 +57,9 @@ return [
 
     'rm' => [
         'api_base'     => env('RM_API_BASE'),
+        'oauth_base'     => env('RM_OAUTH_BASE', 'https://oauth.revenuemonster.my'),
+        'client_id'      => env('RM_CLIENT_ID'),
+        'client_secret'  => env('RM_CLIENT_SECRET'),
         'store_id'     => env('RM_STORE_ID'),
         'api_key'      => env('RM_API_KEY'),
         'private_key'  => env('RM_PRIVATE_KEY'),
