@@ -142,14 +142,15 @@ class RevenueMonsterController extends Controller
             'payload_md5' => md5(json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)),
         ]);
 
-        $signature = $this->signRequest(
+        $signatureBody = $this->signRequest(
             payload: $payload,
             method: 'post',
             nonceStr: $nonceStr,
             timestamp: $timestamp,
             signType: $signType,
-            requestUrl: $requestPath
+            requestUrl: $endpoint // ✅ 这里是完整 URL
         );
+
 
         Log::info('RM signature generated', [
             'signature_len'   => strlen($signature),
@@ -164,7 +165,7 @@ class RevenueMonsterController extends Controller
             'X-Nonce-Str'   => $nonceStr,
             'X-Timestamp'   => $timestamp,
             'X-Sign-Type'   => $signType,
-            'X-Signature'   => $signature,
+            'X-Signature'   => strtolower($signType) . ' ' . $signatureBody,
         ];
 
         Log::info('RM request headers snapshot', [
@@ -338,42 +339,45 @@ class RevenueMonsterController extends Controller
         string $nonceStr,
         string $timestamp,
         string $signType,
-        string $requestUrl // ✅ 这里请传 PATH，例如 /v3/payment/online
+        string $requestUrl // ✅ 这里传完整 URL
     ): string {
-        $sorted  = $this->ksortRecursive($payload);
+        $sorted = $this->ksortRecursive($payload);
 
-        // ✅ JSON 必须稳定（不要 pretty、不要多余空格）
         $compact = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($compact === false) {
             throw new \RuntimeException('RM json_encode failed.');
         }
 
+        // ✅ RM 文档要求替换特殊字符（更稳）
+        $compact = str_replace(
+            ['<', '>', '&'],
+            ['\u003c', '\u003e', '\u0026'],
+            $compact
+        );
+
         $dataB64 = base64_encode($compact);
 
-        // ✅ requestUrl 必须是 path（保险：如果传进来是 full url，也自动取 path）
-        if (str_starts_with($requestUrl, 'http')) {
-            $parsed = parse_url($requestUrl);
-            $requestUrl = $parsed['path'] ?? $requestUrl;
-        }
-
+        // ✅ 按 RM 文档示例的参数顺序拼接（很关键）
         $plain = 'data=' . $dataB64
             . '&method=' . strtolower($method)
             . '&nonceStr=' . $nonceStr
+            . '&requestUrl=' . $requestUrl
             . '&signType=' . strtolower($signType)
-            . '&timestamp=' . $timestamp
-            . '&requestUrl=' . $requestUrl;
+            . '&timestamp=' . $timestamp;
 
-        $priv = $this->loadPrivateKeyForRm(); // ✅ 用下面给你的 loader
+        $privKeyRes = $this->loadPrivateKeyForRm();
 
-        $signature = '';
-        $ok = openssl_sign($plain, $signature, $priv, OPENSSL_ALGO_SHA256);
+        $sig = '';
+        $ok = openssl_sign($plain, $sig, $privKeyRes, OPENSSL_ALGO_SHA256);
 
-        if (!$ok || $signature === '') {
+        if (!$ok || $sig === '') {
             throw new \RuntimeException('RM openssl_sign failed.');
         }
 
-        return base64_encode($signature);
+        // ✅ 注意：这里只返回 base64(signature) 本体，header 那边再加前缀
+        return base64_encode($sig);
     }
+
 
 
     private function loadPrivateKeyForRm(): \OpenSSLAsymmetricKey
