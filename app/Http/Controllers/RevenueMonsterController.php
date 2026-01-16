@@ -174,27 +174,35 @@ class RevenueMonsterController extends Controller
     {
         $orderNo = $request->query('order_no');
 
-        if ($orderNo) {
-            $order = Order::where('order_no', $orderNo)->first();
+        if (!$orderNo) {
+            return redirect()
+                ->route('account.orders.index')
+                ->with('error', 'Missing order reference.');
+        }
 
-            if ($order && strtolower((string) $order->status) === 'pending') {
-                $order->update([
-                    'status' => 'failed',
-                ]);
+        $order = Order::where('order_no', $orderNo)->first();
 
-                Log::info('RM return: order marked failed immediately', [
-                    'order_no' => $order->order_no,
-                ]);
-            }
+        if (!$order) {
+            return redirect()
+                ->route('account.orders.index')
+                ->with('error', 'Order not found.');
+        }
+
+        // ✅ 已经 paid（webhook 已来） -> success
+        if (strtolower((string) $order->status) === 'paid') {
+            return redirect()->route('checkout.success', $order);
+        }
+
+        // ✅ 没有 paid（用户退出来/没付） -> 直接 failed
+        if (strtolower((string) $order->status) === 'pending') {
+            $order->update(['status' => 'failed']);
         }
 
         return redirect()
             ->route('account.orders.index')
-            ->with(
-                'error',
-                'Payment was not completed. Your order has been cancelled.'
-            );
+            ->with('error', 'Payment not completed. Order marked as failed.');
     }
+
 
     public function handleWebhook(Request $request)
     {
