@@ -433,31 +433,25 @@ class RevenueMonsterController extends Controller
         [, $signatureBody] = explode(' ', $sigHeader, 2);
         $signatureBody = trim($signatureBody);
 
-        // -------- plain string ----------
-        $parts = [];
-
-        if ($rawBody !== '') {
-            $decoded = json_decode($rawBody, true);
-
-            if (!is_array($decoded) || !isset($decoded['data'])) {
-                return false;
-            }
-
-            // ✅ 只用 payload.data
-            $sorted  = $this->ksortRecursive($decoded['data']);
-            $compact = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-            $compact = str_replace(
-                ['<', '>', '&'],
-                ['\u003c', '\u003e', '\u0026'],
-                $compact
-            );
-
-            $parts[] = 'data=' . base64_encode($compact);
+        // -------- data = payload.data ----------
+        $decoded = json_decode($rawBody, true);
+        if (!is_array($decoded) || !isset($decoded['data'])) {
+            return false;
         }
 
-        // ⚠️ webhook 只有这 3 个
-        $parts[] = 'method=callback';
+        $sorted  = $this->ksortRecursive($decoded['data']);
+        $compact = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($compact === false) {
+            return false;
+        }
+
+        $compact = str_replace(['<', '>', '&'], ['\u003c', '\u003e', '\u0026'], $compact);
+
+        $parts = [];
+        $parts[] = 'data=' . base64_encode($compact);
+
+        // ✅ 注意：这里一定是 post
+        $parts[] = 'method=post';
         $parts[] = 'nonceStr=' . $nonceStr;
         $parts[] = 'timestamp=' . $timestamp;
 
@@ -471,6 +465,7 @@ class RevenueMonsterController extends Controller
 
         return openssl_verify($plain, $sigBin, $pubKey, OPENSSL_ALGO_SHA256) === 1;
     }
+
 
 
 
