@@ -153,9 +153,9 @@ class RevenueMonsterController extends Controller
 
 
         Log::info('RM signature generated', [
-            'signature_len'   => strlen($signature),
-            'signature_head8' => substr($signature, 0, 8),
-            'signature_tail8' => substr($signature, -8),
+            'signature_len'   => strlen($signatureBody),
+            'signature_head8' => substr($signatureBody, 0, 8),
+            'signature_tail8' => substr($signatureBody, -8),
         ]);
 
         $headers = [
@@ -410,11 +410,11 @@ class RevenueMonsterController extends Controller
         $nonceStr  = $this->headerValue($headers, 'x-nonce-str') ?? $this->headerValue($headers, 'nonceStr');
         $timestamp = $this->headerValue($headers, 'x-timestamp') ?? $this->headerValue($headers, 'timestamp');
         $signType  = strtolower($this->headerValue($headers, 'x-sign-type') ?? $this->headerValue($headers, 'signType') ?? 'sha256');
-        $signature = $this->headerValue($headers, 'x-signature')
+        $signatureBody = $this->headerValue($headers, 'x-signature')
             ?? $this->headerValue($headers, 'signature')
             ?? $this->headerValue($headers, 'sign');
 
-        if (!$nonceStr || !$timestamp || !$signature) return false;
+        if (!$nonceStr || !$timestamp || !$signatureBody) return false;
 
         $parts = [];
 
@@ -440,7 +440,7 @@ class RevenueMonsterController extends Controller
         $pubKey = config('services.rm.public_key');
         if (!$pubKey) return false;
 
-        $sigBin = base64_decode($signature, true);
+        $sigBin = base64_decode($signatureBody, true);
         if ($sigBin === false) return false;
 
         return openssl_verify($plain, $sigBin, $pubKey, OPENSSL_ALGO_SHA256) === 1;
