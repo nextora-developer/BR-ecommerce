@@ -179,6 +179,90 @@ class RevenueMonsterController extends Controller
             ->with('success', 'We received your payment return. Your order will update once confirmed.');
     }
 
+    // public function handleWebhook(Request $request)
+    // {
+    //     Log::info('RM webhook headers', $request->headers->all());
+
+    //     $rawBody = $request->getContent();
+    //     $headers = $request->headers->all();
+    //     $payload = $request->all();
+
+    //     // ✅ 1) Verify signature
+    //     if (!$this->verifySignatureCallback($rawBody, $headers)) {
+    //         Log::warning('RM webhook signature invalid', ['payload' => $payload]);
+    //         return response()->json(['message' => 'invalid signature'], 401);
+    //     }
+
+    //     // ✅ 2) Find order (prefer additionalData = order_no)
+    //     $order = null;
+
+    //     $orderNo = data_get($payload, 'data.order.additionalData');
+    //     if ($orderNo) {
+    //         $order = Order::where('order_no', $orderNo)->first();
+    //     }
+
+    //     if (!$order) {
+    //         $rmOrderId = data_get($payload, 'data.order.id');
+    //         if ($rmOrderId) {
+    //             $numericId = (int) ltrim((string) $rmOrderId, '0');
+    //             if ($numericId > 0) {
+    //                 $order = Order::find($numericId);
+    //             }
+    //         }
+    //     }
+
+    //     if (!$order) {
+    //         Log::warning('RM webhook order not found', [
+    //             'rmOrderId' => data_get($payload, 'data.order.id'),
+    //             'orderNo'   => $orderNo,
+    //             'payload'   => $payload,
+    //         ]);
+    //         return response()->json(['ok' => true]);
+    //     }
+
+    //     // ✅ 3) Idempotent
+    //     if (strtolower((string) $order->status) === 'paid') {
+    //         return response()->json(['ok' => true]);
+    //     }
+
+    //     // ✅ 4) Status & amount validation
+    //     $status      = strtoupper((string) (data_get($payload, 'data.status') ?? data_get($payload, 'status')));
+    //     $finalAmount = (int) (data_get($payload, 'data.finalAmount') ?? 0); // cents
+    //     $expected    = (int) round(((float) ($order->total ?? 0)) * 100);
+
+    //     if ($finalAmount && $finalAmount !== $expected) {
+    //         Log::warning('RM finalAmount mismatch', [
+    //             'order_no' => $order->order_no,
+    //             'expected' => $expected,
+    //             'got'      => $finalAmount,
+    //             'status'   => $status,
+    //         ]);
+    //         return response()->json(['ok' => true]);
+    //     }
+
+    //     $success = ['SUCCESS', 'PAID', 'COMPLETED'];
+    //     $failed  = ['FAILED', 'CANCELLED', 'EXPIRED'];
+
+    //     if (in_array($status, $success, true)) {
+    //         $order->update([
+    //             'status' => 'paid',
+    //             // 'paid_at' => now(), // enable if you have this field
+    //         ]);
+
+    //         $this->sendOrderEmailsSafely($order);
+    //         return response()->json(['ok' => true]);
+    //     }
+
+    //     if (in_array($status, $failed, true)) {
+    //         if (strtolower((string) $order->status) === 'pending') {
+    //             $order->update(['status' => 'failed']);
+    //         }
+    //         return response()->json(['ok' => true]);
+    //     }
+
+    //     return response()->json(['ok' => true]);
+    // }
+
     public function handleWebhook(Request $request)
     {
         Log::info('RM webhook headers', $request->headers->all());
@@ -187,10 +271,30 @@ class RevenueMonsterController extends Controller
         $headers = $request->headers->all();
         $payload = $request->all();
 
-        // ✅ 1) Verify signature
-        if (!$this->verifySignatureCallback($rawBody, $headers)) {
-            Log::warning('RM webhook signature invalid', ['payload' => $payload]);
-            return response()->json(['message' => 'invalid signature'], 401);
+        // ✅ 0) Optional skip verify (TEST ONLY)
+        $skipVerify = (bool) config('services.rm.webhook_skip_verify', false);
+
+        if (!$skipVerify) {
+            // ✅ 1) Verify signature
+            if (!$this->verifySignatureCallback($rawBody, $headers)) {
+                Log::warning('RM webhook signature invalid', ['payload' => $payload]);
+                return response()->json(['message' => 'invalid signature'], 401);
+            }
+        } else {
+            Log::warning('RM webhook signature verification SKIPPED (TEST ONLY)', [
+                'ip' => $request->ip(),
+            ]);
+        }
+
+        // ✅ Extra guard even if skip verify: verify storeId matches
+        $storeIdExpected = (string) config('services.rm.store_id');
+        $storeIdGot = (string) (data_get($payload, 'data.storeId') ?? data_get($payload, 'storeId') ?? '');
+        if ($storeIdExpected !== '' && $storeIdGot !== '' && $storeIdGot !== $storeIdExpected) {
+            Log::warning('RM webhook storeId mismatch', [
+                'expected' => $storeIdExpected,
+                'got'      => $storeIdGot,
+            ]);
+            return response()->json(['ok' => true]);
         }
 
         // ✅ 2) Find order (prefer additionalData = order_no)
@@ -215,7 +319,6 @@ class RevenueMonsterController extends Controller
             Log::warning('RM webhook order not found', [
                 'rmOrderId' => data_get($payload, 'data.order.id'),
                 'orderNo'   => $orderNo,
-                'payload'   => $payload,
             ]);
             return response()->json(['ok' => true]);
         }
@@ -225,12 +328,21 @@ class RevenueMonsterController extends Controller
             return response()->json(['ok' => true]);
         }
 
+        // ✅ Only allow pending -> paid/failed
+        if (!in_array(strtolower((string) $order->status), ['pending'], true)) {
+            Log::info('RM webhook ignored (status not pending)', [
+                'order_no' => $order->order_no,
+                'status'   => $order->status,
+            ]);
+            return response()->json(['ok' => true]);
+        }
+
         // ✅ 4) Status & amount validation
-        $status      = strtoupper((string) (data_get($payload, 'data.status') ?? data_get($payload, 'status')));
-        $finalAmount = (int) (data_get($payload, 'data.finalAmount') ?? 0); // cents
+        $status      = strtoupper((string) (data_get($payload, 'data.status') ?? data_get($payload, 'status') ?? ''));
+        $finalAmount = (int) (data_get($payload, 'data.finalAmount') ?? data_get($payload, 'finalAmount') ?? 0); // cents
         $expected    = (int) round(((float) ($order->total ?? 0)) * 100);
 
-        if ($finalAmount && $finalAmount !== $expected) {
+        if ($finalAmount > 0 && $finalAmount !== $expected) {
             Log::warning('RM finalAmount mismatch', [
                 'order_no' => $order->order_no,
                 'expected' => $expected,
@@ -246,7 +358,12 @@ class RevenueMonsterController extends Controller
         if (in_array($status, $success, true)) {
             $order->update([
                 'status' => 'paid',
-                // 'paid_at' => now(), // enable if you have this field
+            ]);
+
+            Log::info('RM order marked paid', [
+                'order_no' => $order->order_no,
+                'status'   => $status,
+                'amount'   => $finalAmount,
             ]);
 
             $this->sendOrderEmailsSafely($order);
@@ -254,14 +371,25 @@ class RevenueMonsterController extends Controller
         }
 
         if (in_array($status, $failed, true)) {
-            if (strtolower((string) $order->status) === 'pending') {
-                $order->update(['status' => 'failed']);
-            }
+            $order->update(['status' => 'failed']);
+
+            Log::info('RM order marked failed', [
+                'order_no' => $order->order_no,
+                'status'   => $status,
+                'amount'   => $finalAmount,
+            ]);
+
             return response()->json(['ok' => true]);
         }
 
+        Log::info('RM webhook ignored (unknown status)', [
+            'order_no' => $order->order_no,
+            'status'   => $status,
+        ]);
+
         return response()->json(['ok' => true]);
     }
+
 
     /**
      * OAuth: client_credentials -> accessToken (cached)

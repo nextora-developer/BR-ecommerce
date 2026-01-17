@@ -66,6 +66,8 @@ return [
         'public_key'   => env('RM_PUBLIC_KEY'),
         'return_url'   => env('RM_RETURN_URL'),
         'webhook_url'  => env('RM_WEBHOOK_URL'),
+        'webhook_skip_verify' => env('RM_WEBHOOK_SKIP_VERIFY', false),
+
     ],
 
 
