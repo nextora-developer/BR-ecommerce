@@ -445,11 +445,16 @@ class RevenueMonsterController extends Controller
             return false;
         }
 
-        // x-signature: "sha256 <base64>"
-        if (!str_contains($sigHeader, ' ')) {
-            return false;
+        $sigHeader = trim($sigHeader);
+
+        // "sha256 <base64>" 或 "<base64>"
+        if (str_contains($sigHeader, ' ')) {
+            [, $signatureBody] = explode(' ', $sigHeader, 2);
+            $signatureBody = trim($signatureBody);
+        } else {
+            $signatureBody = $sigHeader;
         }
-        [, $signatureBody] = explode(' ', trim($sigHeader), 2);
+
 
         $decoded = json_decode($rawBody, true);
         if (!is_array($decoded) || !isset($decoded['data'])) {
@@ -472,8 +477,12 @@ class RevenueMonsterController extends Controller
         $sigBin = base64_decode($signatureBody, true);
         if ($sigBin === false) return false;
 
-        $pubKey = config('services.rm.public_key');
-        if (!$pubKey) return false;
+        try {
+            $pubKey = $this->loadPublicKeyForRm(); // ✅ 变成 OpenSSLAsymmetricKey
+        } catch (\Throwable $e) {
+            Log::error('RM public key load failed', ['err' => $e->getMessage()]);
+            return false;
+        }
 
         return openssl_verify($plain, $sigBin, $pubKey, OPENSSL_ALGO_SHA256) === 1;
     }
