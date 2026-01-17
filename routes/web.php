@@ -83,7 +83,7 @@ if (app()->environment('local')) {
 }
 
 
-Route::get('/how-to-order', [PageController::class, 'howToOrder'])->name('how-to-order');
+Route::get('/guideline', [PageController::class, 'guideline'])->name('guideline');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 Route::get('/vouchers', [VoucherPageController::class, 'index'])->name('vouchers.index');
 

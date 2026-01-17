@@ -55,9 +55,9 @@
                             x-transition:enter-start="opacity-0 scale-95"
                             class="absolute left-0 mt-2 w-48 rounded-2xl border border-white/10 bg-black/95 backdrop-blur shadow-xl ring-1 ring-black/40 z-50 overflow-hidden">
                             <div class="p-1.5">
-                                <a href="{{ route('how-to-order') }}"
+                                <a href="{{ route('guideline') }}"
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
-                                    How to Order
+                                    Guideline
                                 </a>
                                 <a href="{{ route('faq') }}"
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
@@ -381,7 +381,7 @@
                                     'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
                             ],
                             [
-                                'route' => 'how-to-order',
+                                'route' => 'guideline',
                                 'label' => 'Help',
                                 'icon' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
                             ],

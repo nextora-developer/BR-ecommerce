@@ -11,9 +11,9 @@ use Illuminate\View\View;
 class PageController extends Controller
 {
 
-    public function howToOrder()
+    public function guideline()
     {
-        return view('pages.how-to-order');
+        return view('pages.guideline');
     }
 
     public function faq()
