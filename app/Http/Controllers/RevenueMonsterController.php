@@ -439,15 +439,15 @@ class RevenueMonsterController extends Controller
     {
         $nonceStr  = $this->headerValue($headers, 'x-nonce-str');
         $timestamp = $this->headerValue($headers, 'x-timestamp');
-
         $sigHeader = $this->headerValue($headers, 'x-signature');
+        $signType  = strtolower($this->headerValue($headers, 'x-sign-type') ?? 'sha256');
+
         if (!$nonceStr || !$timestamp || !$sigHeader) {
             return false;
         }
 
+        // x-signature: "sha256 <base64>" OR "<base64>"
         $sigHeader = trim($sigHeader);
-
-        // "sha256 <base64>" 或 "<base64>"
         if (str_contains($sigHeader, ' ')) {
             [, $signatureBody] = explode(' ', $sigHeader, 2);
             $signatureBody = trim($signatureBody);
@@ -455,30 +455,37 @@ class RevenueMonsterController extends Controller
             $signatureBody = $sigHeader;
         }
 
-
-        $decoded = json_decode($rawBody, true);
-        if (!is_array($decoded) || !isset($decoded['data'])) {
+        $sigBin = base64_decode($signatureBody, true);
+        if ($sigBin === false) {
             return false;
         }
 
-        // ✅ 只用 payload.data
-        $sorted  = $this->ksortRecursive($decoded['data']);
+        // ✅ 文档：data = base64(排序后的整个body compact json)
+        $decoded = json_decode($rawBody, true);
+        if (!is_array($decoded)) {
+            return false;
+        }
+
+        $sorted  = $this->ksortRecursive($decoded);
         $compact = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        if ($compact === false) return false;
+        if ($compact === false) {
+            return false;
+        }
 
+        // RM doc: replace special chars
         $compact = str_replace(['<', '>', '&'], ['\u003c', '\u003e', '\u0026'], $compact);
+        $dataB64 = base64_encode($compact);
 
-        $plain =
-            'data=' . base64_encode($compact)
+        // ✅ callback 验签：requestUrl 可以 skip（按你贴的 doc）
+        // ✅ 参数顺序尽量跟 doc 一样
+        $plain = 'data=' . $dataB64
             . '&method=post'
             . '&nonceStr=' . $nonceStr
+            . '&signType=' . $signType
             . '&timestamp=' . $timestamp;
 
-        $sigBin = base64_decode($signatureBody, true);
-        if ($sigBin === false) return false;
-
         try {
-            $pubKey = $this->loadPublicKeyForRm(); // ✅ 变成 OpenSSLAsymmetricKey
+            $pubKey = $this->loadPublicKeyForRm(); // ✅ 转成 OpenSSL key
         } catch (\Throwable $e) {
             Log::error('RM public key load failed', ['err' => $e->getMessage()]);
             return false;
@@ -486,6 +493,7 @@ class RevenueMonsterController extends Controller
 
         return openssl_verify($plain, $sigBin, $pubKey, OPENSSL_ALGO_SHA256) === 1;
     }
+
 
     private function headerValue(array $headers, string $key): ?string
     {
