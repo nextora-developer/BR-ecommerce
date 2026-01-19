@@ -286,24 +286,48 @@
 
                     <div class="flex flex-col gap-3">
                         {{-- Preview --}}
-                        <div id="imagePreviewContainer" class="flex flex-wrap gap-3">
-                            @if (!empty($product->images) && count($product->images))
-                                @foreach ($product->images as $image)
-                                    <div
-                                        class="h-24 w-24 rounded-lg bg-gray-100 border overflow-hidden flex items-center justify-center">
-                                        <img src="{{ asset('storage/' . $image->path) }}"
+                        <div id="imagePreviewContainer" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                            @if ($product->exists && $product->images && $product->images->count())
+                                @foreach ($product->images as $img)
+                                    <div class="group relative aspect-square rounded-lg bg-gray-100 border overflow-hidden select-none"
+                                        data-existing-id="{{ $img->id }}">
+                                        <img src="{{ asset('storage/' . $img->path) }}"
                                             class="h-full w-full object-cover" alt="Preview">
+
+                                        {{-- Primary badge --}}
+                                        @if ($img->is_primary)
+                                            <div
+                                                class="absolute left-2 top-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-[#FDFBF7] border border-[#D4AF37]/30 text-[#8f6a10]">
+                                                Primary
+                                            </div>
+                                        @else
+                                            <div
+                                                class="absolute left-2 top-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-white/90 border border-gray-200 text-gray-700">
+                                                Saved
+                                            </div>
+                                        @endif
+
+                                        {{-- Remove --}}
+                                        <button type="button"
+                                            class="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/95 border border-gray-200 shadow-sm flex items-center justify-center text-gray-600 hover:text-red-600 hover:border-red-200 transition"
+                                            data-remove-existing="1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M18 6L6 18"></path>
+                                                <path d="M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+
+                                        <div
+                                            class="absolute left-2 bottom-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-white/90 border border-gray-200 text-gray-600 opacity-0 group-hover:opacity-100 transition">
+                                            Drag
+                                        </div>
                                     </div>
                                 @endforeach
-                            @elseif ($product->image)
-                                <div
-                                    class="h-24 w-24 rounded-lg bg-gray-100 border overflow-hidden flex items-center justify-center">
-                                    <img src="{{ asset('storage/' . $product->image) }}"
-                                        class="h-full w-full object-cover" alt="Preview">
-                                </div>
                             @else
                                 <div class="h-24 w-24 rounded-lg bg-gray-100 border overflow-hidden flex items-center justify-center"
-                                    id="imagePlaceholder">
+                                    data-placeholder="1">
                                     <svg class="h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
                                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -312,6 +336,19 @@
                                 </div>
                             @endif
                         </div>
+
+                        {{-- hidden inputs --}}
+                        <div id="imageOrderInputs"></div>
+                        <div id="imageDeleteInputs"></div>
+
+
+                        <div class="text-xs text-gray-500">
+                            <span id="imageFileName" class="font-semibold text-gray-700">No image selected</span>
+                            <span class="mx-2 text-gray-300">•</span>
+                            <span id="imageFileMeta">PNG / JPG, up to 2MB each. Max 10 images.</span>
+                        </div>
+
+
 
                         {{-- Upload buttons --}}
                         <div>
@@ -676,74 +713,263 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // =========================
-            // Image preview logic
-            // =========================
+            const MAX = 10;
+
             const input = document.getElementById('imageInput');
             const previewContainer = document.getElementById('imagePreviewContainer');
-            const fileNameText = document.getElementById('imageFileName');
-            const fileMetaText = document.getElementById('imageFileMeta');
             const clearBtn = document.getElementById('imageClearBtn');
 
-            function resetPreview() {
-                input.value = '';
-                previewContainer.innerHTML = '';
+            const orderInputs = document.getElementById('imageOrderInputs');
+            const deleteInputs = document.getElementById('imageDeleteInputs');
 
-                const placeholderDiv = document.createElement('div');
-                placeholderDiv.className =
-                    'h-24 w-24 rounded-lg bg-gray-100 border overflow-hidden flex items-center justify-center';
-                placeholderDiv.innerHTML = `
-                <svg class="h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 16.5V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v9.75M3 16.5l4.5-4.5a2.25 2.25 0 013.182 0l4.318 4.318a2.25 2.25 0 003.182 0L21 13.5" />
-                </svg>
-            `;
-                previewContainer.appendChild(placeholderDiv);
+            if (!input || !previewContainer || !orderInputs || !deleteInputs) return;
 
-                fileNameText.textContent = 'No image selected';
-                fileMetaText.textContent = 'PNG / JPG, up to 2MB each. You can select multiple files.';
+            let deletedExisting = new Set();
+            let newFiles = []; // 当前所有新文件（最终顺序会由 DOM 决定）
+            let dragEl = null;
+
+            function currentItems() {
+                // 读 DOM 顺序 -> item list
+                const nodes = Array.from(previewContainer.children).filter(n => !n.dataset.placeholder);
+                return nodes.map((n) => {
+                    const eid = n.getAttribute('data-existing-id');
+                    if (eid) return {
+                        type: 'existing',
+                        id: parseInt(eid, 10),
+                        el: n
+                    };
+                    const nkey = n.getAttribute('data-new-key');
+                    if (nkey) return {
+                        type: 'new',
+                        key: nkey,
+                        el: n
+                    };
+                    return null;
+                }).filter(Boolean);
             }
 
-            input.addEventListener('change', (e) => {
-                const files = Array.from(e.target.files || []);
-
-                if (!files.length) {
-                    resetPreview();
-                    return;
+            function ensurePlaceholder() {
+                const hasAny = Array.from(previewContainer.children).some(n => !n.dataset.placeholder);
+                if (!hasAny) {
+                    previewContainer.innerHTML = `
+                <div class="h-24 w-24 rounded-lg bg-gray-100 border overflow-hidden flex items-center justify-center" data-placeholder="1">
+                    <svg class="h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 16.5V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v9.75M3 16.5l4.5-4.5a2.25 2.25 0 013.182 0l4.318 4.318a2.25 2.25 0 003.182 0L21 13.5" />
+                    </svg>
+                </div>
+            `;
                 }
+            }
 
-                previewContainer.innerHTML = '';
+            function rebuildHiddenInputs() {
+                // 最终顺序：final_order[] = ["e:12","n:abc123",...]
+                orderInputs.innerHTML = '';
+                deleteInputs.innerHTML = '';
 
-                files.forEach((file) => {
-                    const reader = new FileReader();
+                const items = currentItems();
 
-                    reader.onload = (event) => {
-                        const wrapper = document.createElement('div');
-                        wrapper.className =
-                            'h-24 w-24 rounded-lg bg-gray-100 border overflow-hidden flex items-center justify-center';
-
-                        const img = document.createElement('img');
-                        img.src = event.target.result;
-                        img.alt = 'Preview';
-                        img.className = 'h-full w-full object-cover';
-
-                        wrapper.appendChild(img);
-                        previewContainer.appendChild(wrapper);
-                    };
-
-                    reader.readAsDataURL(file);
+                items.forEach((it) => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'final_order[]';
+                    inp.value = it.type === 'existing' ? `e:${it.id}` : `n:${it.key}`;
+                    orderInputs.appendChild(inp);
                 });
 
-                fileNameText.textContent = `${files.length} image(s) selected`;
-                fileMetaText.textContent = files.map(f => f.name).join(', ');
+                Array.from(deletedExisting).forEach((id) => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'delete_image_ids[]';
+                    inp.value = String(id);
+                    deleteInputs.appendChild(inp);
+                });
+            }
+
+            function syncInputFilesByDOM() {
+                // DOM 中 new 的顺序 -> newFiles 重排 -> input.files 同步
+                const items = currentItems().filter(i => i.type === 'new');
+                const ordered = items.map(i => newFilesMap.get(i.key)).filter(Boolean);
+
+                newFiles = ordered;
+
+                const dt = new DataTransfer();
+                newFiles.forEach(f => dt.items.add(f));
+                input.files = dt.files;
+            }
+
+            // 用 key map 存新文件（让 DOM 可以稳定引用）
+            const newFilesMap = new Map(); // key => File
+
+            function makeNewCard(file, key) {
+                const card = document.createElement('div');
+                card.className =
+                    'group relative aspect-square rounded-lg bg-gray-100 border overflow-hidden select-none';
+                card.setAttribute('data-new-key', key);
+                card.style.touchAction = 'none';
+
+                const img = document.createElement('img');
+                img.className = 'h-full w-full object-cover pointer-events-none';
+                img.alt = 'Preview';
+
+                const reader = new FileReader();
+                reader.onload = (e) => (img.src = e.target.result);
+                reader.readAsDataURL(file);
+
+                const badge = document.createElement('div');
+                badge.className =
+                    'absolute left-2 top-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-white/90 border border-gray-200 text-gray-700';
+                badge.textContent = 'New';
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className =
+                    'absolute top-2 right-2 h-8 w-8 rounded-full bg-white/95 border border-gray-200 shadow-sm flex items-center justify-center text-gray-600 hover:text-red-600 hover:border-red-200 transition';
+                btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18"></path>
+                <path d="M6 6l12 12"></path>
+            </svg>
+        `;
+                btn.addEventListener('click', () => {
+                    newFilesMap.delete(key);
+                    card.remove();
+                    ensurePlaceholder();
+                    syncInputFilesByDOM();
+                    rebuildHiddenInputs();
+                });
+
+                const hint = document.createElement('div');
+                hint.className =
+                    'absolute left-2 bottom-2 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-white/90 border border-gray-200 text-gray-600 opacity-0 group-hover:opacity-100 transition';
+                hint.textContent = 'Drag';
+
+                card.appendChild(img);
+                card.appendChild(badge);
+                card.appendChild(btn);
+                card.appendChild(hint);
+
+                attachDrag(card);
+                return card;
+            }
+
+            function attachExistingRemoveHandlers() {
+                previewContainer.querySelectorAll('[data-existing-id]').forEach((card) => {
+                    const btn = card.querySelector('[data-remove-existing="1"]');
+                    if (!btn) return;
+
+                    btn.onclick = () => {
+                        const id = parseInt(card.getAttribute('data-existing-id'), 10);
+                        deletedExisting.add(id);
+                        card.remove();
+                        ensurePlaceholder();
+                        syncInputFilesByDOM();
+                        rebuildHiddenInputs();
+                    };
+
+                    attachDrag(card);
+                });
+            }
+
+            function attachDrag(card) {
+                card.style.touchAction = 'none';
+
+                card.onpointerdown = (ev) => {
+                    if (ev.target.closest('button')) return;
+                    dragEl = card;
+                    card.setPointerCapture(ev.pointerId);
+                    card.classList.add('ring-2', 'ring-[#D4AF37]', 'ring-offset-2');
+                };
+
+                card.onpointermove = (ev) => {
+                    if (!dragEl) return;
+
+                    const over = document.elementFromPoint(ev.clientX, ev.clientY)?.closest(
+                        '[data-existing-id],[data-new-key]');
+                    if (!over || over === dragEl) return;
+
+                    const siblings = Array.from(previewContainer.children).filter(n => !n.dataset.placeholder);
+                    const from = siblings.indexOf(dragEl);
+                    const to = siblings.indexOf(over);
+                    if (from < 0 || to < 0) return;
+
+                    if (from < to) {
+                        previewContainer.insertBefore(dragEl, over.nextSibling);
+                    } else {
+                        previewContainer.insertBefore(dragEl, over);
+                    }
+
+                    syncInputFilesByDOM();
+                    rebuildHiddenInputs();
+                };
+
+                const end = () => {
+                    if (!dragEl) return;
+                    dragEl.classList.remove('ring-2', 'ring-[#D4AF37]', 'ring-offset-2');
+                    dragEl = null;
+                };
+
+                card.onpointerup = end;
+                card.onpointercancel = end;
+            }
+
+            // 选择新文件（总上限 10：旧图 - 已删除 + 新图）
+            input.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files || []);
+                if (!files.length) return;
+
+                const existingCount = previewContainer.querySelectorAll('[data-existing-id]').length;
+                const newCount = previewContainer.querySelectorAll('[data-new-key]').length;
+                const remaining = MAX - existingCount - newCount;
+
+                const add = files.slice(0, Math.max(0, remaining));
+                if (add.length < files.length) alert(
+                    `Max ${MAX} images total. Only added ${add.length} image(s).`);
+
+                // remove placeholder
+                previewContainer.querySelectorAll('[data-placeholder]').forEach(n => n.remove());
+
+                add.forEach((file) => {
+                    const key = crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math
+                        .random().toString(16).slice(2));
+                    newFilesMap.set(key, file);
+                    previewContainer.appendChild(makeNewCard(file, key));
+                });
+
+                syncInputFilesByDOM();
+                rebuildHiddenInputs();
+
+                // allow re-select same file next time
+                input.value = '';
             });
 
-            clearBtn.addEventListener('click', () => {
-                resetPreview();
-            });
+            // Clear：只清空“新图”（旧图保留）
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    // remove new cards
+                    previewContainer.querySelectorAll('[data-new-key]').forEach(n => n.remove());
 
+                    newFilesMap.clear();
+                    newFiles = [];
+                    input.value = '';
+                    input.files = new DataTransfer().files;
 
+                    ensurePlaceholder();
+                    rebuildHiddenInputs();
+                });
+            }
+
+            // init
+            attachExistingRemoveHandlers();
+            rebuildHiddenInputs();
+            ensurePlaceholder();
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
             // =========================
             // Variants: show/hide
             // =========================

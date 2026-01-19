@@ -440,21 +440,28 @@ class AdminProductController extends Controller
         }
 
         // =========================
-        // 图片处理（有新图片就整组替换）
+        // 图片处理（支持：删除旧图 + 拖动排序 + 新增图片）
         // =========================
-        if (!empty($imagesInput)) {
+        $imagesInput   = $request->file('images', []);
+        $finalOrder    = $request->input('final_order', []);        // ["e:12","n:abc",...]
+        $deleteIds     = collect($request->input('delete_image_ids', []))
+            ->filter(fn($v) => is_numeric($v))
+            ->map(fn($v) => (int)$v)
+            ->values();
 
+        // ---- A) 兼容旧逻辑：如果你还没接前端 final_order/delete，而且有新图，就整组替换（原来的行为）----
+        $useLegacyReplaceAll = empty($finalOrder) && $deleteIds->isEmpty() && !empty($imagesInput);
+
+        if ($useLegacyReplaceAll) {
             // 1) 先删旧图片文件 + DB 记录
             foreach ($product->images as $img) {
                 if ($img->path) {
                     Storage::disk('public')->delete($img->path);
                 }
             }
-
-            // 删掉 product_images 记录
             $product->images()->delete();
 
-            // 如果 products.image 也有封面路径，一起删
+            // products.image 一起删
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
                 $product->image = null;
@@ -463,30 +470,118 @@ class AdminProductController extends Controller
 
             // 2) 再存新的图片
             $primaryPath = null;
-
             foreach ($imagesInput as $index => $file) {
-                if (!$file) {
-                    continue;
-                }
+                if (!$file) continue;
 
                 $path = $file->store('products', 'public');
 
                 $product->images()->create([
                     'path'       => $path,
-                    'is_primary' => $index === 0,  // 第一张当封面
-                    'sort_order' => $index,        // 从 0 开始排
+                    'is_primary' => $index === 0,
+                    'sort_order' => $index,
                 ]);
 
-                if ($index === 0) {
-                    $primaryPath = $path;
-                }
+                if ($index === 0) $primaryPath = $path;
             }
 
-            // 同步封面到 products.image 字段
             if ($primaryPath) {
                 $product->update(['image' => $primaryPath]);
             }
+        } else {
+            // ---- B) 新逻辑：删除 / 排序 / 新增（可混排）----
+
+            // 1) 删除旧图（DB + storage）
+            if ($deleteIds->isNotEmpty()) {
+                $imgs = $product->images()->whereIn('id', $deleteIds)->get();
+                foreach ($imgs as $img) {
+                    if ($img->path) {
+                        Storage::disk('public')->delete($img->path);
+                    }
+                    $img->delete();
+                }
+            }
+
+            // 2) 先算总数上限 10（旧-删 + 新）
+            $remainingExistingCount = $product->images()->count();
+            $incomingCount = is_array($imagesInput) ? count($imagesInput) : 0;
+
+            if (($remainingExistingCount + $incomingCount) > 10) {
+                return back()
+                    ->withErrors(['images' => 'Max 10 images total (existing + new).'])
+                    ->withInput();
+            }
+
+            // 3) 上传新图（先 create 出来，sort_order 等下用 final_order 统一写）
+            //    ⚠️ 注意：前端必须保证 input.files 的顺序已经按 “final_order 里的 new 顺序” 排好
+            $justCreated = collect();
+            if (!empty($imagesInput)) {
+                foreach ($imagesInput as $file) {
+                    if (!$file) continue;
+
+                    $path = $file->store('products', 'public');
+
+                    $img = $product->images()->create([
+                        'path'       => $path,
+                        'is_primary' => false,
+                        'sort_order' => 9999, // 临时
+                    ]);
+
+                    $justCreated->push($img);
+                }
+            }
+
+            // 4) 如果没有 final_order（例如你只上传了新图但没做拖动），就默认：旧图原顺序 + 新图追加
+            $final = collect($finalOrder)
+                ->filter(fn($v) => is_string($v) && (str_starts_with($v, 'e:') || str_starts_with($v, 'n:')))
+                ->values();
+
+            if ($final->isEmpty()) {
+                $existingIds = $product->images()
+                    ->whereNotIn('id', $justCreated->pluck('id')->all())
+                    ->orderBy('sort_order')
+                    ->pluck('id')
+                    ->map(fn($id) => "e:$id");
+
+                $newTokens = $justCreated->map(fn() => 'n:x'); // 占位 token
+                $final = $existingIds->concat($newTokens)->values();
+            }
+
+            // 5) 按 final_order 统一写 sort_order + is_primary
+            $existingMap = $product->images()->get()->keyBy('id');
+            $consumeNewIndex = 0;
+
+            // 先全部取消 primary
+            $product->images()->update(['is_primary' => false]);
+
+            foreach ($final as $i => $token) {
+                if (str_starts_with($token, 'e:')) {
+                    $id = (int) substr($token, 2);
+                    if ($existingMap->has($id)) {
+                        $existingMap[$id]->update(['sort_order' => $i]);
+                    }
+                } else {
+                    // n:key -> 我们按“创建顺序”消费（因为 input.files 已经被前端按 new 的最终顺序排好了）
+                    if ($consumeNewIndex < $justCreated->count()) {
+                        $justCreated[$consumeNewIndex]->update(['sort_order' => $i]);
+                        $consumeNewIndex++;
+                    }
+                }
+            }
+
+            // 6) 把 sort_order 最小的设为 primary，并同步到 products.image
+            $first = $product->images()->orderBy('sort_order')->first();
+            if ($first) {
+                $first->update(['is_primary' => true]);
+                $product->update(['image' => $first->path]);
+            } else {
+                // 如果全部删光
+                if ($product->image) {
+                    // 这里不强制删旧文件（因为可能已经被删），但你要严谨也可以 exists 再 delete
+                    $product->update(['image' => null]);
+                }
+            }
         }
+
 
 
         return redirect()
