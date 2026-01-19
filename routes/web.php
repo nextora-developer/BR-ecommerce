@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\AdminVoucherController;
 use App\Http\Controllers\Admin\AdminPopupBannerController;
 use App\Http\Controllers\Admin\AdminPointTransactionController;
 use App\Http\Controllers\Admin\AdminOrderInvoiceController;
+use App\Http\Controllers\Admin\AdminAgentController;
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountOrderController;
@@ -269,6 +270,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Point Transaction
     Route::get('/points', [AdminPointTransactionController::class, 'index'])->name('points.index');
     Route::get('/points/{pointTransaction}', [AdminPointTransactionController::class, 'show'])->name('points.show');
+
+    // Agents
+    Route::resource('agents', AdminAgentController::class)->except(['show']);
 });
 
 /*
