@@ -8,6 +8,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\VoucherPageController;
 use App\Http\Controllers\ProductReviewController;
+use App\Http\Controllers\PublicAgentController;
 
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -97,6 +98,11 @@ Route::get('/terms-of-service', [PageController::class, 'terms'])->name('terms')
 
 Route::post('/voucher/apply', [VoucherController::class, 'apply'])->name('voucher.apply');
 Route::post('/voucher/remove', [VoucherController::class, 'remove'])->name('voucher.remove');
+
+Route::get('/verify-agent', [PublicAgentController::class, 'index'])
+    ->name('agents.index');
+    Route::get('/verify-agent/pdf', [PublicAgentController::class, 'pdf'])
+    ->name('agents.verify.pdf');
 
 
 

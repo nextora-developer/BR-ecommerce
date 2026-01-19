@@ -63,6 +63,10 @@
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
                                     Voucher
                                 </a>
+                                <a href="{{ route('agents.index') }}"
+                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
+                                    Verify Agent
+                                </a>
                                 <a href="{{ route('guideline') }}"
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
                                     Guideline
