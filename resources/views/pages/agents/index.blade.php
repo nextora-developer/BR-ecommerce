@@ -313,7 +313,7 @@
                                 <span class="text-xs font-black uppercase tracking-widest text-gray-400">Support
                                     Line</span>
                             </div>
-                            <div class="text-xl font-bold text-gray-900">012 345 6789</div>
+                            <div class="text-xl font-bold text-gray-900">012-301 1610</div> 
                             <p class="mt-2 text-sm text-gray-500 font-medium">Verified WhatsApp for support & agent
                                 verification identity.</p>
                         </div>
@@ -413,7 +413,7 @@
                     <a href="mailto:cs@brinnovatefuture.com"
                         class="px-5 py-2.5 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition-all">Email
                         Report</a>
-                    <a href="https://wa.me/60123456789"
+                    <a href="https://wa.me/60123011610"
                         class="px-5 py-2.5 bg-white/10 text-white rounded-xl text-sm font-bold hover:bg-white/20 transition-all border border-white/10">WhatsApp</a>
                 </div>
             </div>
