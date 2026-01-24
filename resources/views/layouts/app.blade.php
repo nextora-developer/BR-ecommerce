@@ -67,7 +67,7 @@
                             class="h-10 w-10 rounded-2xl object-cover shadow-lg shadow-[#D4AF37]/20" />
 
                         <div class="flex flex-col leading-tight">
-                            <span class="text-xl font-bold tracking-tight text-white">BRIF</span>
+                            <span class="text-xl font-bold tracking-tight text-white">BRIF.MY</span>
                             <span class="text-xs text-gray-400 tracking-wide">Premium Essentials</span>
                         </div>
                     </div>

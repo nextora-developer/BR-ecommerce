@@ -11,7 +11,7 @@
 
                         <span
                             class="text-xl font-bold tracking-tight text-white group-hover:text-[#D4AF37] transition-colors">
-                            BRIF
+                            BRIF.MY
                         </span>
                     </a>
                 </div>
