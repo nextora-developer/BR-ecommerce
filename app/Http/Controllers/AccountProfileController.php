@@ -73,7 +73,7 @@ class AccountProfileController extends Controller
             'ic_number'  => $user->ic_number ? ['sometimes'] : ['nullable', 'string', 'max:30'],
             'birth_date' => $user->birth_date ? ['sometimes'] : ['nullable', 'date'],
 
-            'ic_image'   => ['nullable', 'image', 'max:2048'],
+            'ic_image'   => ['nullable', 'image', 'max:4096'],
         ];
     }
 

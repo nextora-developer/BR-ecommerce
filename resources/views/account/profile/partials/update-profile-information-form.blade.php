@@ -273,7 +273,7 @@
            disabled:opacity-60 disabled:cursor-not-allowed" />
 
                     <div class="mt-2 flex items-center gap-2">
-                        <span class="text-xs text-gray-400">Accepted: JPG, PNG (Max 2MB)</span>
+                        <span class="text-xs text-gray-400">Accepted: JPG, PNG (Max 4MB)</span>
                     </div>
 
                     @error('ic_image')
