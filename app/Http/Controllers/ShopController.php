@@ -105,7 +105,7 @@ class ShopController extends Controller
         }
 
         $products = $query
-            ->paginate(15)
+            ->paginate(12)
             ->onEachSide(2)
             ->withQueryString();
 
