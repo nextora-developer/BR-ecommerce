@@ -57,7 +57,6 @@
                         </span>
                     </a>
 
-                    {{-- Desktop User (mobile你原本是 hidden sm:block，这里保持你现状：手机不显示用户dropdown) --}}
                 </div>
             </div>
         </div>
@@ -182,60 +181,73 @@
                                     border border-white/10 shadow-2xl shadow-black/70 ring-1 ring-black/40">
                                     <div class="p-2 space-y-1">
 
+                                        {{-- Dashboard --}}
                                         <a href="{{ route('account.index') }}"
-                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
-                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
-                                            {{ request()->routeIs('account.index') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            Dashboard
+                                            class="group flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
+                                                {{ request()->routeIs('account.index') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
+
+                                            {{-- Icon --}}
+                                            <svg class="w-5 h-5 shrink-0 opacity-80 group-hover:opacity-100"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.8" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                                            </svg>
+
+                                            <span>Dashboard</span>
                                         </a>
 
+                                        {{-- My Orders --}}
                                         <a href="{{ route('account.orders.index') }}"
-                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
-                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
-                                            {{ request()->routeIs('account.orders.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            My Orders
+                                            class="group flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
+                                                {{ request()->routeIs('account.orders.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
+
+                                            <svg class="w-5 h-5 shrink-0 opacity-80 group-hover:opacity-100"
+                                                fill="none" stroke="currentColor" stroke-width="1.8"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                            </svg>
+
+                                            <span>My Orders</span>
                                         </a>
 
+                                        {{-- My Wishlist --}}
                                         <a href="{{ route('account.favorites.index') }}"
-                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
-                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
-                                            {{ request()->routeIs('account.favorites.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            My Wishlist
-                                        </a>
+                                            class="group flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
+                                                    {{ request()->routeIs('account.favorites.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
 
-                                        {{-- <a href="{{ route('account.referral.index') }}"
-                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
-                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
-                                            {{ request()->routeIs('account.favorites.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            Referral
-                                        </a>
+                                            <svg class="w-5 h-5 shrink-0 opacity-80 group-hover:opacity-100"
+                                                fill="none" stroke="currentColor" stroke-width="1.5"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M4.318 6.318a5.5 5.5 0 017.778 0L12 6.586l-.096-.097a5.5 5.5 0 117.778 7.778L12 21.192l-7.682-7.682a5.5 5.5 0 010-7.192z" />
+                                            </svg>
 
-                                        <a href="{{ route('account.address.index') }}"
-                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
-                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
-                                            {{ request()->routeIs('account.address.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            Shipping Addresses
+                                            <span>My Wishlist</span>
                                         </a>
-
-                                        <a href="{{ route('account.profile.edit') }}"
-                                            class="block px-4 py-2.5 text-sm font-medium rounded-xl transition
-                                            text-gray-200 hover:bg-white/10 hover:text-[#D4AF37]
-                                            {{ request()->routeIs('account.profile.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
-                                            Profile Settings
-                                        </a> --}}
 
                                         <div class="my-1 border-t border-white/10"></div>
 
+                                        {{-- Logout --}}
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
                                             <button type="submit"
-                                                class="w-full text-left block px-4 py-2.5 text-sm font-medium rounded-xl transition
-                                                text-red-400 hover:bg-white/10 hover:text-red-300">
-                                                Log Out
+                                                class="group w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition text-red-400 hover:bg-white/10 hover:text-red-300">
+
+                                                <svg class="w-5 h-5 shrink-0 opacity-80 group-hover:opacity-100"
+                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M18 12h-9m9 0l-3-3m3 3l-3 3" />
+                                                </svg>
+
+                                                <span>Log Out</span>
                                             </button>
                                         </form>
 
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -301,18 +313,6 @@
                         <div x-cloak x-show="openMore"
                             class="absolute left-0 mt-2 w-56 rounded-2xl border border-white/10 bg-black/95 backdrop-blur shadow-xl ring-1 ring-black/40 overflow-hidden z-50">
                             <div class="p-1.5">
-                                {{-- <a href="{{ route('reward-point') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
-                                    Reward Point
-                                </a>
-                                <a href="{{ route('vouchers.index') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
-                                    Voucher
-                                </a>
-                                <a href="{{ route('agents.index') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
-                                    Verify Agent
-                                </a> --}}
                                 <a href="{{ route('guideline') }}"
                                     class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
                                     Guideline
@@ -345,7 +345,7 @@
                         placeholder="Search products..."
                         class="w-full bg-white/10 text-white placeholder-gray-400 border border-white/10
                                rounded-2xl px-4 py-3 text-sm
-                               focus:ring-2 focus:ring-[#D4AF37]/30 focus:bg-black transition-all">
+                               focus:ring-2 focus:ring-[#D4AF37]/30 focus:bg-black focus:border-[#D4AF37]/40 transition-all">
 
                     <button type="submit"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 group-hover:text-[#D4AF37] transition">
@@ -682,21 +682,21 @@
                                     stroke-width="1.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0
-                                                                                                                                                                   a1.724 1.724 0 002.573 1.066
-                                                                                                                                                                   c1.543-.94 3.31.826 2.37 2.37
-                                                                                                                                                                   a1.724 1.724 0 001.065 2.572
-                                                                                                                                                                   c1.756.426 1.756 2.924 0 3.35
-                                                                                                                                                                   a1.724 1.724 0 00-1.066 2.573
-                                                                                                                                                                   c.94 1.543-.826 3.31-2.37 2.37
-                                                                                                                                                                   a1.724 1.724 0 00-2.572 1.065
-                                                                                                                                                                   c-.426 1.756-2.924 1.756-3.35 0
-                                                                                                                                                                   a1.724 1.724 0 00-2.573-1.066
-                                                                                                                                                                   c-1.543.94-3.31-.826-2.37-2.37
-                                                                                                                                                                   a1.724 1.724 0 00-1.065-2.572
-                                                                                                                                                                   c-1.756-.426-1.756-2.924 0-3.35
-                                                                                                                                                                   a1.724 1.724 0 001.066-2.573
-                                                                                                                                                                   c-.94-1.543.826-3.31 2.37-2.37
-                                                                                                                                                                   a1.724 1.724 0 002.572-1.065z" />
+                                                                                                                                                                                                                           a1.724 1.724 0 002.573 1.066
+                                                                                                                                                                                                                           c1.543-.94 3.31.826 2.37 2.37
+                                                                                                                                                                                                                           a1.724 1.724 0 001.065 2.572
+                                                                                                                                                                                                                           c1.756.426 1.756 2.924 0 3.35
+                                                                                                                                                                                                                           a1.724 1.724 0 00-1.066 2.573
+                                                                                                                                                                                                                           c.94 1.543-.826 3.31-2.37 2.37
+                                                                                                                                                                                                                           a1.724 1.724 0 00-2.572 1.065
+                                                                                                                                                                                                                           c-.426 1.756-2.924 1.756-3.35 0
+                                                                                                                                                                                                                           a1.724 1.724 0 00-2.573-1.066
+                                                                                                                                                                                                                           c-1.543.94-3.31-.826-2.37-2.37
+                                                                                                                                                                                                                           a1.724 1.724 0 00-1.065-2.572
+                                                                                                                                                                                                                           c-1.756-.426-1.756-2.924 0-3.35
+                                                                                                                                                                                                                           a1.724 1.724 0 001.066-2.573
+                                                                                                                                                                                                                           c-.94-1.543.826-3.31 2.37-2.37
+                                                                                                                                                                                                                           a1.724 1.724 0 002.572-1.065z" />
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
