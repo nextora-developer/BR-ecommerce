@@ -20,9 +20,9 @@
 <body class="font-sans text-gray-900 antialiased">
     <div
         class="min-h-[100svh] flex items-center justify-center px-4 py-10
-               bg-gradient-to-br from-[#d4af37] via-[#f6e8b1] to-white">
+               bg-[#F9F7F2]">
 
-        <div class="w-full sm:max-w-md">
+        <div class="">
             {{ $slot }}
         </div>
     </div>

@@ -1,99 +1,146 @@
 <x-guest-layout>
-    @if (session('status'))
+    <div class="w-full max-w-6xl mx-auto px-4">
+        {{-- OUTER BIG CARD --}}
         <div
-            class="mb-6 px-4 py-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-sm animate-fade-in">
-            <div class="flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clip-rule="evenodd"></path>
-                </svg>
-                {{ session('status') }}
+            class="relative rounded-[40px] bg-white/80 backdrop-blur-2xl
+                    shadow-[0_40px_100px_-15px_rgba(0,0,0,0.15)] 
+                    overflow-hidden max-h-[min(720px,calc(100svh-100px))]">
+
+            <div class="h-full grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch overflow-hidden rounded-[32px]">
+
+                {{-- LEFT GOLD POSTER PANEL --}}
+                <div class="lg:col-span-5 xl:col-span-5 h-full hidden lg:block">
+                    <div class="relative h-full overflow-hidden">
+
+                        <img src="{{ asset('images/login1.png') }}"
+                            onerror="this.style.display='none'; document.getElementById('luxury-placeholder').style.display='flex';"
+                            alt="BRIF visual" class="absolute inset-0 w-full h-full object-cover" />
+
+                        {{-- fallback --}}
+                        <div id="luxury-placeholder"
+                            class="hidden absolute inset-0 items-center justify-center
+                   border-2 border-dashed border-white/30 bg-[#D4AF37]/30">
+                            <span class="text-white/60 text-[11px] font-bold uppercase tracking-widest">
+                                Asset: login-figures.png
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                {{-- RIGHT LOGIN FORM --}}
+                <div class="lg:col-span-7 xl:col-span-7 h-full bg-white flex items-center px-8 py-12 sm:px-16">
+                    <div class="w-full max-w-sm mx-auto">
+
+                        <div class="mb-10 text-center lg:text-left">
+                            <div class="inline-flex items-center gap-3 mb-4">
+                                <img src="{{ asset('images/logo.png') }}" class="h-8 w-8 rounded-xl" alt=""
+                                    onerror="this.src='https://ui-avatars.com/api/?name=B&background=D4AF37&color=fff'">
+                                <span
+                                    class="text-base font-black tracking-widest text-gray-400 uppercase">brif.my</span>
+                            </div>
+                            <h2 class="text-3xl font-black text-gray-900 tracking-tight">Welcome Back</h2>
+                            <p class="text-gray-400 text-sm mt-1">Please sign in to continue to your workspace.</p>
+                        </div>
+
+                        @if (session('status'))
+                            <div
+                                class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 text-sm font-semibold">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                            @csrf
+
+                            <div class="group">
+                                <label
+                                    class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 group-focus-within:text-[#D4AF37] transition-colors">Email
+                                    Address</label>
+                                <input id="email" type="email" name="email" required autofocus
+                                    class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 
+                                                  focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5
+                                                  outline-none transition-all duration-300 text-gray-900 placeholder:text-gray-300"
+                                    placeholder="name@company.com" />
+                            </div>
+
+                            <div class="group">
+                                <div class="flex justify-between items-center mb-1 px-1">
+                                    <label
+                                        class="block text-[10px] font-black text-gray-400 uppercase tracking-widest group-focus-within:text-[#D4AF37] transition-colors">Password</label>
+                                    {{-- @if (Route::has('password.request'))
+                                        <a href="{{ route('password.request') }}"
+                                            class="text-[10px] font-bold text-[#8f6a10] hover:text-[#D4AF37]">Forgot?</a>
+                                    @endif --}}
+                                </div>
+                                <div class="relative">
+                                    <input id="password" type="password" name="password" required
+                                        class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 
+                                                      focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5
+                                                      outline-none transition-all duration-300 text-gray-900 placeholder:text-gray-300"
+                                        placeholder="••••••••" />
+                                    <button type="button"
+                                        onclick="const p=document.getElementById('password'); p.type = (p.type==='password'?'text':'password')"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full py-4 rounded-2xl font-black text-white tracking-[0.2em] uppercase text-[11px]
+                                               bg-[#D4AF37] 
+                                               shadow-[0_20px_40px_-10px_rgba(212,175,55,0.4)]
+                                               hover:shadow-[0_25px_50px_-12px_rgba(212,175,55,0.5)]
+                                               hover:-translate-y-1 active:translate-y-0 transition-all duration-300">
+                                Sign In
+                            </button>
+                            <div class="mt-8">
+                                <a href="{{ route('home') }}"
+                                    class="group relative flex items-center justify-center w-full py-4 rounded-[20px]
+                                            border border-gray-200 bg-white/70 backdrop-blur-sm
+                                            text-[10px] font-black tracking-[0.3em] uppercase text-gray-600
+                                            transition-all duration-500 overflow-hidden">
+
+                                    {{-- Subtle Hover Background Glow --}}
+                                    <div
+                                        class="absolute inset-0 translate-y-full group-hover:translate-y-0 bg-gradient-to-t from-[#D4AF37]/5 to-transparent transition-transform duration-500">
+                                    </div>
+
+                                    <span class="relative flex items-center gap-2">
+                                        {{-- Animated Arrow --}}
+                                        <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform duration-300"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M15 19l-7-7 7-7" />
+                                        </svg>
+
+                                        Back to Shop
+                                    </span>
+                                </a>
+                            </div>
+                        </form>
+
+
+
+                        @if (Route::has('register'))
+                            <p class="mt-10 text-center text-sm text-gray-400 font-medium">
+                                Don't have an account?
+                                <a href="{{ route('register') }}"
+                                    class="text-[#D4AF37] font-black hover:underline decoration-2 underline-offset-4 transition-all">
+                                    Sign up
+                                </a>
+                            </p>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
-    @endif
-
-    <div class="max-w-md mx-auto">
-        <form method="POST" action="{{ route('login') }}"
-            class="bg-white/80 backdrop-blur-sm border border-[#D4AF37]/20 shadow-xl rounded-3xl px-8 py-10">
-
-            @csrf
-
-            <div class="text-center mb-8">
-
-                <!-- 小副标题（品牌名） -->
-                <p class="text-lg font-semibold tracking-[0.25em] text-[#8f6a10] uppercase mb-2">
-                    Brif.my
-                </p>
-
-                <!-- 主标题 -->
-                <h2 class="text-2xl font-bold text-gray-900 tracking-tight">
-                    Sign in to your account
-                </h2>
-
-            </div>
-
-
-            <div class="mb-5">
-                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2 ml-1">
-                    Email Address
-                </label>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                    placeholder="name@company.com"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 transition-all duration-200 outline-none text-gray-800" />
-                @error('email')
-                    <p class="text-xs text-red-500 mt-1.5 ml-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="mb-4">
-                <div class="flex justify-between items-center mb-2 ml-1">
-                    <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
-                        Password
-                    </label>
-                    {{-- @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-xs font-semibold text-[#8f6a10] hover:text-[#D4AF37]">
-                            Forgot password?
-                        </a>
-                    @endif --}}
-                </div>
-                <input id="password" type="password" name="password" required autocomplete="current-password"
-                    placeholder="••••••••"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 transition-all duration-200 outline-none text-gray-800" />
-                @error('password')
-                    <p class="text-xs text-red-500 mt-1.5 ml-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="flex items-center mb-6 ml-1">
-                <input id="remember_me" type="checkbox" name="remember"
-                    class="rounded border-gray-300 text-[#D4AF37] focus:ring-[#D4AF37] transition duration-150 ease-in-out">
-                <label for="remember_me" class="ml-2 block text-sm text-gray-600">Remember me</label>
-            </div>
-
-            <div class="space-y-4">
-                <button type="submit"
-                    class="w-full inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#8f6a10] text-white shadow-lg shadow-gold-500/20 hover:shadow-[#D4AF37]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-base font-bold">
-                    Sign In
-                </button>
-
-                <a href="{{ route('home') }}"
-                    class="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-sm font-semibold">
-                    ← Back to Shop
-                </a>
-            </div>
-
-            @if (Route::has('register'))
-                <div class="mt-8 text-center">
-                    <p class="text-sm text-gray-600">
-                        New here?
-                        <a href="{{ route('register') }}"
-                            class="text-[#8f6a10] font-bold hover:text-[#D4AF37] transition-colors">
-                            Create an account
-                        </a>
-                    </p>
-                </div>
-            @endif
-        </form>
     </div>
 </x-guest-layout>
