@@ -66,7 +66,7 @@
 
 
         {{-- Category Section: Boutique Shelf Look --}}
-        <section id="categories" class="relative">
+        <section id="categories" class="relative scroll-mt-48">
             <div class="relative mx-auto max-w-7xl5 px-4 sm:px-6 lg:px-8 sm:py-3 lg:py-4">
 
                 @if (isset($categories) && $categories->count())
@@ -81,18 +81,18 @@
                                         {{-- Back floating card --}}
                                         <div
                                             class="absolute inset-0 bg-white rounded-[1.75rem] sm:rounded-[2rem]
-                               rotate-0 group-hover:rotate-12 transition-transform duration-500
-                               border border-black/[0.03] shadow-sm">
+                                                    rotate-0 group-hover:rotate-12 transition-transform duration-500
+                                                    border border-black/[0.03] shadow-sm">
                                         </div>
 
                                         {{-- Main card --}}
                                         <div
                                             class="relative w-full h-full rounded-[1.75rem] sm:rounded-[2rem] overflow-hidden
-                               bg-white border border-black/[0.05] shadow-md
-                               flex items-center justify-center
-                               transition-all duration-500
-                               group-hover:-translate-y-2 sm:group-hover:-translate-y-3
-                               group-hover:shadow-xl group-hover:shadow-[#D4AF37]/15">
+                                                    bg-white border border-black/[0.05] shadow-md
+                                                    flex items-center justify-center
+                                                    transition-all duration-500
+                                                    group-hover:-translate-y-2 sm:group-hover:-translate-y-3
+                                                    group-hover:shadow-xl group-hover:shadow-[#D4AF37]/15">
                                             @if ($category->icon)
                                                 <img src="{{ asset('storage/' . $category->icon) }}"
                                                     alt="{{ $category->name }}" class="w-full h-full object-cover">
