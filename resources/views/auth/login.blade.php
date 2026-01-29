@@ -12,7 +12,7 @@
                 <div class="lg:col-span-5 xl:col-span-5 h-full hidden lg:block">
                     <div class="relative h-full overflow-hidden">
 
-                        <img src="{{ asset('images/login1.png') }}"
+                        <img src="{{ asset('images/user-login.png') }}"
                             onerror="this.style.display='none'; document.getElementById('luxury-placeholder').style.display='flex';"
                             alt="BRIF visual" class="absolute inset-0 w-full h-full object-cover" />
 

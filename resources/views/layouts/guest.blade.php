@@ -22,7 +22,7 @@
         class="min-h-[100svh] flex items-center justify-center px-4 py-10
                bg-[#F9F7F2]">
 
-        <div class="">
+        <div class="w-full max-w-6xl mx-auto px-4">
             {{ $slot }}
         </div>
     </div>
