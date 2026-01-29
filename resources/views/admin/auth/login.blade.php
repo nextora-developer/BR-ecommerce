@@ -109,11 +109,6 @@
                                                group-focus-within:text-[#D4AF37] transition-colors">
                                         Password
                                     </label>
-
-                                    <a href="{{ route('home') }}"
-                                        class="text-[10px] font-black tracking-widest uppercase text-gray-400 hover:text-[#8f6a10] transition-colors">
-                                        Exit
-                                    </a>
                                 </div>
 
                                 <input type="password" name="password" required placeholder="••••••••"
