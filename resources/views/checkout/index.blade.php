@@ -372,7 +372,7 @@
                                                     @endphp
 
                                                     <div
-                                                        class="mt-4 ml-6 p-5 bg-gray-50 rounded-2xl border border-gray-200 space-y-6">
+                                                        class="mt-4 md:ml-6 p-5 bg-gray-50 rounded-2xl border border-gray-200 space-y-6">
 
                                                         {{-- Step 1 --}}
                                                         <div class="flex gap-4">
@@ -497,7 +497,7 @@
 
                                                 @if ($isRM)
                                                     <div
-                                                        class="mt-4 ml-6 p-5 bg-[#F9FAFB] rounded-2xl border border-gray-200 space-y-4">
+                                                        class="mt-4 md:ml-6 p-5 bg-[#F9FAFB] rounded-2xl border border-gray-200 space-y-4">
                                                         <div class="flex gap-4">
                                                             <span
                                                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-[#D4AF37] text-white text-xs font-bold flex items-center justify-center">
@@ -550,6 +550,54 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+
+                                                        <div class="flex gap-4">
+                                                            <span
+                                                                class="flex-shrink-0 w-6 h-6 rounded-full bg-[#D4AF37] text-white text-xs font-bold flex items-center justify-center">
+                                                                2
+                                                            </span>
+
+                                                            <div class="flex-1">
+                                                                <div
+                                                                    class="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                                                                    <div class="flex items-start gap-3">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            class="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0"
+                                                                            fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="2" stroke="currentColor">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                d="M12 9v2m0 4h.01M10.29 3.86l-6.88 11.91a1.75 1.75 0 0 0 1.52 2.63h13.74a1.75 1.75 0 0 0 1.52-2.63L13.71 3.86a1.75 1.75 0 0 0-3.42 0Z" />
+                                                                        </svg>
+
+                                                                        <div>
+                                                                            <h4
+                                                                                class="text-base font-black text-red-800 mb-1">
+                                                                                Important payment notice
+                                                                            </h4>
+
+                                                                            <p
+                                                                                class="text-sm text-red-700 leading-relaxed max-w-md">
+                                                                                After completing the payment,
+                                                                                <strong>please do not close or refresh
+                                                                                    this page</strong>.
+                                                                                We are verifying your transaction with
+                                                                                the payment provider.
+                                                                            </p>
+
+                                                                            <p
+                                                                                class="mt-2 text-sm text-red-600 max-w-md">
+                                                                                You will be automatically redirected to
+                                                                                the payment success page once the
+                                                                                verification
+                                                                                is completed.
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
                                                 @endif
                                             </div>
@@ -669,7 +717,7 @@
 
                                     <div id="handlingFeeRow" class="hidden flex justify-between text-sm">
                                         <span class="text-gray-500">
-                                            {{ $handlingLabel }} 
+                                            {{ $handlingLabel }}
                                         </span>
                                         <span class="font-bold text-gray-900 text-right">
                                             RM <span id="handlingFeeText">0.00</span>
