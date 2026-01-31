@@ -61,7 +61,7 @@ class AdminProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'category_id' => ['nullable', 'exists:categories,id'],
+            'category_id' => ['required', 'exists:categories,id'],
             'name'        => ['required', 'string', 'max:255'],
             'slug'        => ['nullable', 'string', 'max:255', 'unique:products,slug'],
             'short_description' => ['nullable', 'string', 'max:255'],
