@@ -175,15 +175,42 @@ class RevenueMonsterController extends Controller
         return redirect()->away($redirectUrl);
     }
 
-
+    //Version 1
     // public function handleReturn(Request $request)
     // {
-    //     // ✅ Return page: show message only, status update relies on webhook
+    //     $orderNo = $request->query('order_no');
+
+    //     if (!$orderNo) {
+    //         return redirect()
+    //             ->route('account.orders.index')
+    //             ->with('error', 'Missing order reference.');
+    //     }
+
+    //     $order = Order::where('order_no', $orderNo)->first();
+
+    //     if (!$order) {
+    //         return redirect()
+    //             ->route('account.orders.index')
+    //             ->with('error', 'Order not found.');
+    //     }
+
+    //     // ✅ 已经 paid（webhook 已来） -> success
+    //     if (strtolower((string) $order->status) === 'paid') {
+    //         return redirect()->route('checkout.success', $order);
+    //     }
+
+    //     // ✅ 没有 paid（用户退出来/没付） -> 直接 failed
+    //     if (strtolower((string) $order->status) === 'pending') {
+    //         $order->update(['status' => 'failed']);
+    //     }
+
     //     return redirect()
     //         ->route('account.orders.index')
-    //         ->with('success', 'We received your payment return. Your order will update once confirmed.');
+    //         ->with('error', 'Payment not completed. Order marked as failed.');
     // }
 
+
+    //Version 2
     public function handleReturn(Request $request)
     {
         $orderNo = $request->query('order_no');
@@ -202,105 +229,21 @@ class RevenueMonsterController extends Controller
                 ->with('error', 'Order not found.');
         }
 
-        // ✅ 已经 paid（webhook 已来） -> success
-        if (strtolower((string) $order->status) === 'paid') {
+        $status = strtolower((string) $order->status);
+
+        // ✅ 已付款（webhook 已更新）
+        if ($status === 'paid') {
             return redirect()->route('checkout.success', $order);
         }
 
-        // ✅ 没有 paid（用户退出来/没付） -> 直接 failed
-        if (strtolower((string) $order->status) === 'pending') {
-            $order->update(['status' => 'failed']);
-        }
+        // ❌ 只要不是 paid，一律视为失败
+        $order->update(['status' => 'failed']);
 
         return redirect()
             ->route('account.orders.index')
             ->with('error', 'Payment not completed. Order marked as failed.');
     }
 
-
-    // public function handleWebhook(Request $request)
-    // {
-    //     Log::info('RM webhook headers', $request->headers->all());
-
-    //     $rawBody = $request->getContent();
-    //     $headers = $request->headers->all();
-    //     $payload = $request->all();
-
-    //     // ✅ 1) Verify signature
-    //     if (!$this->verifySignatureCallback($rawBody, $headers)) {
-    //         Log::warning('RM webhook signature invalid', ['payload' => $payload]);
-    //         return response()->json(['message' => 'invalid signature'], 401);
-    //     }
-
-    //     // ✅ 2) Find order (prefer additionalData = order_no)
-    //     $order = null;
-
-    //     $orderNo = data_get($payload, 'data.order.additionalData');
-    //     if ($orderNo) {
-    //         $order = Order::where('order_no', $orderNo)->first();
-    //     }
-
-    //     if (!$order) {
-    //         $rmOrderId = data_get($payload, 'data.order.id');
-    //         if ($rmOrderId) {
-    //             $numericId = (int) ltrim((string) $rmOrderId, '0');
-    //             if ($numericId > 0) {
-    //                 $order = Order::find($numericId);
-    //             }
-    //         }
-    //     }
-
-    //     if (!$order) {
-    //         Log::warning('RM webhook order not found', [
-    //             'rmOrderId' => data_get($payload, 'data.order.id'),
-    //             'orderNo'   => $orderNo,
-    //             'payload'   => $payload,
-    //         ]);
-    //         return response()->json(['ok' => true]);
-    //     }
-
-    //     // ✅ 3) Idempotent
-    //     if (strtolower((string) $order->status) === 'paid') {
-    //         return response()->json(['ok' => true]);
-    //     }
-
-    //     // ✅ 4) Status & amount validation
-    //     $status      = strtoupper((string) (data_get($payload, 'data.status') ?? data_get($payload, 'status')));
-    //     $finalAmount = (int) (data_get($payload, 'data.finalAmount') ?? 0); // cents
-    //     $expected    = (int) round(((float) ($order->total ?? 0)) * 100);
-
-    //     if ($finalAmount && $finalAmount !== $expected) {
-    //         Log::warning('RM finalAmount mismatch', [
-    //             'order_no' => $order->order_no,
-    //             'expected' => $expected,
-    //             'got'      => $finalAmount,
-    //             'status'   => $status,
-    //         ]);
-    //         return response()->json(['ok' => true]);
-    //     }
-
-    //     $success = ['SUCCESS', 'PAID', 'COMPLETED'];
-    //     $failed  = ['FAILED', 'CANCELLED', 'EXPIRED'];
-
-    //     if (in_array($status, $success, true)) {
-    //         $order->update([
-    //             'status' => 'paid',
-    //             // 'paid_at' => now(), // enable if you have this field
-    //         ]);
-
-    //         $this->sendOrderEmailsSafely($order);
-    //         return response()->json(['ok' => true]);
-    //     }
-
-    //     if (in_array($status, $failed, true)) {
-    //         if (strtolower((string) $order->status) === 'pending') {
-    //             $order->update(['status' => 'failed']);
-    //         }
-    //         return response()->json(['ok' => true]);
-    //     }
-
-    //     return response()->json(['ok' => true]);
-    // }
 
     public function handleWebhook(Request $request)
     {
