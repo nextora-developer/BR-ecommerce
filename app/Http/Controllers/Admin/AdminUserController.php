@@ -38,6 +38,16 @@ class AdminUserController extends Controller
             }
         }
 
+        if ($request->filled('ic_uploaded')) {
+            if ($request->ic_uploaded === 'yes') {
+                $q->whereNotNull('ic_image')->where('ic_image', '!=', '');
+            } else {
+                $q->where(function ($qq) {
+                    $qq->whereNull('ic_image')->orWhere('ic_image', '');
+                });
+            }
+        }
+
 
         if ($request->filled('verified')) {
             if ($request->verified === 'verified') {
@@ -112,7 +122,7 @@ class AdminUserController extends Controller
 
             'ic_number'  => ['nullable', 'string', 'max:30'],
             'birth_date' => ['nullable', 'date'],
-            'ic_image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'ic_image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
 
             'password'   => ['nullable', 'string', 'min:8'],
             'is_active'  => ['nullable', 'boolean'],
