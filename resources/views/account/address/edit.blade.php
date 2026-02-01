@@ -1,15 +1,15 @@
 <x-app-layout>
     <div class="bg-[#FAF9F6] min-h-screen py-10">
         <div class="max-w-7xl5 mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             {{-- Breadcrumb --}}
             <nav class="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-gray-400 mb-8">
                 <a href="{{ route('home') }}" class="hover:text-[#8f6a10] transition-colors">Home</a>
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                <a href="{{ route('account.address.index') }}"
-                    class="hover:text-[#8f6a10] transition-colors">Shipping Addresses</a>
+                <a href="{{ route('account.address.index') }}" class="hover:text-[#8f6a10] transition-colors">Shipping
+                    Addresses</a>
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -73,15 +73,17 @@
                                         Phone Number
                                     </label>
                                     <input type="text" name="phone" value="{{ old('phone', $address->phone) }}"
-                                        class="w-full rounded-xl border-gray-200 text-base px-3 py-3
-                                              focus:border-[#D4AF37] focus:ring-[#D4AF37]/30">
+                                        inputmode="numeric" maxlength="11" required autocomplete="tel"
+                                        oninput="this.value = this.value.replace(/\s+/g, '')"
+                                        class="w-full rounded-xl border-gray-200 text-base px-3 py-3 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30"
+                                        placeholder="0123456789" />
                                 </div>
 
                                 <div>
                                     <label class="block text-sm text-gray-500 mb-1">
                                         Email Address
                                     </label>
-                                    <input type="email" name="email" value="{{ old('phone', $address->email) }}"
+                                    <input type="email" name="email" value="{{ old('email', $address->email) }}"
                                         class="w-full rounded-xl border-gray-200 text-base px-3 py-3
                                             focus:border-[#D4AF37] focus:ring-[#D4AF37]/30"
                                         placeholder="name@example.com">

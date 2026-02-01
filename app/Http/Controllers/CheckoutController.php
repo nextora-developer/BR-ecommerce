@@ -109,7 +109,7 @@ class CheckoutController extends Controller
          */
         $rules = [
             'name'           => 'required',
-            'phone'          => 'required',
+            'phone'          => ['required', 'regex:/^01\d{8,9}$/'],
             'email'          => 'required|email',
             'address_line1'  => 'required',
             'postcode'       => 'required',
@@ -129,7 +129,19 @@ class CheckoutController extends Controller
             $rules['payment_receipt'] = 'required|image|max:4096';
         }
 
-        $request->validate($rules);
+        $request->merge([
+            'phone' => preg_replace('/\D+/', '', (string) $request->input('phone')),
+        ]);
+
+        if (str_starts_with($request->input('phone'), '60')) {
+            $request->merge([
+                'phone' => '0' . substr($request->input('phone'), 2),
+            ]);
+        }
+
+        $request->validate($rules, [
+            'phone.regex' => 'Please enter a valid Malaysian phone number (e.g. 0123456789).',
+        ]);
 
 
         /**

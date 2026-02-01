@@ -52,9 +52,13 @@ class AccountAddressController extends Controller
     {
         $user = auth()->user();
 
+        $request->merge([
+            'phone' => preg_replace('/\s+/', '', $request->phone),
+        ]);
+
         $data = $request->validate([
             'recipient_name' => ['required', 'string', 'max:255'],
-            'phone'          => ['required', 'string', 'max:30'],
+            'phone'          => ['required', 'regex:/^01\d{8,9}$/'],
             'email'          => ['required', 'string', 'email', 'max:255'],
             'address_line1'  => ['required', 'string', 'max:255'],
             'address_line2'  => ['nullable', 'string', 'max:255'],
@@ -63,6 +67,8 @@ class AccountAddressController extends Controller
             'postcode'       => ['required', 'string', 'max:20'],
             'country'        => ['nullable', 'string', 'max:100'],
             'is_default'     => ['nullable', 'boolean'],
+        ], [
+            'phone.regex' => 'Phone number must be 10 or 11 digits and start with 01 (e.g. 0123456789).',
         ]);
 
         // 默认国家 Malaysia
@@ -127,9 +133,13 @@ class AccountAddressController extends Controller
             abort(404);
         }
 
+        $request->merge([
+            'phone' => preg_replace('/\s+/', '', $request->phone),
+        ]);
+
         $data = $request->validate([
             'recipient_name' => ['required', 'string', 'max:255'],
-            'phone'          => ['required', 'string', 'max:30'],
+            'phone'          => ['required', 'regex:/^01\d{8,9}$/'],
             'email'          => ['required', 'string', 'email', 'max:255'],
             'address_line1'  => ['required', 'string', 'max:255'],
             'address_line2'  => ['nullable', 'string', 'max:255'],
@@ -138,6 +148,8 @@ class AccountAddressController extends Controller
             'postcode'       => ['required', 'string', 'max:20'],
             'country'        => ['nullable', 'string', 'max:100'],
             'is_default'     => ['nullable', 'boolean'],
+        ], [
+            'phone.regex' => 'Phone number must be 10 or 11 digits and start with 01 (e.g. 0123456789).',
         ]);
 
         if (empty($data['country'])) {

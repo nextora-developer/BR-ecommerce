@@ -198,13 +198,24 @@
                                                     placeholder="John Tan" required>
                                             </div>
                                             <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">Phone</label>
+                                                <label class="block text-xs font-bold text-gray-700 mb-2 uppercase">
+                                                    Phone
+                                                </label>
+
                                                 <input type="text" name="phone"
                                                     value="{{ old('phone', $defaultAddress->phone ?? '') }}"
-                                                    class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
-                                                    placeholder="012-345 6789" required>
+                                                    inputmode="numeric" maxlength="11" required autocomplete="tel"
+                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                    class="w-full px-4 py-3 rounded-xl border-gray-200
+                                                            focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20
+                                                            transition-all text-sm shadow-sm"
+                                                    placeholder="0123456789">
+
+                                                @error('phone')
+                                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                                @enderror
                                             </div>
+
                                             <div>
                                                 <label
                                                     class="block text-xs font-bold text-gray-700 mb-2 uppercase">Email</label>
