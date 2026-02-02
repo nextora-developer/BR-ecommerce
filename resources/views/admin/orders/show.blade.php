@@ -82,7 +82,7 @@
                         <div class="space-y-3">
                             <div class="flex items-center gap-2">
                                 <label class="text-xs uppercase tracking-[0.15em] text-gray-600 font-black">
-                                    Customer Profile
+                                    Customer Info
                                 </label>
                                 <span class="h-1 w-1 rounded-full bg-blue-400"></span>
                             </div>
@@ -142,12 +142,11 @@
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <label class="text-xs uppercase tracking-[0.15em] text-gray-600 font-black">
-                                {{ $isDigitalOrder ? 'Digital Details' : 'Shipping Details' }}
+                                {{ $isDigitalOrder ? 'Digital Info' : 'Shipping Info' }}
                             </label>
                             @if ($isDigitalOrder)
                                 <span
-                                    class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[10px] font-bold ring-1 ring-emerald-100">VIRTUAL
-                                    ASSET</span>
+                                    class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[10px] font-bold ring-1 ring-emerald-100">Digital</span>
                             @endif
                         </div>
 

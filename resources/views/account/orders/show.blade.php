@@ -229,7 +229,7 @@
                                     <div
                                         class="group rounded-3xl border border-gray-100 bg-white/60 backdrop-blur-md p-8 shadow-sm transition-all hover:shadow-md">
                                         <div class="flex items-center justify-between border-b border-gray-100 pb-4">
-                                            <h2 class="text-xs font-black text-gray-400 tracking-[0.2em] uppercase">
+                                            <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase">
                                                 Customer Info
                                             </h2>
                                             <div class="h-1.5 w-1.5 rounded-full bg-amber-400 ring-4 ring-amber-50">
@@ -244,13 +244,13 @@
                                             <div class="mt-4 space-y-3">
                                                 <div class="flex flex-col">
                                                     <span
-                                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Phone</span>
+                                                        class="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Phone</span>
                                                     <span
                                                         class="text-sm font-semibold text-gray-700">{{ $order->customer_phone }}</span>
                                                 </div>
                                                 <div class="flex flex-col">
                                                     <span
-                                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</span>
+                                                        class="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Email</span>
                                                     <span
                                                         class="text-sm font-semibold text-gray-700 break-all">{{ $order->customer_email }}</span>
                                                 </div>
@@ -268,8 +268,8 @@
                                         @endphp
 
                                         <div class="flex items-center justify-between border-b border-gray-100 pb-4">
-                                            <h2 class="text-xs font-black text-gray-400 tracking-[0.2em] uppercase">
-                                                {{ $isDigitalOrder ? 'Digital Access' : 'Delivery Address' }}
+                                            <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase">
+                                                {{ $isDigitalOrder ? 'Digital Info' : 'Delivery Address' }}
                                             </h2>
                                             @if ($isDigitalOrder)
                                                 <span
@@ -299,7 +299,7 @@
                                                                 class="rounded-2xl bg-gray-50/50 p-4 ring-1 ring-gray-100">
                                                                 <div class="flex justify-between items-center mb-3">
                                                                     <span
-                                                                        class="text-[11px] font-black text-amber-800 uppercase tracking-tighter truncate max-w-[150px]">
+                                                                        class="text-[12px] font-black text-amber-800 uppercase tracking-tighter truncate max-w-[150px]">
                                                                         {{ $it->product_name }}
                                                                     </span>
                                                                 </div>
@@ -309,7 +309,7 @@
                                                                         <div
                                                                             class="flex justify-between text-xs border-b border-white/50 pb-1 last:border-0">
                                                                             <span
-                                                                                class="text-gray-500 capitalize">{{ str_replace('_', ' ', $k) }}</span>
+                                                                                class="text-gray-600 capitalize">{{ str_replace('_', ' ', $k) }}</span>
                                                                             <span
                                                                                 class="font-bold text-gray-900">{{ is_array($v) ? 'Data' : $v }}</span>
                                                                         </div>
@@ -339,7 +339,7 @@
                                 {{-- Remark Card --}}
                                 <div
                                     class="rounded-3xl border border-gray-100 bg-white/40 backdrop-blur-sm p-6 shadow-sm">
-                                    <h2 class="text-xs font-black text-gray-400 tracking-[0.2em] uppercase mb-3">
+                                    <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase mb-3">
                                         Order Remark
                                     </h2>
                                     <div class="rounded-2xl bg-white/50 p-4 border border-gray-50">
@@ -374,7 +374,7 @@
                                         <div class="space-y-3 text-sm">
 
                                             {{-- Subtotal --}}
-                                            <div class="flex justify-between items-center text-gray-500">
+                                            <div class="flex justify-between items-center text-gray-600">
                                                 <span>Subtotal</span>
                                                 <span class="font-bold text-gray-900">RM
                                                     {{ number_format($order->subtotal, 2) }}</span>
@@ -382,7 +382,7 @@
 
                                             {{-- Shipping (show even if 0 for clarity) --}}
                                             <div
-                                                class="flex justify-between items-center {{ $order->shipping_fee > 0 ? 'text-gray-500' : 'text-gray-400' }}">
+                                                class="flex justify-between items-center {{ $order->shipping_fee > 0 ? 'text-gray-500' : 'text-gray-600' }}">
                                                 <span>Shipping Fee</span>
                                                 <span class="font-bold text-gray-900">RM
                                                     {{ number_format($order->shipping_fee, 2) }}</span>
@@ -390,7 +390,7 @@
 
                                             {{-- Handling Fee --}}
                                             @if (($order->handling_fee ?? 0) > 0)
-                                                <div class="flex justify-between items-center text-gray-500">
+                                                <div class="flex justify-between items-center text-gray-600">
                                                     <span>Handling Fee</span>
                                                     <span class="font-bold text-gray-900">RM
                                                         {{ number_format((float) $order->handling_fee, 2) }}</span>
@@ -449,7 +449,7 @@
                                         {{-- Grand Total --}}
                                         <div class="flex items-end justify-between py-2">
                                             <span
-                                                class="text-xs font-black text-gray-400 uppercase tracking-widest pb-1">Total</span>
+                                                class="text-xs font-black text-gray-600 uppercase tracking-widest pb-1">Total</span>
                                             <span class="text-4xl font-black text-gray-900 tracking-tighter">
                                                 RM {{ number_format($order->total, 2) }}
                                             </span>
@@ -472,7 +472,7 @@
                                         <div class="flex flex-col gap-4">
                                             <div class="flex justify-between items-center">
                                                 <span
-                                                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Method</span>
+                                                    class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Method</span>
                                                 <span
                                                     class="text-xs font-bold text-gray-700">{{ $order->payment_method_name }}</span>
                                             </div>
