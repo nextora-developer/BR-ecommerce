@@ -335,8 +335,9 @@
     <script>
         function refreshCartCount() {
             console.log('Refreshing cart count…');
-            const badge = document.querySelector('[data-cart-count]');
-            if (!badge) return;
+
+            const badges = document.querySelectorAll('[data-cart-count]');
+            if (!badges.length) return;
 
             fetch("{{ route('cart.count') }}", {
                     headers: {
@@ -346,7 +347,12 @@
                 .then(res => res.json())
                 .then(data => {
                     if (typeof data.count !== 'undefined') {
-                        badge.textContent = data.count;
+                        badges.forEach(badge => {
+                            badge.textContent = data.count;
+
+                            // 可选：0 就隐藏（你要就开，不要就删）
+                            // badge.classList.toggle('hidden', Number(data.count) <= 0);
+                        });
                     }
                 })
                 .catch(() => {});
@@ -363,6 +369,7 @@
             }
         });
     </script>
+
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
