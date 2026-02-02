@@ -109,6 +109,43 @@ class CartController extends Controller
             return back()->with('error', 'This product or variant does not have a price set.');
         }
 
+        // ==============================
+        // ❗ Cart 不能混合 Digital / Physical
+        // ==============================
+
+        $isAddingDigital = (bool) $product->is_digital;
+
+        // Cart 内已有 digital？
+        $cartHasDigital = $cart->items()
+            ->whereHas('product', function ($q) {
+                $q->where('is_digital', true);
+            })
+            ->exists();
+
+        // Cart 内已有 physical？
+        $cartHasPhysical = $cart->items()
+            ->whereHas('product', function ($q) {
+                $q->where('is_digital', false);
+            })
+            ->exists();
+
+        // 已有 Digital → 禁止加 Physical
+        if ($cartHasDigital && !$isAddingDigital) {
+            return back()->with(
+                'error',
+                'Your cart contains digital products. Please checkout or clear your cart before adding physical items.'
+            );
+        }
+
+        // 已有 Physical → 禁止加 Digital
+        if ($cartHasPhysical && $isAddingDigital) {
+            return back()->with(
+                'error',
+                'Your cart contains physical products. Please checkout or clear your cart before adding digital items.'
+            );
+        }
+
+
         // 同 product + variant 合并数量
         $query = $cart->items()->where('product_id', $product->id);
 
