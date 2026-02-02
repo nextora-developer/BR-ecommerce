@@ -97,6 +97,18 @@ class AdminProductController extends Controller
             // 旧的单图字段（form 不用的话也没关系，保留兼容）
             'image'     => ['nullable', 'image', 'max:2048'],
 
+            'digital_fields_builder' => ['nullable', 'array'],
+            'digital_fields_builder.*.key' => ['nullable', 'string', 'max:50'],
+            'digital_fields_builder.*.label' => ['nullable', 'string', 'max:80'],
+            'digital_fields_builder.*.type' => ['nullable', 'in:text,number,select'],
+            'digital_fields_builder.*.required' => ['nullable'], // checkbox
+            'digital_fields_builder.*.max' => ['nullable', 'integer', 'min:1', 'max:255'],
+            'digital_fields_builder.*.hint' => ['nullable', 'string', 'max:120'],
+            'digital_fields_builder.*.options' => ['nullable', 'array'],
+            'digital_fields_builder.*.options.*' => ['nullable', 'string', 'max:50'],
+
+            'digital_fields' => ['nullable', 'string'],
+
             'is_active' => ['nullable', 'boolean'],
             'is_digital' => ['nullable', 'boolean'],
         ]);
@@ -108,6 +120,77 @@ class AdminProductController extends Controller
         $data['is_active']   = $request->boolean('is_active');
         $data['has_variants'] = $request->boolean('has_variants');
         $data['is_digital']   = $request->boolean('is_digital');
+
+        // =========================
+        // Digital fields: Builder first, JSON fallback
+        // =========================
+        $digitalFields = null;
+
+        if ($data['is_digital']) {
+
+            // 1) Builder array 优先
+            $builder = $request->input('digital_fields_builder', []);
+
+            if (is_array($builder) && !empty($builder)) {
+                $digitalFields = collect($builder)
+                    ->filter(fn($f) => filled($f['key'] ?? null) && filled($f['label'] ?? null))
+                    ->map(function ($f) {
+                        $type = $f['type'] ?? 'text';
+
+                        $field = [
+                            'key'      => (string) $f['key'],
+                            'label'    => (string) $f['label'],
+                            'required' => !empty($f['required']),
+                            'type'     => $type,
+                            'max'      => isset($f['max']) && $f['max'] !== '' ? (int) $f['max'] : null,
+                            'hint'     => filled($f['hint'] ?? null) ? (string) $f['hint'] : null,
+                        ];
+
+                        if ($type === 'select') {
+                            $opts = $f['options'] ?? [];
+                            if (!is_array($opts)) $opts = [];
+                            $field['options'] = collect($opts)->filter(fn($v) => filled($v))->values()->all();
+                        }
+
+                        return $field;
+                    })
+                    ->values()
+                    ->all();
+            }
+
+            // 2) 如果 builder 没填，才走 advanced JSON textarea（兼容你之前做法）
+            if ($digitalFields === null) {
+                $raw = trim((string) $request->input('digital_fields', ''));
+                if ($raw !== '') {
+                    $decoded = json_decode($raw, true);
+                    if (!is_array($decoded)) {
+                        return back()->withErrors(['digital_fields' => 'Invalid JSON format. Must be a JSON array.'])->withInput();
+                    }
+                    $digitalFields = $decoded;
+                } else {
+                    $digitalFields = [];
+                }
+            }
+
+            // 3) 强校验 key 格式（避免 checkout 表单 name 爆掉）
+            foreach ($digitalFields as $idx => $f) {
+                if (empty($f['key']) || empty($f['label'])) {
+                    return back()->withErrors(['digital_fields' => 'Field #' . ($idx + 1) . ' must have key and label.'])->withInput();
+                }
+                if (!preg_match('/^[a-zA-Z0-9_]+$/', (string) $f['key'])) {
+                    return back()->withErrors(['digital_fields' => 'Field #' . ($idx + 1) . ' key must be alphanumeric/underscore only.'])->withInput();
+                }
+                if (($f['type'] ?? 'text') === 'select' && isset($f['options']) && !is_array($f['options'])) {
+                    return back()->withErrors(['digital_fields' => 'Field #' . ($idx + 1) . ' options must be an array.'])->withInput();
+                }
+            }
+        } else {
+            $digitalFields = null;
+        }
+
+        $data['digital_fields'] = $digitalFields;
+
+
 
         // 先拿出来 variants & specs & images，剩下的是 products 表的数据
         $variantsInput = $data['variants'] ?? [];
@@ -344,6 +427,18 @@ class AdminProductController extends Controller
             // 旧的 image 字段
             'image'     => ['nullable', 'image', 'max:2048'],
 
+            'digital_fields_builder' => ['nullable', 'array'],
+            'digital_fields_builder.*.key' => ['nullable', 'string', 'max:50'],
+            'digital_fields_builder.*.label' => ['nullable', 'string', 'max:80'],
+            'digital_fields_builder.*.type' => ['nullable', 'in:text,number,select'],
+            'digital_fields_builder.*.required' => ['nullable'], // checkbox
+            'digital_fields_builder.*.max' => ['nullable', 'integer', 'min:1', 'max:255'],
+            'digital_fields_builder.*.hint' => ['nullable', 'string', 'max:120'],
+            'digital_fields_builder.*.options' => ['nullable', 'array'],
+            'digital_fields_builder.*.options.*' => ['nullable', 'string', 'max:50'],
+
+            'digital_fields' => ['nullable', 'string'],
+
             'is_active' => ['nullable', 'boolean'],
             'is_digital' => ['nullable', 'boolean'],
         ]);
@@ -355,6 +450,75 @@ class AdminProductController extends Controller
         $data['is_active']   = $request->boolean('is_active');
         $data['has_variants'] = $request->boolean('has_variants');
         $data['is_digital']   = $request->boolean('is_digital');
+
+        // =========================
+        // Digital fields: Builder first, JSON fallback
+        // =========================
+        $digitalFields = null;
+
+        if ($data['is_digital']) {
+
+            // 1) Builder array 优先
+            $builder = $request->input('digital_fields_builder', []);
+
+            if (is_array($builder) && !empty($builder)) {
+                $digitalFields = collect($builder)
+                    ->filter(fn($f) => filled($f['key'] ?? null) && filled($f['label'] ?? null))
+                    ->map(function ($f) {
+                        $type = $f['type'] ?? 'text';
+
+                        $field = [
+                            'key'      => (string) $f['key'],
+                            'label'    => (string) $f['label'],
+                            'required' => !empty($f['required']),
+                            'type'     => $type,
+                            'max'      => isset($f['max']) && $f['max'] !== '' ? (int) $f['max'] : null,
+                            'hint'     => filled($f['hint'] ?? null) ? (string) $f['hint'] : null,
+                        ];
+
+                        if ($type === 'select') {
+                            $opts = $f['options'] ?? [];
+                            if (!is_array($opts)) $opts = [];
+                            $field['options'] = collect($opts)->filter(fn($v) => filled($v))->values()->all();
+                        }
+
+                        return $field;
+                    })
+                    ->values()
+                    ->all();
+            }
+
+            // 2) 如果 builder 没填，才走 advanced JSON textarea（兼容你之前做法）
+            if ($digitalFields === null) {
+                $raw = trim((string) $request->input('digital_fields', ''));
+                if ($raw !== '') {
+                    $decoded = json_decode($raw, true);
+                    if (!is_array($decoded)) {
+                        return back()->withErrors(['digital_fields' => 'Invalid JSON format. Must be a JSON array.'])->withInput();
+                    }
+                    $digitalFields = $decoded;
+                } else {
+                    $digitalFields = [];
+                }
+            }
+
+            // 3) 强校验 key 格式（避免 checkout 表单 name 爆掉）
+            foreach ($digitalFields as $idx => $f) {
+                if (empty($f['key']) || empty($f['label'])) {
+                    return back()->withErrors(['digital_fields' => 'Field #' . ($idx + 1) . ' must have key and label.'])->withInput();
+                }
+                if (!preg_match('/^[a-zA-Z0-9_]+$/', (string) $f['key'])) {
+                    return back()->withErrors(['digital_fields' => 'Field #' . ($idx + 1) . ' key must be alphanumeric/underscore only.'])->withInput();
+                }
+                if (($f['type'] ?? 'text') === 'select' && isset($f['options']) && !is_array($f['options'])) {
+                    return back()->withErrors(['digital_fields' => 'Field #' . ($idx + 1) . ' options must be an array.'])->withInput();
+                }
+            }
+        } else {
+            $digitalFields = null;
+        }
+
+        $data['digital_fields'] = $digitalFields;
 
         // 拆出 variants / specs，其余为 products 字段
         $variantsInput = $data['variants'] ?? [];

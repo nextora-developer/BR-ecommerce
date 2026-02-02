@@ -104,30 +104,79 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
-        /**
-         * 1️⃣ 验证规则（HitPay 不需要收据，Bank Transfer 才强制收据）
-         */
+        $cart = Cart::with('items.product')
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $items    = $cart->items;
+
+        $hasDigital  = $items->contains(fn($i) => (bool) $i->product?->is_digital);
+        $hasPhysical = $items->contains(fn($item) => !$item->product->is_digital);
+
+
+        if ($hasDigital && $hasPhysical) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Digital and physical items cannot be checked out together.');
+        }
+
         $rules = [
             'name'           => 'required',
             'phone'          => ['required', 'regex:/^01\d{8,9}$/'],
             'email'          => 'required|email',
-            'address_line1'  => 'required',
-            'postcode'       => 'required',
-            'city'           => 'required',
-            'state'          => 'required',
-            'country'        => 'required',
             'payment_method' => 'required|exists:payment_methods,code',
             'remark'         => 'nullable|string|max:500',
             'points_redeem'  => 'nullable|integer|min:0',
         ];
 
-        // 默认：收据可空（给 HitPay 用）
+        // receipt rule
         $rules['payment_receipt'] = 'nullable|image|max:4096';
-
-        // Bank Transfer（online_transfer）才强制上传收据
         if ($request->input('payment_method') === 'online_transfer') {
             $rules['payment_receipt'] = 'required|image|max:4096';
         }
+
+        // ✅ Physical 才需要 address
+        if ($hasPhysical) {
+            $rules = array_merge($rules, [
+                'address_line1' => 'required',
+                'postcode'      => 'required',
+                'city'          => 'required',
+                'state'         => 'required',
+                'country'       => 'required',
+                'address_line2' => 'nullable|string|max:255',
+            ]);
+        } else {
+            $rules = array_merge($rules, [
+                'address_line1' => 'nullable',
+                'postcode'      => 'nullable',
+                'city'          => 'nullable',
+                'state'         => 'nullable',
+                'country'       => 'nullable',
+                'address_line2' => 'nullable',
+            ]);
+
+            // ✅ digital fields dynamic validate
+            foreach ($items as $item) {
+                $p = $item->product;
+                if (!$p || !$p->is_digital) continue;
+
+                $fields = is_array($p->digital_fields) ? $p->digital_fields : [];
+                foreach ($fields as $f) {
+                    $key = $f['key'] ?? null;
+                    if (!$key) continue;
+
+                    $required = (bool)($f['required'] ?? false);
+                    $type = $f['type'] ?? 'text';
+
+                    $path = "digital.{$item->id}.{$key}";
+                    $rules[$path] = $required ? 'required|string|max:120' : 'nullable|string|max:120';
+
+                    if ($type === 'select' && !empty($f['options']) && is_array($f['options'])) {
+                        $rules[$path] = ($required ? 'required' : 'nullable') . '|in:' . implode(',', $f['options']);
+                    }
+                }
+            }
+        }
+
 
         $request->merge([
             'phone' => preg_replace('/\D+/', '', (string) $request->input('phone')),
@@ -152,14 +201,8 @@ class CheckoutController extends Controller
             ->firstOrFail();
 
 
-        /**
-         * 3️⃣ 读取购物车 + 计算金额
-         */
-        $cart = Cart::with('items.product')
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
 
-        $items    = $cart->items;
+
         $subtotal = (float) $items->sum(fn($i) => $i->unit_price * $i->qty);
 
         $gatewayCodes = ['revenue_monster', 'hitpay']; // ✅ 你要的 gateway code 放这里
@@ -170,12 +213,9 @@ class CheckoutController extends Controller
         $handlingPercent = max(0, min($handlingPercent, 100));
 
         // ✅ 只有 Gateway 才加
-        $handlingFee = ($handlingEnabled && $isGateway)
-            ? round($subtotal * ($handlingPercent / 100), 2)
-            : 0.0;
-
-        // 是否包含实体产品
-        $hasPhysical = $items->contains(fn($item) => !$item->product->is_digital);
+        // $handlingFee = ($handlingEnabled && $isGateway)
+        //     ? round($subtotal * ($handlingPercent / 100), 2)
+        //     : 0.0;
 
         $shippingFee = 0;
 
@@ -253,6 +293,10 @@ class CheckoutController extends Controller
 
         $pointsDiscount = min($pointsRedeem / 100, $payableSubtotal);
         $payableSubtotal = max(0, $payableSubtotal - $pointsDiscount);
+
+        $handlingFee = ($handlingEnabled && $isGateway)
+            ? round($subtotal * ($handlingPercent / 100), 2)
+            : 0.0;
 
         $total = round($payableSubtotal + $payableShipping + $handlingFee, 2);
 
@@ -370,8 +414,15 @@ class CheckoutController extends Controller
             }
 
 
+            $digitalInputs = $request->input('digital', []);
 
             foreach ($items as $item) {
+                $payload = null;
+
+                if ($item->product?->is_digital) {
+                    $payload = $digitalInputs[$item->id] ?? null; // array
+                }
+
                 $order->items()->create([
                     'product_id'         => $item->product_id,
                     'product_name'       => $item->product->name ?? '',
@@ -379,6 +430,7 @@ class CheckoutController extends Controller
                     'unit_price'         => $item->unit_price,
                     'product_variant_id' => $item->product_variant_id ?? null,
                     'variant_label'      => $item->variant_label ?? null,
+                    'digital_payload'    => $payload,
                 ]);
             }
 

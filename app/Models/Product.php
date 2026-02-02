@@ -21,6 +21,7 @@ class Product extends Model
         'price',
         'stock',
         'is_digital',
+        'digital_fields',
         'has_variants',
         'is_active',
         'image'
@@ -29,6 +30,8 @@ class Product extends Model
     protected $casts = [
         'specs' => 'array',
         'highlights' => 'array',
+        'digital_fields' => 'array',
+        'is_digital' => 'boolean',
     ];
 
 

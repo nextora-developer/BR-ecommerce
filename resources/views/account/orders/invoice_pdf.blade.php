@@ -174,8 +174,31 @@
                 "\n" .
                 ($order->country ?? ''),
         );
+
         $issuedAt = $order->created_at?->format('d M Y, H:i') ?? now()->format('d M Y, H:i');
+
+        // ✅ digital order detection (你系统不允许 mixed checkout，这样判断足够)
+        $isDigitalOrder = $order->items->contains(fn($it) => !empty($it->digital_payload));
+
+        // ✅ optional: collect digital info into simple key/value lines
+        $digitalLines = [];
+        if ($isDigitalOrder) {
+            foreach ($order->items as $it) {
+                $payload = $it->digital_payload;
+                if (is_string($payload)) {
+                    $payload = json_decode($payload, true);
+                }
+
+                if (is_array($payload) && !empty($payload)) {
+                    $digitalLines[] = [
+                        'name' => $it->product_name ?? 'Digital Item',
+                        'data' => $payload,
+                    ];
+                }
+            }
+        }
     @endphp
+
 
     <div class="wrap">
         {{-- Header Section --}}
@@ -223,9 +246,47 @@
                     <div class="muted">{{ $order->customer_phone ?? '—' }}</div>
                 </td>
                 <td style="width: 50%; padding: 20px; vertical-align: top;">
-                    <span class="info-box-label">Ship To</span>
-                    <div style="font-size: 11px; line-height: 1.4; white-space: pre-line;">{{ $fullAddress ?: '—' }}
-                    </div>
+                    @if ($isDigitalOrder)
+                        <span class="info-box-label">Digital Delivery</span>
+
+                        <div class="muted" style="font-size: 11px; line-height: 1.4;">
+                            No shipping address required.
+                        </div>
+
+                        @if (!empty($digitalLines))
+                            <div style="margin-top: 10px;">
+                                @foreach ($digitalLines as $d)
+                                    <div
+                                        style="margin-bottom: 10px; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fff;">
+                                        <div style="font-weight: 800; color: #111; font-size: 11px;">
+                                            {{ $d['name'] }}
+                                        </div>
+
+                                        <table style="width:100%; margin-top: 6px;">
+                                            @foreach ($d['data'] as $k => $v)
+                                                <tr>
+                                                    <td
+                                                        style="width:40%; font-size: 9px; color:#777; text-transform: uppercase; letter-spacing:1px; padding: 2px 0;">
+                                                        {{ str_replace('_', ' ', $k) }}
+                                                    </td>
+                                                    <td
+                                                        style="width:60%; font-size: 11px; color:#111; font-weight:700; text-align:right; padding: 2px 0;">
+                                                        {{ is_array($v) ? json_encode($v) : $v }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </table>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    @else
+                        <span class="info-box-label">Ship To</span>
+                        <div style="font-size: 11px; line-height: 1.4; white-space: pre-line;">
+                            {{ $fullAddress ?: '—' }}
+                        </div>
+                    @endif
+
                 </td>
             </tr>
         </table>

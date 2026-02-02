@@ -217,199 +217,281 @@
                         {{-- 🔥 END STATUS BAR --}}
 
                         {{-- 3 : 2 Layout --}}
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 pt-5">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
 
-                            {{-- 🟡 左侧（占 3） --}}
-                            <div class="md:col-span-3">
+                            {{-- 🟡 LEFT: Details --}}
+                            <div class="lg:col-span-8 space-y-8">
 
-                                {{-- 上排：Customer + Shipping --}}
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {{-- Top grid: Customer + Shipping/Digital --}}
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-                                    {{-- Customer --}}
-                                    <div class="rounded-2xl border border-gray-200 bg-white/70 p-5 shadow-sm">
-                                        <h2 class="text-xs font-semibold text-gray-500 tracking-[0.16em] uppercase">
-                                            Customer
-                                        </h2>
+                                    {{-- Customer Card --}}
+                                    <div
+                                        class="group rounded-3xl border border-gray-100 bg-white/60 backdrop-blur-md p-8 shadow-sm transition-all hover:shadow-md">
+                                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                                            <h2 class="text-xs font-black text-gray-400 tracking-[0.2em] uppercase">
+                                                Customer Info
+                                            </h2>
+                                            <div class="h-1.5 w-1.5 rounded-full bg-amber-400 ring-4 ring-amber-50">
+                                            </div>
+                                        </div>
 
-                                        <div class="mt-3 space-y-1">
-                                            <p class="text-gray-900 font-medium">{{ $order->customer_name }}</p>
-                                            <p class="text-gray-600 text-sm">{{ $order->customer_phone }}</p>
-                                            <p class="text-gray-600 text-sm">{{ $order->customer_email }}</p>
+                                        <div class="mt-6">
+                                            <p class="text-xl font-bold text-gray-900 tracking-tight">
+                                                {{ $order->customer_name }}
+                                            </p>
+
+                                            <div class="mt-4 space-y-3">
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Phone</span>
+                                                    <span
+                                                        class="text-sm font-semibold text-gray-700">{{ $order->customer_phone }}</span>
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</span>
+                                                    <span
+                                                        class="text-sm font-semibold text-gray-700 break-all">{{ $order->customer_email }}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {{-- Shipping --}}
-                                    <div class="rounded-2xl border border-gray-200 bg-white/70 p-5 shadow-sm">
-                                        <div class="flex items-center justify-between">
-                                            <h2 class="text-xs font-semibold text-gray-500 tracking-[0.16em] uppercase">
-                                                Shipping Address
-                                            </h2>
+                                    {{-- Shipping / Digital Card --}}
+                                    <div
+                                        class="rounded-3xl border border-gray-100 bg-white/60 backdrop-blur-md p-8 shadow-sm">
+                                        @php
+                                            $isDigitalOrder = $order->items->contains(
+                                                fn($it) => (bool) ($it->digital_payload ?? null),
+                                            );
+                                        @endphp
 
-                                            @if ($order->shipping_courier || $order->tracking_number)
+                                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                                            <h2 class="text-xs font-black text-gray-400 tracking-[0.2em] uppercase">
+                                                {{ $isDigitalOrder ? 'Digital Access' : 'Delivery Address' }}
+                                            </h2>
+                                            @if ($isDigitalOrder)
+                                                <span
+                                                    class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-600 ring-1 ring-emerald-200">
+                                                    DIGITAL
+                                                </span>
+                                            @elseif ($order->shipping_courier || $order->tracking_number)
                                                 <button type="button" onclick="openTrackingModal({{ $order->id }})"
-                                                    class="text-xs font-semibold text-indigo-600 underline underline-offset-2 hover:text-indigo-700">
-                                                    View Tracking
+                                                    class="text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest transition-colors">
+                                                    Track →
                                                 </button>
                                             @endif
                                         </div>
 
-                                        <div class="mt-3 text-gray-900 leading-relaxed text-sm">
-                                            {{ $order->address_line1 }}<br>
-                                            @if ($order->address_line2)
-                                                {{ $order->address_line2 }}<br>
+                                        <div class="mt-6">
+                                            @if ($isDigitalOrder)
+                                                <div class="space-y-4">
+                                                    @foreach ($order->items as $it)
+                                                        @php
+                                                            $payload = is_string($it->digital_payload)
+                                                                ? json_decode($it->digital_payload, true)
+                                                                : $it->digital_payload;
+                                                        @endphp
+
+                                                        @if (!empty($payload))
+                                                            <div
+                                                                class="rounded-2xl bg-gray-50/50 p-4 ring-1 ring-gray-100">
+                                                                <div class="flex justify-between items-center mb-3">
+                                                                    <span
+                                                                        class="text-[11px] font-black text-amber-800 uppercase tracking-tighter truncate max-w-[150px]">
+                                                                        {{ $it->product_name }}
+                                                                    </span>
+                                                                </div>
+
+                                                                <div class="space-y-2">
+                                                                    @foreach ($payload as $k => $v)
+                                                                        <div
+                                                                            class="flex justify-between text-xs border-b border-white/50 pb-1 last:border-0">
+                                                                            <span
+                                                                                class="text-gray-500 capitalize">{{ str_replace('_', ' ', $k) }}</span>
+                                                                            <span
+                                                                                class="font-bold text-gray-900">{{ is_array($v) ? 'Data' : $v }}</span>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="text-sm leading-relaxed text-gray-700">
+                                                    <div class="text-base font-bold text-gray-900 mb-1">
+                                                        {{ $order->address_line1 }}</div>
+                                                    @if ($order->address_line2)
+                                                        <div>{{ $order->address_line2 }}</div>
+                                                    @endif
+                                                    <div class="mt-2 font-medium">
+                                                        {{ $order->postcode }} {{ $order->city }}<br>
+                                                        {{ $order->state }}
+                                                    </div>
+                                                </div>
                                             @endif
-                                            {{ $order->postcode }} {{ $order->city }}<br>
-                                            {{ $order->state }}
                                         </div>
                                     </div>
+                                </div>
 
-                                    {{-- Remark（永远显示，全宽） --}}
-                                    <div
-                                        class="md:col-span-2 rounded-2xl border border-gray-200 bg-white/70 p-5 shadow-sm">
-
-                                        <h2 class="text-xs font-semibold text-gray-500 tracking-[0.16em] uppercase">
-                                            Order Remark
-                                        </h2>
-
+                                {{-- Remark Card --}}
+                                <div
+                                    class="rounded-3xl border border-gray-100 bg-white/40 backdrop-blur-sm p-6 shadow-sm">
+                                    <h2 class="text-xs font-black text-gray-400 tracking-[0.2em] uppercase mb-3">
+                                        Order Remark
+                                    </h2>
+                                    <div class="rounded-2xl bg-white/50 p-4 border border-gray-50">
                                         <p
-                                            class="mt-2 text-sm leading-relaxed break-words whitespace-pre-line {{ $order->remark ? 'text-gray-900' : 'text-gray-400 italic' }}">
-                                            {{ $order->remark ? trim($order->remark) : 'No remark' }}</p>
+                                            class="text-sm leading-relaxed {{ $order->remark ? 'text-gray-800 font-medium' : 'text-gray-400' }}">
+                                            {{ $order->remark ? trim($order->remark) : 'No instructions provided by customer.' }}
+                                        </p>
                                     </div>
-
-
                                 </div>
                             </div>
 
+                            {{-- 🟣 RIGHT: Summary --}}
+                            <div class="lg:col-span-4">
+                                <div
+                                    class="lg:sticky lg:top-24 rounded-[2rem] border border-amber-100 bg-gradient-to-b from-amber-50/80 to-white p-8 shadow-xl shadow-amber-900/5">
 
-                            {{-- 🟣 右侧（占 2）：Order Summary --}}
-                            <div
-                                class="md:col-span-2 bg-[#FFF9E6] border border-[#D4AF37]/30 rounded-2xl p-5 text-base shadow-sm">
-
-                                <h2 class="font-semibold text-[#0A0A0C] text-base mb-4">Order Summary</h2>
-
-                                @php
-                                    $pointsRate = 1; // RM1 = 1pt
-                                    $earnedPoints = (int) floor(($order->total ?? 0) * $pointsRate);
-                                    $isCompleted = $order->status === 'completed';
-                                @endphp
-
-
-                                <div class="space-y-2 text-sm">
-                                    <div class="flex justify-between text-gray-600">
-                                        <span>Subtotal</span>
-                                        <span>RM {{ number_format($order->subtotal, 2) }}</span>
+                                    <div class="flex items-center justify-between border-b border-amber-100 pb-6">
+                                        <h2 class="font-black text-gray-900 text-lg tracking-tight">Order Summary</h2>
+                                        <div
+                                            class="bg-amber-100 px-3 py-1 rounded-full text-[10px] font-black text-amber-700 tracking-tighter">
+                                            MYR</div>
                                     </div>
 
-                                    <div class="flex justify-between text-gray-600">
-                                        <span>Shipping Fee</span>
-                                        <span>RM {{ number_format($order->shipping_fee, 2) }}</span>
-                                    </div>
+                                    <div class="mt-6 space-y-4">
+                                        {{-- Line Items --}}
+                                        @php
+                                            $isCompleted = $order->status === 'completed';
+                                            $pointsRate = 1;
+                                            $earnedPoints = (int) floor(($order->total ?? 0) * $pointsRate);
+                                        @endphp
 
-                                    {{-- ✅ Handling Fee (only if applied) --}}
-                                    @if (($order->handling_fee ?? 0) > 0)
-                                        <div class="flex justify-between text-gray-600">
-                                            <span>
-                                                Handling Fee
-                                            </span>
-                                            <span>RM {{ number_format((float) $order->handling_fee, 2) }}</span>
-                                        </div>
-                                    @endif
+                                        <div class="space-y-3 text-sm">
 
+                                            {{-- Subtotal --}}
+                                            <div class="flex justify-between items-center text-gray-500">
+                                                <span>Subtotal</span>
+                                                <span class="font-bold text-gray-900">RM
+                                                    {{ number_format($order->subtotal, 2) }}</span>
+                                            </div>
 
-                                    {{-- ✅ Voucher Discount --}}
-                                    @if ($order->voucher_discount > 0)
-                                        <div class="flex justify-between text-green-700 font-medium">
-                                            <span>
-                                                Voucher
-                                                @if ($order->voucher_code)
-                                                    ({{ $order->voucher_code }})
-                                                @endif
-                                            </span>
-                                            <span>- RM {{ number_format($order->voucher_discount, 2) }}</span>
-                                        </div>
-                                    @endif
+                                            {{-- Shipping (show even if 0 for clarity) --}}
+                                            <div
+                                                class="flex justify-between items-center {{ $order->shipping_fee > 0 ? 'text-gray-500' : 'text-gray-400' }}">
+                                                <span>Shipping Fee</span>
+                                                <span class="font-bold text-gray-900">RM
+                                                    {{ number_format($order->shipping_fee, 2) }}</span>
+                                            </div>
 
-                                    {{-- ✅ Shipping Discount (Free Shipping / Shipping Voucher) --}}
-                                    @if ($order->shipping_discount > 0)
-                                        <div class="flex justify-between text-green-700 font-medium">
-                                            <span>
-                                                Shipping Discount
-                                                @if ($order->voucher_code)
-                                                    ({{ $order->voucher_code }})
-                                                @endif
-                                            </span>
-                                            <span>- RM {{ number_format($order->shipping_discount, 2) }}</span>
-                                        </div>
-                                    @endif
+                                            {{-- Handling Fee --}}
+                                            @if (($order->handling_fee ?? 0) > 0)
+                                                <div class="flex justify-between items-center text-gray-500">
+                                                    <span>Handling Fee</span>
+                                                    <span class="font-bold text-gray-900">RM
+                                                        {{ number_format((float) $order->handling_fee, 2) }}</span>
+                                                </div>
+                                            @endif
 
-                                    {{-- ✅ Points Redeemed --}}
-                                    @if (($order->points_discount ?? 0) > 0)
-                                        <div class="flex justify-between text-green-700 font-medium">
-                                            <span class="flex items-center gap-1">
-                                                Points Redeemed
-                                                @if (($order->points_redeem ?? 0) > 0)
-                                                    <span
-                                                        class="text-[12px] px-2 py-0.5 rounded-full text-green-700 font-bold tracking-wide">
-                                                        {{ number_format((int) $order->points_redeem) }} pts
+                                            {{-- Voucher Discount --}}
+                                            @if ($order->voucher_discount > 0)
+                                                <div
+                                                    class="flex justify-between items-center text-emerald-600 font-bold">
+                                                    <span class="flex items-center gap-1.5">
+                                                        Discount
+                                                        @if ($order->voucher_code)
+                                                            <span
+                                                                class="text-[10px] font-black text-emerald-700/80 tracking-tight">
+                                                                ({{ $order->voucher_code }})
+                                                            </span>
+                                                        @endif
                                                     </span>
-                                                @endif
+                                                    <span>-RM {{ number_format($order->voucher_discount, 2) }}</span>
+                                                </div>
+                                            @endif
+
+                                            {{-- Shipping Discount --}}
+                                            @if (($order->shipping_discount ?? 0) > 0)
+                                                <div
+                                                    class="flex justify-between items-center text-emerald-600 font-bold">
+                                                    <span>Shipping Discount</span>
+                                                    <span>-RM
+                                                        {{ number_format((float) $order->shipping_discount, 2) }}</span>
+                                                </div>
+                                            @endif
+
+                                            {{-- Points Redeemed --}}
+                                            @if (($order->points_discount ?? 0) > 0)
+                                                <div
+                                                    class="flex justify-between items-center text-emerald-600 font-bold">
+                                                    <span class="flex items-center gap-2">
+                                                        Points Redeemed
+                                                        @if (($order->points_redeem ?? 0) > 0)
+                                                            <span
+                                                                class="text-[10px] font-black text-emerald-700/80 tracking-tight">
+                                                                {{ number_format((int) $order->points_redeem) }} pts
+                                                            </span>
+                                                        @endif
+                                                    </span>
+                                                    <span>-RM
+                                                        {{ number_format((float) $order->points_discount, 2) }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+
+
+                                        <div class="my-6 border-t border-dashed border-amber-200"></div>
+
+                                        {{-- Grand Total --}}
+                                        <div class="flex items-end justify-between py-2">
+                                            <span
+                                                class="text-xs font-black text-gray-400 uppercase tracking-widest pb-1">Total</span>
+                                            <span class="text-4xl font-black text-gray-900 tracking-tighter">
+                                                RM {{ number_format($order->total, 2) }}
                                             </span>
-                                            <span>- RM {{ number_format((float) $order->points_discount, 2) }}</span>
                                         </div>
-                                    @endif
 
-                                </div>
-
-
-                                <div class="h-px bg-[#D4AF37]/20 my-4"></div>
-
-                                <div class="space-y-2">
-                                    {{-- Total --}}
-                                    <div class="flex justify-between items-baseline">
-                                        <span class="text-sm font-semibold text-[#0A0A0C]">Total</span>
-                                        <span class="text-2xl font-semibold text-[#0A0A0C]">
-                                            RM {{ number_format($order->total, 2) }}
-                                        </span>
-                                    </div>
-
-                                    {{-- Earn --}}
-                                    <div class="flex justify-between items-baseline">
-                                        <span
-                                            class="text-sm font-semibold {{ $isCompleted ? 'text-emerald-700' : 'text-[#8f6a10]' }}">
-                                            {{ $isCompleted ? 'Earned' : 'Will Earn' }}
-                                        </span>
-
-                                        <span
-                                            class="text-lg font-semibold {{ $isCompleted ? 'text-emerald-700' : 'text-[#0A0A0C]' }}">
-                                            +{{ number_format($earnedPoints) }} pts
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {{-- Payment --}}
-                                <div class="mt-5 pt-4 border-t border-[#D4AF37]/20 space-y-2 text-sm">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Payment Method</span>
-                                        <span class="font-medium text-gray-900">
-                                            {{ $order->payment_method_name }}
-                                        </span>
-                                    </div>
-
-                                    @if ($order->payment_receipt_path)
-                                        <div class="flex items-center gap-2 pt-1">
-                                            <button type="button" onclick="openReceiptModal({{ $order->id }})"
-                                                class="inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-300
-                                                        bg-white/80 hover:bg-white text-xs font-medium text-gray-800">
-                                                View Receipt
-                                            </button>
-
-                                            <a href="{{ asset('storage/' . $order->payment_receipt_path) }}" download
-                                                class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium
-                                                        bg-[#D4AF37] text-white hover:bg-[#C49A2F]">
-                                                Download
-                                            </a>
+                                        {{-- Points Badge --}}
+                                        <div class="rounded-2xl bg-gray-900 p-4 flex justify-between items-center">
+                                            <span class="text-xs font-bold text-gray-400">
+                                                {{ $isCompleted ? 'Earned Points' : 'Will Earn' }}
+                                            </span>
+                                            <span class="text-sm font-black text-amber-400">
+                                                +{{ number_format($earnedPoints) }} PTS
+                                            </span>
                                         </div>
-                                    @endif
+
+                                    </div>
+
+                                    {{-- Payment Footer --}}
+                                    <div class="mt-8 pt-6 border-t border-amber-100">
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex justify-between items-center">
+                                                <span
+                                                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Method</span>
+                                                <span
+                                                    class="text-xs font-bold text-gray-700">{{ $order->payment_method_name }}</span>
+                                            </div>
+
+                                            @if ($order->payment_receipt_path)
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <button onclick="openReceiptModal({{ $order->id }})"
+                                                        class="py-2.5 rounded-xl border border-gray-200 bg-white text-[11px] font-black text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+                                                        VIEW RECEIPT
+                                                    </button>
+                                                    <a href="{{ asset('storage/' . $order->payment_receipt_path) }}"
+                                                        download
+                                                        class="py-2.5 rounded-xl bg-amber-500 text-[11px] font-black text-white text-center shadow-md shadow-amber-500/20 hover:bg-amber-600 transition-all">
+                                                        DOWNLOAD
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

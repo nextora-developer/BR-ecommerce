@@ -651,6 +651,196 @@
                 </div>
             </div>
 
+            {{-- SECTION 5.5: Digital Fields (only for digital product) --}}
+            @php
+                // old 优先，其次 product->digital_fields
+                $builderFields = old('digital_fields_builder');
+
+                if (!is_array($builderFields)) {
+                    $builderFields = is_array($product->digital_fields) ? $product->digital_fields : [];
+                }
+
+                // 如果完全空，默认给一行（更友好）
+                if (empty($builderFields)) {
+                    $builderFields = [
+                        [
+                            'key' => '',
+                            'label' => '',
+                            'required' => false,
+                            'type' => 'text',
+                            'max' => null,
+                            'hint' => null,
+                            'options' => [],
+                        ],
+                    ];
+                }
+            @endphp
+
+            <div id="digitalFieldsCard" class="hidden">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                    <h2 class="font-bold text-gray-900">Digital Delivery Fields</h2>
+                    <span class="text-xs text-gray-400">Only for Digital Product</span>
+                </div>
+
+                <div class="border rounded-xl p-5 bg-blue-50/40 space-y-4">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">Field Builder</p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Checkout will automatically generate input fields based on these fields (e.g., Game ID /
+                                Server / Platform)
+                            </p>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="button" id="presetGameTopup"
+                                class="px-3 py-2 rounded-xl bg-white border border-blue-200 text-xs font-bold text-blue-600 hover:bg-blue-50">
+                                Game Top-Up preset
+                            </button>
+                            <button type="button" id="addDigitalFieldBtn"
+                                class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700">
+                                + Add Field
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="digitalFieldsWrapper" class="space-y-3">
+                        @foreach ($builderFields as $i => $f)
+                            @php
+                                $type = $f['type'] ?? 'text';
+                                $opts = $f['options'] ?? [];
+                                if (!is_array($opts)) {
+                                    $opts = [];
+                                }
+                            @endphp
+
+                            <div class="digital-field-card rounded-2xl border border-blue-100 bg-white p-4"
+                                data-index="{{ $i }}">
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="text-xs font-black uppercase tracking-widest text-gray-500">
+                                        Field #{{ $i + 1 }}
+                                    </p>
+                                    <button type="button" class="text-xs font-bold text-red-500 hover:underline"
+                                        data-remove-field>
+                                        Remove
+                                    </button>
+                                </div>
+
+                                <div class="mt-3 grid grid-cols-1 md:grid-cols-6 gap-3">
+                                    <div class="md:col-span-2">
+                                        <label
+                                            class="text-[11px] font-black uppercase tracking-widest text-gray-400">Label</label>
+                                        <input name="digital_fields_builder[{{ $i }}][label]"
+                                            value="{{ $f['label'] ?? '' }}"
+                                            class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                                            placeholder="e.g. Game ID">
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label
+                                            class="text-[11px] font-black uppercase tracking-widest text-gray-400">Key</label>
+                                        <input name="digital_fields_builder[{{ $i }}][key]"
+                                            value="{{ $f['key'] ?? '' }}"
+                                            class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm font-mono"
+                                            placeholder="e.g. game_id">
+                                        <p class="mt-1 text-[11px] text-gray-400">Only letters, numbers, and underscores are allowed.</p>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="text-[11px] font-black uppercase tracking-widest text-gray-400">Type</label>
+                                        <select name="digital_fields_builder[{{ $i }}][type]"
+                                            class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                                            data-field-type>
+                                            <option value="text" @selected($type === 'text')>Text</option>
+                                            <option value="number" @selected($type === 'number')>Number</option>
+                                            <option value="select" @selected($type === 'select')>Select</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="text-[11px] font-black uppercase tracking-widest text-gray-400">Required</label>
+                                        <div class="mt-2">
+                                            <label class="inline-flex items-center gap-2 text-sm">
+                                                <input type="checkbox" value="1"
+                                                    name="digital_fields_builder[{{ $i }}][required]"
+                                                    class="rounded border-gray-300" @checked(!empty($f['required']))>
+                                                <span class="text-gray-700">Yes</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 grid grid-cols-1 md:grid-cols-6 gap-3">
+                                    <div class="md:col-span-2">
+                                        <label
+                                            class="text-[11px] font-black uppercase tracking-widest text-gray-400">Max</label>
+                                        <input type="number" min="1" step="1"
+                                            name="digital_fields_builder[{{ $i }}][max]"
+                                            value="{{ $f['max'] ?? '' }}"
+                                            class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                                            placeholder="e.g. 30">
+                                    </div>
+
+                                    <div class="md:col-span-4">
+                                        <label
+                                            class="text-[11px] font-black uppercase tracking-widest text-gray-400">Hint</label>
+                                        <input name="digital_fields_builder[{{ $i }}][hint]"
+                                            value="{{ $f['hint'] ?? '' }}"
+                                            class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                                            placeholder="e.g. Enter your in-game ID">
+                                    </div>
+                                </div>
+
+                                {{-- Options (only when select) --}}
+                                <div class="mt-3" data-options-wrap
+                                    style="{{ $type === 'select' ? '' : 'display:none;' }}">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-[11px] font-black uppercase tracking-widest text-gray-400">Options
+                                        </p>
+                                        <button type="button" class="text-xs font-bold text-blue-600 hover:underline"
+                                            data-add-option>
+                                            + Add option
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-2 space-y-2" data-options-list>
+                                        @forelse ($opts as $oi => $ov)
+                                            <div class="flex gap-2 items-center">
+                                                <input name="digital_fields_builder[{{ $i }}][options][]"
+                                                    value="{{ $ov }}"
+                                                    class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                                                    placeholder="e.g. Android">
+                                                <button type="button"
+                                                    class="text-xs font-bold text-red-500 hover:underline"
+                                                    data-remove-option>
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        @empty
+                                            <div class="flex gap-2 items-center">
+                                                <input name="digital_fields_builder[{{ $i }}][options][]"
+                                                    class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                                                    placeholder="e.g. Android">
+                                                <button type="button"
+                                                    class="text-xs font-bold text-red-500 hover:underline"
+                                                    data-remove-option>
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+
             {{-- SECTION 6: Toggles + Actions --}}
             <div class="pt-4 border-t border-gray-100 flex items-center justify-between flex-wrap gap-4">
                 <div class="flex items-center gap-4 flex-wrap">
@@ -1263,6 +1453,261 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             updateHighlightUIState();
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const digitalToggle = document.querySelector('input[name="is_digital"]');
+            const card = document.getElementById('digitalFieldsCard');
+            const wrapper = document.getElementById('digitalFieldsWrapper');
+            const addBtn = document.getElementById('addDigitalFieldBtn');
+            const presetBtn = document.getElementById('presetGameTopup');
+
+            const showHide = () => {
+                if (!digitalToggle || !card) return;
+                card.classList.toggle('hidden', !digitalToggle.checked);
+            };
+
+            showHide();
+            digitalToggle?.addEventListener('change', showHide);
+
+            const rebuildIndexes = () => {
+                const cards = wrapper.querySelectorAll('.digital-field-card');
+                cards.forEach((c, idx) => {
+                    c.dataset.index = idx;
+
+                    // 更新 Field #n
+                    const title = c.querySelector('p');
+                    if (title) title.textContent = `Field #${idx + 1}`;
+
+                    // 更新所有 name="digital_fields_builder[old]..." => new
+                    c.querySelectorAll('input[name], select[name], textarea[name]').forEach(el => {
+                        const name = el.getAttribute('name');
+                        if (!name) return;
+                        el.setAttribute('name', name.replace(/digital_fields_builder\[\d+\]/,
+                            `digital_fields_builder[${idx}]`));
+                    });
+                });
+            };
+
+            const makeFieldCard = () => {
+                const idx = wrapper.querySelectorAll('.digital-field-card').length;
+
+                const div = document.createElement('div');
+                div.className = 'digital-field-card rounded-2xl border border-blue-100 bg-white p-4';
+                div.dataset.index = idx;
+
+                div.innerHTML = `
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-xs font-black uppercase tracking-widest text-gray-500">Field #${idx + 1}</p>
+                <button type="button" class="text-xs font-bold text-red-500 hover:underline" data-remove-field>Remove</button>
+            </div>
+
+            <div class="mt-3 grid grid-cols-1 md:grid-cols-6 gap-3">
+                <div class="md:col-span-2">
+                    <label class="text-[11px] font-black uppercase tracking-widest text-gray-400">Label</label>
+                    <input name="digital_fields_builder[${idx}][label]"
+                        class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                        placeholder="e.g. Game ID">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="text-[11px] font-black uppercase tracking-widest text-gray-400">Key</label>
+                    <input name="digital_fields_builder[${idx}][key]"
+                        class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm font-mono"
+                        placeholder="e.g. game_id">
+                    <p class="mt-1 text-[11px] text-gray-400">Only letters, numbers, and underscores are allowed.</p>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-black uppercase tracking-widest text-gray-400">Type</label>
+                    <select name="digital_fields_builder[${idx}][type]"
+                        class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                        data-field-type>
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="select">Select</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-black uppercase tracking-widest text-gray-400">Required</label>
+                    <div class="mt-2">
+                        <label class="inline-flex items-center gap-2 text-sm">
+                            <input type="checkbox" value="1" name="digital_fields_builder[${idx}][required]" class="rounded border-gray-300">
+                            <span class="text-gray-700">Yes</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-1 md:grid-cols-6 gap-3">
+                <div class="md:col-span-2">
+                    <label class="text-[11px] font-black uppercase tracking-widest text-gray-400">Max</label>
+                    <input type="number" min="1" step="1" name="digital_fields_builder[${idx}][max]"
+                        class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                        placeholder="e.g. 30">
+                </div>
+
+                <div class="md:col-span-4">
+                    <label class="text-[11px] font-black uppercase tracking-widest text-gray-400">Hint</label>
+                    <input name="digital_fields_builder[${idx}][hint]"
+                        class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                        placeholder="e.g. Enter your in-game ID">
+                </div>
+            </div>
+
+            <div class="mt-3" data-options-wrap style="display:none;">
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-black uppercase tracking-widest text-gray-400">Options</p>
+                    <button type="button" class="text-xs font-bold text-blue-600 hover:underline" data-add-option>
+                        + Add option
+                    </button>
+                </div>
+
+                <div class="mt-2 space-y-2" data-options-list>
+                    <div class="flex gap-2 items-center">
+                        <input name="digital_fields_builder[${idx}][options][]"
+                            class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                            placeholder="e.g. Android">
+                        <button type="button" class="text-xs font-bold text-red-500 hover:underline" data-remove-option>
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+                return div;
+            };
+
+            addBtn?.addEventListener('click', () => {
+                wrapper.appendChild(makeFieldCard());
+                rebuildIndexes();
+            });
+
+            // event delegation
+            wrapper?.addEventListener('click', (e) => {
+                const btnRemoveField = e.target.closest('[data-remove-field]');
+                if (btnRemoveField) {
+                    btnRemoveField.closest('.digital-field-card')?.remove();
+                    // 如果删到 0，保留 1 个空
+                    if (!wrapper.querySelector('.digital-field-card')) {
+                        wrapper.appendChild(makeFieldCard());
+                    }
+                    rebuildIndexes();
+                }
+
+                const btnAddOpt = e.target.closest('[data-add-option]');
+                if (btnAddOpt) {
+                    const card = btnAddOpt.closest('.digital-field-card');
+                    const list = card?.querySelector('[data-options-list]');
+                    if (!list) return;
+
+                    const idx = card.dataset.index;
+                    const row = document.createElement('div');
+                    row.className = 'flex gap-2 items-center';
+                    row.innerHTML = `
+                <input name="digital_fields_builder[${idx}][options][]"
+                    class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                    placeholder="e.g. iOS">
+                <button type="button" class="text-xs font-bold text-red-500 hover:underline" data-remove-option>Remove</button>
+            `;
+                    list.appendChild(row);
+                }
+
+                const btnRemoveOpt = e.target.closest('[data-remove-option]');
+                if (btnRemoveOpt) {
+                    const row = btnRemoveOpt.closest('.flex');
+                    row?.remove();
+                }
+            });
+
+            wrapper?.addEventListener('change', (e) => {
+                const sel = e.target.closest('[data-field-type]');
+                if (!sel) return;
+
+                const card = sel.closest('.digital-field-card');
+                const wrap = card?.querySelector('[data-options-wrap]');
+                if (!wrap) return;
+
+                wrap.style.display = (sel.value === 'select') ? '' : 'none';
+            });
+
+            // Preset: Game Top-Up
+            presetBtn?.addEventListener('click', () => {
+                wrapper.innerHTML = '';
+                const preset = [{
+                        key: 'game_id',
+                        label: 'Game ID',
+                        required: true,
+                        type: 'text',
+                        max: 30,
+                        hint: 'Enter your in-game ID',
+                        options: []
+                    },
+                    {
+                        key: 'server',
+                        label: 'Server',
+                        required: true,
+                        type: 'text',
+                        max: 20,
+                        hint: 'Enter your server',
+                        options: []
+                    },
+                    {
+                        key: 'platform',
+                        label: 'Platform',
+                        required: true,
+                        type: 'select',
+                        max: null,
+                        hint: null,
+                        options: ['Android', 'iOS']
+                    },
+                ];
+
+                preset.forEach((f) => {
+                    const card = makeFieldCard();
+                    wrapper.appendChild(card);
+                    // 先 rebuild，确保 index 正确
+                    rebuildIndexes();
+
+                    const idx = card.dataset.index;
+                    card.querySelector(`input[name="digital_fields_builder[${idx}][label]"]`)
+                        .value = f.label;
+                    card.querySelector(`input[name="digital_fields_builder[${idx}][key]"]`).value =
+                        f.key;
+                    card.querySelector(`select[name="digital_fields_builder[${idx}][type]"]`)
+                        .value = f.type;
+                    card.querySelector(`input[name="digital_fields_builder[${idx}][required]"]`)
+                        .checked = !!f.required;
+                    if (f.max !== null) card.querySelector(
+                        `input[name="digital_fields_builder[${idx}][max]"]`).value = f.max;
+                    if (f.hint) card.querySelector(
+                        `input[name="digital_fields_builder[${idx}][hint]"]`).value = f.hint;
+
+                    // options
+                    const optWrap = card.querySelector('[data-options-wrap]');
+                    const optList = card.querySelector('[data-options-list]');
+                    if (f.type === 'select') {
+                        optWrap.style.display = '';
+                        optList.innerHTML = '';
+                        f.options.forEach((ov) => {
+                            const row = document.createElement('div');
+                            row.className = 'flex gap-2 items-center';
+                            row.innerHTML = `
+                        <input name="digital_fields_builder[${idx}][options][]"
+                            class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm"
+                            value="${ov}">
+                        <button type="button" class="text-xs font-bold text-red-500 hover:underline" data-remove-option>Remove</button>
+                    `;
+                            optList.appendChild(row);
+                        });
+                    }
+                });
+
+                rebuildIndexes();
+            });
         });
     </script>
 @endpush

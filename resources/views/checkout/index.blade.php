@@ -81,7 +81,7 @@
                         <section
                             class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden lg:col-span-2">
                             {{-- Header Section --}}
-                            <div class="p-6 sm:p-8 border-b border-gray-50">
+                            <div class="px-6 py-5 border-b border-gray-50">
                                 <h1 class="text-2xl font-bold text-gray-900 mb-1">Shipping Details</h1>
                                 <p class="text-sm text-gray-500">Please provide your delivery information to complete
                                     your order.</p>
@@ -190,8 +190,9 @@
                                             Contact Information</h3>
                                         <div class="grid sm:grid-cols-3 gap-4">
                                             <div class="sm:col-span-1">
-                                                <label class="block text-xs font-bold text-gray-700 mb-2 uppercase">Full
-                                                    Name</label>
+                                                <label class="block text-xs font-bold text-gray-700 mb-2 uppercase">
+                                                    Full Name <span class="text-red-500">*</span>
+                                                </label>
                                                 <input type="text" name="name"
                                                     value="{{ old('name', $defaultAddress->recipient_name ?? auth()->user()->name) }}"
                                                     class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
@@ -199,7 +200,7 @@
                                             </div>
                                             <div>
                                                 <label class="block text-xs font-bold text-gray-700 mb-2 uppercase">
-                                                    Phone
+                                                    Phone <span class="text-red-500">*</span>
                                                 </label>
 
                                                 <input type="text" name="phone"
@@ -217,8 +218,9 @@
                                             </div>
 
                                             <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">Email</label>
+                                                <label class="block text-xs font-bold text-gray-700 mb-2 uppercase">
+                                                    Email <span class="text-red-500">*</span>
+                                                </label>
                                                 <input type="email" name="email"
                                                     value="{{ old('email', $defaultAddress->email ?? auth()->user()->email) }}"
                                                     class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
@@ -227,74 +229,193 @@
                                         </div>
                                     </div>
 
-                                    {{-- Shipping Address Group --}}
-                                    <div class="p-2">
-                                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
-                                            Shipping Address</h3>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                                            <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">Address
-                                                    Line 1</label>
-                                                <input type="text" name="address_line1"
-                                                    value="{{ old('address_line1', $defaultAddress->address_line1 ?? '') }}"
-                                                    class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
-                                                    placeholder="No. 123, Street Name" required>
+                                    @if ($hasPhysical)
+                                        {{-- Shipping Address Group --}}
+                                        <div class="p-2">
+                                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
+                                                Shipping Address</h3>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                                <div>
+                                                    <label
+                                                        class="block text-xs font-bold text-gray-700 mb-2 uppercase">Address
+                                                        Line 1</label>
+                                                    <input type="text" name="address_line1"
+                                                        value="{{ old('address_line1', $defaultAddress->address_line1 ?? '') }}"
+                                                        class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
+                                                        placeholder="No. 123, Street Name" required>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="block text-xs font-bold text-gray-700 mb-2 uppercase">Address
+                                                        Line 2 (Optional)</label>
+                                                    <input type="text" name="address_line2"
+                                                        value="{{ old('address_line2', $defaultAddress->address_line2 ?? '') }}"
+                                                        class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
+                                                        placeholder="Apartment, unit, etc.">
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">Address
-                                                    Line 2 (Optional)</label>
-                                                <input type="text" name="address_line2"
-                                                    value="{{ old('address_line2', $defaultAddress->address_line2 ?? '') }}"
-                                                    class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
-                                                    placeholder="Apartment, unit, etc.">
-                                            </div>
-                                        </div>
 
-                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-                                            <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">Postcode</label>
-                                                <input type="text" name="postcode"
-                                                    value="{{ old('postcode', $defaultAddress->postcode ?? '') }}"
-                                                    class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
-                                                    placeholder="43000" required>
-                                            </div>
-                                            <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">City</label>
-                                                <input type="text" name="city"
-                                                    value="{{ old('city', $defaultAddress->city ?? '') }}"
-                                                    class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
-                                                    placeholder="Kajang" required>
-                                            </div>
-                                            <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">State</label>
-                                                <select name="state"
-                                                    class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm bg-white"
-                                                    data-state-select required>
-                                                    <option value="">Select State</option>
-                                                    @foreach ($states as $s)
-                                                        <option value="{{ $s['name'] }}"
-                                                            data-zone="{{ $s['zone'] }}"
-                                                            @selected(old('state', $defaultAddress->state ?? '') === $s['name'])>
-                                                            {{ $s['name'] }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label
-                                                    class="block text-xs font-bold text-gray-700 mb-2 uppercase">Country</label>
-                                                <input type="text" name="country"
-                                                    value="{{ old('country', $defaultAddress->country ?? 'Malaysia') }}"
-                                                    class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
-                                                    required>
+                                            <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                                                <div>
+                                                    <label
+                                                        class="block text-xs font-bold text-gray-700 mb-2 uppercase">Postcode</label>
+                                                    <input type="text" name="postcode"
+                                                        value="{{ old('postcode', $defaultAddress->postcode ?? '') }}"
+                                                        class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
+                                                        placeholder="43000" required>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="block text-xs font-bold text-gray-700 mb-2 uppercase">City</label>
+                                                    <input type="text" name="city"
+                                                        value="{{ old('city', $defaultAddress->city ?? '') }}"
+                                                        class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
+                                                        placeholder="Kajang" required>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="block text-xs font-bold text-gray-700 mb-2 uppercase">State</label>
+                                                    <select name="state"
+                                                        class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm bg-white"
+                                                        data-state-select required>
+                                                        <option value="">Select State</option>
+                                                        @foreach ($states as $s)
+                                                            <option value="{{ $s['name'] }}"
+                                                                data-zone="{{ $s['zone'] }}"
+                                                                @selected(old('state', $defaultAddress->state ?? '') === $s['name'])>
+                                                                {{ $s['name'] }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="block text-xs font-bold text-gray-700 mb-2 uppercase">Country</label>
+                                                    <input type="text" name="country"
+                                                        value="{{ old('country', $defaultAddress->country ?? 'Malaysia') }}"
+                                                        class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
+                                                        required>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    @else
+                                        {{-- Digital Delivery Notice + Digital Fields --}}
+                                        <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
+                                                Digital Delivery Information
+                                            </h3>
+
+                                            <div
+                                                class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                                                <svg class="w-4 h-4 mt-0.5 text-blue-500" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                                                </svg>
+                                                <p>
+                                                    Digital product — no shipping required. Please enter the details
+                                                    below to proceed.
+                                                </p>
+                                            </div>
+
+
+                                            <div class="mt-6 space-y-6">
+                                                @foreach ($items as $item)
+                                                    @php $p = $item->product; @endphp
+                                                    @continue(!$p?->is_digital)
+
+                                                    <div class="bg-white rounded-2xl border border-gray-100 p-4">
+                                                        <div class="flex items-start justify-between gap-4">
+                                                            <div class="min-w-0">
+                                                                <div
+                                                                    class="text-xs font-black uppercase tracking-widest text-[#8f6a10]">
+                                                                    {{ $p->name }}
+                                                                </div>
+                                                                @if ($item->variant_label)
+                                                                    <div
+                                                                        class="text-[11px] text-gray-400 mt-1 italic truncate">
+                                                                        {{ $item->variant_label }}
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+
+                                                            <span
+                                                                class="text-[10px] font-black px-2 py-1 rounded-full bg-[#FDF3D7] text-[#8f6a10] border border-[#E6D8A8]">
+                                                                DIGITAL
+                                                            </span>
+                                                        </div>
+
+                                                        @php
+                                                            // digital_fields 是 product 上的 json
+                                                            $fields = is_array($p->digital_fields)
+                                                                ? $p->digital_fields
+                                                                : [];
+                                                        @endphp
+
+                                                        @if (empty($fields))
+                                                            <div class="mt-4 text-xs text-gray-500">
+                                                                No digital fields configured for this product yet.
+                                                            </div>
+                                                        @else
+                                                            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                @foreach ($fields as $f)
+                                                                    @php
+                                                                        $key = $f['key'] ?? null;
+                                                                        $label = $f['label'] ?? $key;
+                                                                        $type = $f['type'] ?? 'text';
+                                                                        $required = (bool) ($f['required'] ?? false);
+                                                                        $options = $f['options'] ?? [];
+                                                                    @endphp
+                                                                    @continue(!$key)
+
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-xs font-bold text-gray-700 mb-2 uppercase">
+                                                                            {{ $label }} @if ($required)
+                                                                                <span class="text-red-500">*</span>
+                                                                            @endif
+                                                                        </label>
+
+                                                                        @if ($type === 'select')
+                                                                            <select
+                                                                                name="digital[{{ $item->id }}][{{ $key }}]"
+                                                                                class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm bg-white"
+                                                                                @if ($required) required @endif>
+                                                                                <option value="">Select</option>
+                                                                                @foreach ($options as $opt)
+                                                                                    <option
+                                                                                        value="{{ $opt }}"
+                                                                                        @selected(old("digital.$item->id.$key") === $opt)>
+                                                                                        {{ $opt }}
+                                                                                    </option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                        @else
+                                                                            <input type="text"
+                                                                                name="digital[{{ $item->id }}][{{ $key }}]"
+                                                                                value="{{ old("digital.$item->id.$key") }}"
+                                                                                class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm shadow-sm"
+                                                                                placeholder="Enter {{ $label }}"
+                                                                                @if ($required) required @endif>
+                                                                        @endif
+
+                                                                        @error("digital.$item->id.$key")
+                                                                            <p class="mt-1 text-xs text-red-600">
+                                                                                {{ $message }}</p>
+                                                                        @enderror
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+
+
+
                                 </div>
                             </div>
                         </section>
@@ -1180,7 +1301,7 @@
             const handlingFeeText = document.getElementById('handlingFeeText');
 
 
-            if (!stateSelect || !shippingText || !totalText) return;
+            if (!shippingText || !totalText) return;
 
             // ✅ Voucher state 可变
             let currentVoucherCode = (voucherStateEl?.dataset.code || '').trim();
@@ -1200,6 +1321,7 @@
 
             function getShippingFee() {
                 if (!hasPhysical) return 0;
+                if (!stateSelect) return 0; // ✅ 防止 digital 没这个 element
                 const selected = stateSelect.selectedOptions[0];
                 const zone = selected ? selected.dataset.zone : null;
                 if (!zone) return 0;
@@ -1220,11 +1342,18 @@
                 return gatewayCodes.includes(code);
             }
 
-            function calcHandlingFee() {
+            // function calcHandlingFee() {
+            //     if (!handlingEnabled) return 0;
+            //     if (!isGatewaySelected()) return 0;
+            //     return subtotal * (handlingPercent / 100);
+            // }
+
+            function calcHandlingFee(discountedSubtotalAfterPoints) {
                 if (!handlingEnabled) return 0;
                 if (!isGatewaySelected()) return 0;
-                return subtotal * (handlingPercent / 100);
+                return discountedSubtotalAfterPoints * (handlingPercent / 100);
             }
+
 
 
             function renderShipping() {
@@ -1232,15 +1361,23 @@
                     shippingText.textContent = 'Digital Product (Free)';
                     return;
                 }
+
+                if (!stateSelect) {
+                    shippingText.textContent = 'To be confirmed';
+                    return;
+                }
+
                 const selected = stateSelect.selectedOptions[0];
                 const zone = selected ? selected.dataset.zone : null;
                 if (!zone) {
                     shippingText.textContent = 'To be confirmed';
                     return;
                 }
+
                 const fee = getShippingFee();
                 shippingText.textContent = (fee === 0) ? 'Free' : 'RM ' + fee.toFixed(2);
             }
+
 
             function renderVoucher() {
                 const has = !!currentVoucherCode;
@@ -1344,7 +1481,8 @@
                 const subtotalAfterPoints = Math.max(0, discountedSubtotal - pointsRm);
 
                 const payableShipping = Math.max(0, shippingFee - shippingDiscount);
-                const handlingFee = calcHandlingFee();
+
+                const handlingFee = calcHandlingFee(subtotalAfterPoints);
 
                 const finalTotal = subtotalAfterPoints + payableShipping + handlingFee;
 
@@ -1368,6 +1506,7 @@
 
             // ✅ 地址必须先填好才 allow apply voucher
             function validateAddressBeforeVoucher() {
+                if (!hasPhysical) return true; // ✅ digital 直接放行
                 const requiredNames = ['name', 'phone', 'email', 'address_line1', 'postcode', 'city', 'state',
                     'country'
                 ];
@@ -1388,7 +1527,9 @@
             }
 
             // state change updates shipping + totals
-            stateSelect.addEventListener('change', refreshAll);
+            if (stateSelect) {
+                stateSelect.addEventListener('change', refreshAll);
+            }
 
             // init
             refreshAll();

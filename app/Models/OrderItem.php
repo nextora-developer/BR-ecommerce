@@ -14,7 +14,12 @@ class OrderItem extends Model
         'qty',
         'unit_price',
         'product_variant_id',
+        'digital_payload',
         'variant_label',
+    ];
+
+    protected $casts = [
+        'digital_payload' => 'array',
     ];
 
     public function order(): BelongsTo

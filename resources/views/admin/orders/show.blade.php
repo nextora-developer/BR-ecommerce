@@ -74,25 +74,152 @@
                     <h3 class="font-bold text-gray-900">Delivery Information</h3>
                 </div>
 
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
-                    <div class="space-y-4">
-                        <div>
-                            <label
-                                class="block text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">Customer</label>
-                            <div class="font-semibold text-gray-900 text-base">{{ $order->customer_name ?? '-' }}</div>
-                            <div class="text-gray-500 mt-0.5">{{ $order->customer_email ?? 'No Email' }}</div>
-                            <div class="text-gray-500">{{ $order->customer_phone ?? '-' }}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">Shipping
-                            To</label>
-                        <div class="text-gray-700 leading-relaxed font-medium">
-                            {!! nl2br(e($fullAddress)) ?: '<span class="text-gray-400 italic">No address provided</span>' !!}
+                <div class="p-8 space-y-10 text-sm bg-white">
+
+                    {{-- ================= Row 1: Customer Info ================= --}}
+                    <div
+                        class="flex flex-col md:flex-row md:items-start justify-between gap-8 pb-8 border-b border-gray-100">
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs uppercase tracking-[0.15em] text-gray-600 font-black">
+                                    Customer Profile
+                                </label>
+                                <span class="h-1 w-1 rounded-full bg-blue-400"></span>
+                            </div>
+
+
+                            <div>
+                                <div class="flex flex-wrap gap-x-8 gap-y-2 mt-2">
+
+                                    {{-- Name --}}
+                                    <div class="flex items-center gap-2 text-gray-700">
+                                        <svg class="w-5 h-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                        </svg>
+
+                                        <span class="text-base">
+                                            {{ $order->customer_name ?? 'Guest Customer' }}
+                                        </span>
+                                    </div>
+
+                                    {{-- Email --}}
+                                    <div class="flex items-center gap-2 text-gray-600">
+                                        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                        <span class="text-base">
+                                            {{ $order->customer_email ?? 'No email provided' }}
+                                        </span>
+                                    </div>
+
+                                    {{-- Phone --}}
+                                    <div class="flex items-center gap-2 text-gray-600">
+                                        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        </svg>
+                                        <span class="text-base">
+                                            {{ $order->customer_phone ?? '-' }}
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
+                    @php
+                        $isDigitalOrder = $order->items->contains(fn($it) => !empty($it->digital_payload));
+                    @endphp
+
+                    {{-- ================= Row 2: Delivery Info ================= --}}
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs uppercase tracking-[0.15em] text-gray-600 font-black">
+                                {{ $isDigitalOrder ? 'Digital Details' : 'Shipping Details' }}
+                            </label>
+                            @if ($isDigitalOrder)
+                                <span
+                                    class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[10px] font-bold ring-1 ring-emerald-100">VIRTUAL
+                                    ASSET</span>
+                            @endif
+                        </div>
+
+                        @if ($isDigitalOrder)
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                {{-- Payload Cards --}}
+                                @foreach ($order->items as $it)
+                                    @php
+                                        $payload = is_string($it->digital_payload)
+                                            ? json_decode($it->digital_payload, true)
+                                            : $it->digital_payload;
+                                    @endphp
+
+                                    @if (is_array($payload) && !empty($payload))
+                                        <div
+                                            class="group relative rounded-2xl border border-gray-100 bg-gray-50/30 p-5 transition-all hover:bg-white hover:shadow-xl hover:shadow-gray-200/40">
+                                            <div class="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <div
+                                                        class="text-xs font-black uppercase text-emerald-800 tracking-tighter">
+                                                        {{ $it->product_name }}
+                                                    </div>
+                                                    @if ($it->variant_label)
+                                                        <div class="text-[10px] text-gray-400 mt-0.5 italic">
+                                                            {{ $it->variant_label }}</div>
+                                                    @endif
+                                                </div>
+                                                <div
+                                                    class="bg-white px-2 py-1 rounded-md border border-gray-100 text-[10px] font-bold text-gray-500">
+                                                    QTY: {{ $it->quantity ?? 1 }}
+                                                </div>
+                                            </div>
+
+                                            <div class="">
+                                                @foreach ($payload as $k => $v)
+                                                    <div
+                                                        class="flex items-center justify-between gap-4 p-2 rounded-lg bg-white/60 border border-white">
+                                                        <span
+                                                            class="text-xs text-gray-400 font-extrabold uppercase tracking-wide">
+                                                            {{ str_replace('_', ' ', $k) }}
+                                                        </span>
+                                                        <span class="text-sm text-gray-900 font-bold break-all">
+                                                            {{ is_array($v) ? json_encode($v) : $v }}
+                                                        </span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+
+                                @if ($order->items->every(fn($it) => empty($it->digital_payload)))
+                                    <div
+                                        class="col-span-full rounded-xl border border-dashed border-gray-200 p-8 text-center">
+                                        <span class="text-gray-400 italic">No fulfillment data found.</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            {{-- Physical Address Style --}}
+                            <div class="inline-block rounded-2xl border border-gray-100 bg-gray-50/50 p-6">
+                                <div class="text-gray-800 leading-relaxed font-semibold text-base">
+                                    {!! trim($fullAddress) !== ''
+                                        ? nl2br(e($fullAddress))
+                                        : '<span class="text-gray-300 italic font-normal">No address provided</span>' !!}
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
                 </div>
+
 
                 {{-- Order Items Table --}}
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
