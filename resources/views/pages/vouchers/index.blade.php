@@ -219,12 +219,46 @@
                             {{ $vouchers->links() }}
                         </div>
                     @else
-                        <div class="rounded-3xl bg-white/70 border border-black/5 p-10 text-center">
-                            <p class="text-black/60 font-medium">No vouchers available right now.</p>
-                            <a href="{{ route('shop.index') }}"
-                                class="mt-4 inline-flex text-sm font-bold text-[#8f6a10] underline underline-offset-4">
-                                Browse products
-                            </a>
+                        <div
+                            class="relative overflow-hidden rounded-3xl bg-white border border-gray-100 p-12 text-center shadow-sm">
+                            {{-- Decorative Background Element --}}
+                            <div
+                                class="absolute -top-10 -right-10 w-32 h-32 bg-gray-50 rounded-full blur-3xl opacity-50">
+                            </div>
+                            <div
+                                class="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-50 rounded-full blur-3xl opacity-50">
+                            </div>
+
+                            <div class="relative z-10 flex flex-col items-center">
+                                {{-- Icon --}}
+                                <div
+                                    class="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-50 text-gray-300">
+                                    <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M10 9l-2 2 2 2M14 9l2 2-2 2" />
+                                    </svg>
+                                </div>
+
+                                {{-- Text Content --}}
+                                <h3 class="text-lg font-bold text-gray-900">No vouchers available</h3>
+                                <p class="mx-auto mt-2 max-w-xs text-sm text-gray-500 leading-relaxed">
+                                    It looks like your voucher collection is empty at the moment. Check back later for
+                                    exclusive rewards!
+                                </p>
+
+                                {{-- Action Button --}}
+                                <a href="{{ route('shop.index') }}"
+                                    class="mt-8 inline-flex items-center gap-2 rounded-full bg-gray-900 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-gray-800 hover:shadow-lg active:scale-95">
+                                    <span>Browse Products</span>
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
                     @endif
                 </div>
