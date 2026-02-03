@@ -3,72 +3,101 @@
         <div class="max-w-7xl5 mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Checkout Steps --}}
             @php
-                // 你现在在哪一步：cart / checkout / complete
                 $step = $step ?? 'cart';
-
                 $steps = [
                     ['key' => 'cart', 'label' => 'Shopping Cart'],
                     ['key' => 'checkout', 'label' => 'Checkout'],
                     ['key' => 'complete', 'label' => 'Order Complete'],
                 ];
-
                 $index = collect($steps)->search(fn($s) => $s['key'] === $step);
             @endphp
 
-            <div
-                class="bg-white/80 backdrop-blur rounded-2xl border border-gray-100 shadow-sm px-4 sm:px-6 py-3 sm:py-4 mb-6 sm:mb-8">
-                {{-- mobile: 纵向；sm+：横向 --}}
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {{-- Decorative Background Gradient --}}
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gray-50 to-transparent">
+            </div>
 
+            <div class="relative bg-white border border-gray-100 rounded-3xl shadow-sm px-6 py-5 mb-8 overflow-hidden">
+                {{-- Decorative Background Gradient --}}
+                <div
+                    class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gray-50 to-transparent">
+                </div>
+
+                {{-- ✅ Desktop center --}}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-6 sm:gap-10">
                     @foreach ($steps as $i => $s)
                         @php
                             $isDone = $i < $index;
                             $isNow = $i === $index;
+                            $isLast = $i === count($steps) - 1;
                         @endphp
 
-                        <div class="flex items-center flex-1 min-w-0">
+                        {{-- ✅ remove flex-1 so it won't stretch full width --}}
+                        <div class="flex items-center group">
+                            <div class="flex items-center gap-4">
+                                {{-- Indicator --}}
+                                <div class="relative flex-shrink-0">
+                                    <div @class([
+                                        'w-10 h-10 rounded-3xl flex items-center justify-center transition-all duration-500 shadow-sm',
+                                        'bg-amber-400 text-white rotate-3 shadow-amber-200' => $isDone,
+                                        'bg-gray-900 text-white scale-110 shadow-gray-200' => $isNow,
+                                        'bg-gray-50 text-gray-300 border border-gray-100' => !$isDone && !$isNow,
+                                    ])>
+                                        @if ($isDone)
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        @else
+                                            <span
+                                                class="text-sm font-black tracking-tighter">{{ sprintf('%02d', $i + 1) }}</span>
+                                        @endif
+                                    </div>
 
-                            {{-- Circle + Label --}}
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div
-                                    class="w-9 h-9 rounded-full grid place-items-center font-black text-sm flex-shrink-0
-                        {{ $isDone ? 'bg-[#D4AF37] text-white' : ($isNow ? 'bg-black text-white' : 'bg-gray-100 text-gray-400') }}">
-                                    @if ($isDone)
-                                        ✓
-                                    @else
-                                        {{ $i + 1 }}
+                                    {{-- Active Pulse Effect --}}
+                                    @if ($isNow)
+                                        <span
+                                            class="absolute inset-0 rounded-3xl bg-gray-900 animate-ping opacity-20"></span>
                                     @endif
                                 </div>
 
-                                <div class="min-w-0 text-left">
-                                    <div
-                                        class="text-xs sm:text-sm font-extrabold truncate
-                            {{ $isNow ? 'text-gray-900' : ($isDone ? 'text-[#8f6a10]' : 'text-gray-400') }}">
+                                {{-- Text --}}
+                                <div class="flex flex-col">
+                                    <span @class([
+                                        'text-[10px] uppercase tracking-[0.2em] font-black transition-colors',
+                                        'text-amber-600/60' => $isDone,
+                                        'text-gray-400' => $isNow,
+                                        'text-gray-300' => !$isDone && !$isNow,
+                                    ])>
+                                        Step {{ $i + 1 }}
+                                    </span>
+                                    <h3 @class([
+                                        'text-sm font-bold whitespace-nowrap transition-colors',
+                                        'text-gray-900' => $isNow || $isDone,
+                                        'text-gray-300' => !$isDone && !$isNow,
+                                    ])>
                                         {{ $s['label'] }}
-                                    </div>
-
-                                    @if ($isNow)
-                                        <div class="text-[11px] text-gray-400 mt-0.5">
-                                            Current step
-                                        </div>
-                                    @endif
+                                    </h3>
                                 </div>
                             </div>
 
-                            {{-- Connector: 只在桌面显示 --}}
-                            @if ($i < count($steps) - 1)
-                                <div
-                                    class="hidden sm:block flex-1 h-px mx-4
-                        {{ $isDone ? 'bg-[#D4AF37]/70' : 'bg-gray-200' }}">
+                            {{-- Connector --}}
+                            @if (!$isLast)
+                                <div class="hidden sm:block w-40 mx-6">
+                                    <div class="h-[2px] w-full bg-gray-100 rounded-full overflow-hidden">
+                                        <div @class([
+                                            'h-full transition-all duration-700 ease-in-out',
+                                            'w-full bg-amber-400' => $isDone,
+                                            'w-1/2 bg-gray-900' => $isNow,
+                                            'w-0' => !$isDone && !$isNow,
+                                        ])></div>
+                                    </div>
                                 </div>
                             @endif
                         </div>
                     @endforeach
-
                 </div>
             </div>
-
-
 
             @if ($items->isEmpty())
                 {{-- Empty State --}}

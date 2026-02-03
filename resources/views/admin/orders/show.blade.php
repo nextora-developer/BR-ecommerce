@@ -74,63 +74,72 @@
                     <h3 class="font-bold text-gray-900">Delivery Information</h3>
                 </div>
 
-                <div class="p-8 space-y-10 text-sm bg-white">
+                <div class="px-8 py-6 space-y-4 text-sm bg-white">
 
                     {{-- ================= Row 1: Customer Info ================= --}}
                     <div
-                        class="flex flex-col md:flex-row md:items-start justify-between gap-8 pb-8 border-b border-gray-100">
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <label class="text-xs uppercase tracking-[0.15em] text-gray-600 font-black">
-                                    Customer Info
-                                </label>
-                                <span class="h-1 w-1 rounded-full bg-blue-400"></span>
-                            </div>
+                        class="flex flex-col md:flex-row md:items-start justify-between gap-8 pb-5 border-b border-gray-100">
+                        <div class="w-full space-y-5">
 
+                            {{-- Info Cards/Grid --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                            <div>
-                                <div class="flex flex-wrap gap-x-8 gap-y-2 mt-2">
-
-                                    {{-- Name --}}
-                                    <div class="flex items-center gap-2 text-gray-700">
-                                        <svg class="w-5 h-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                {{-- Name --}}
+                                <div class="group flex items-center gap-4 p-3 rounded-xl transition-all hover:bg-gray-50">
+                                    <div
+                                        class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-100 shadow-sm group-hover:border-[#D4AF37]/40">
+                                        <svg class="w-5 h-5 text-gray-400 group-hover:text-[#D4AF37] transition-colors"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                                         </svg>
-
-                                        <span class="text-base">
-                                            {{ $order->customer_name ?? 'Guest Customer' }}
-                                        </span>
                                     </div>
+                                    <div>
+                                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Full
+                                            Name</p>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            {{ $order->customer_name ?? 'Guest Customer' }}</p>
+                                    </div>
+                                </div>
 
-                                    {{-- Email --}}
-                                    <div class="flex items-center gap-2 text-gray-600">
-                                        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                {{-- Email --}}
+                                <div class="group flex items-center gap-4 p-3 rounded-xl transition-all hover:bg-gray-50">
+                                    <div
+                                        class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-100 shadow-sm group-hover:border-[#D4AF37]/40">
+                                        <svg class="w-5 h-5 text-gray-400 group-hover:text-[#D4AF37] transition-colors"
+                                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
-                                        <span class="text-base">
-                                            {{ $order->customer_email ?? 'No email provided' }}
-                                        </span>
                                     </div>
+                                    <div>
+                                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Email
+                                            Address</p>
+                                        <p class="text-sm font-medium text-gray-900 truncate max-w-[180px] lg:max-w-none">
+                                            {{ $order->customer_email ?? 'No email provided' }}
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    {{-- Phone --}}
-                                    <div class="flex items-center gap-2 text-gray-600">
-                                        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                {{-- Phone --}}
+                                <div class="group flex items-center gap-4 p-3 rounded-xl transition-all hover:bg-gray-50">
+                                    <div
+                                        class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-100 shadow-sm group-hover:border-[#D4AF37]/40">
+                                        <svg class="w-5 h-5 text-gray-400 group-hover:text-[#D4AF37] transition-colors"
+                                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                         </svg>
-                                        <span class="text-base">
-                                            {{ $order->customer_phone ?? '-' }}
-                                        </span>
                                     </div>
-
+                                    <div>
+                                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Phone
+                                            Number</p>
+                                        <p class="text-sm font-medium text-gray-900">{{ $order->customer_phone ?? '—' }}</p>
+                                    </div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
                     </div>
 
