@@ -213,9 +213,20 @@ class RevenueMonsterController extends Controller
     //Version 2
     public function handleReturn(Request $request)
     {
+        // 🔵 1) Return 是否真的被打到（最重要）
+        Log::info('RM RETURN HIT', [
+            'order_no' => $request->query('order_no'),
+            'ip'       => $request->ip(),
+            'query'    => $request->query(),
+        ]);
+
         $orderNo = $request->query('order_no');
 
         if (!$orderNo) {
+            Log::warning('RM RETURN missing order_no', [
+                'query' => $request->query(),
+            ]);
+
             return redirect()
                 ->route('account.orders.index')
                 ->with('error', 'Missing order reference.');
@@ -224,20 +235,40 @@ class RevenueMonsterController extends Controller
         $order = Order::where('order_no', $orderNo)->first();
 
         if (!$order) {
+            Log::warning('RM RETURN order not found', [
+                'order_no' => $orderNo,
+            ]);
+
             return redirect()
                 ->route('account.orders.index')
                 ->with('error', 'Order not found.');
         }
 
+        // 🔵 2) Return 进来时，订单原始状态
+        Log::info('RM RETURN order status snapshot', [
+            'order_no' => $order->order_no,
+            'status'   => $order->status,
+        ]);
+
         $status = strtolower((string) $order->status);
 
-        // ✅ 已付款（webhook 已更新）
+        // ✅ webhook 已先更新为 paid
         if ($status === 'paid') {
+            Log::info('RM RETURN redirect success (already paid)', [
+                'order_no' => $order->order_no,
+            ]);
+
             return redirect()->route('checkout.success', $order);
         }
 
-        // ❌ 只要不是 paid，一律视为失败
+        // ❌ 这里才是真正把订单改 failed 的地方
         $order->update(['status' => 'failed']);
+
+        Log::warning('RM RETURN marked order failed', [
+            'order_no'    => $order->order_no,
+            'prev_status' => $status,
+            'new_status'  => 'failed',
+        ]);
 
         return redirect()
             ->route('account.orders.index')
@@ -245,19 +276,30 @@ class RevenueMonsterController extends Controller
     }
 
 
+
     public function handleWebhook(Request $request)
     {
+        Log::info('RM webhook ARRIVED (raw)', [
+            'ip'        => $request->ip(),
+            'method'    => $request->method(),
+            'headers'   => [
+                'x-signature' => $request->header('x-signature'),
+                'x-nonce-str' => $request->header('x-nonce-str'),
+                'x-timestamp' => $request->header('x-timestamp'),
+            ],
+            'body_md5'  => md5($request->getContent()),
+            'body_size' => strlen($request->getContent()),
+        ]);
+
         Log::info('RM webhook headers', $request->headers->all());
 
         $rawBody = $request->getContent();
         $headers = $request->headers->all();
         $payload = $request->all();
 
-        // ✅ 0) Optional skip verify (TEST ONLY)
         $skipVerify = (bool) config('services.rm.webhook_skip_verify', false);
 
         if (!$skipVerify) {
-            // ✅ 1) Verify signature
             if (!$this->verifySignatureCallback($rawBody, $headers)) {
                 Log::warning('RM webhook signature invalid', ['payload' => $payload]);
                 return response()->json(['message' => 'invalid signature'], 401);
@@ -268,7 +310,6 @@ class RevenueMonsterController extends Controller
             ]);
         }
 
-        // ✅ Extra guard even if skip verify: verify storeId matches
         $storeIdExpected = (string) config('services.rm.store_id');
         $storeIdGot = (string) (data_get($payload, 'data.storeId') ?? data_get($payload, 'storeId') ?? '');
         if ($storeIdExpected !== '' && $storeIdGot !== '' && $storeIdGot !== $storeIdExpected) {
@@ -279,7 +320,6 @@ class RevenueMonsterController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        // ✅ 2) Find order (prefer additionalData = order_no)
         $order = null;
 
         $orderNo = (string) data_get($payload, 'data.order.additionalData', '');
@@ -287,7 +327,6 @@ class RevenueMonsterController extends Controller
             $order = Order::where('order_no', $orderNo)->first();
         }
 
-        // ✅ Fallback: match by rm_order_id_24 (because RM order.id is now RMxxxxxxxx... 24 chars)
         if (!$order) {
             $rmOrderId = (string) data_get($payload, 'data.order.id', '');
             if ($rmOrderId !== '') {
@@ -296,15 +335,35 @@ class RevenueMonsterController extends Controller
         }
 
         if (!$order) {
-            Log::warning('RM webhook order not found', [
-                'rmOrderId' => data_get($payload, 'data.order.id'),
-                'orderNo'   => $orderNo,
+
+            Log::warning('RM webhook ORDER NOT FOUND (summary)', [
+                // 🔎 RM status
+                'rm_status' => data_get($payload, 'data.status'),
+
+                // 🔎 RM order identifiers
+                'rm_order_id'   => data_get($payload, 'data.order.id'),
+                'additional'    => data_get($payload, 'data.order.additionalData'),
+
+                // 🔎 transaction info
+                'transactionId' => data_get($payload, 'data.transactionId'),
+                'referenceId'   => data_get($payload, 'data.referenceId'),
+                'finalAmount'   => data_get($payload, 'data.finalAmount'),
+                'currency'      => data_get($payload, 'data.currencyType'),
+
+                // 🔎 payload structure（非常重要）
+                'payload_keys'  => array_keys($payload),
+                'data_keys'     => is_array(data_get($payload, 'data'))
+                    ? array_keys($payload['data'])
+                    : null,
+
+                // 🔎 快速对照用
+                'raw_md5' => md5($request->getContent()),
             ]);
+
             return response()->json(['ok' => true]);
         }
 
 
-        // ✅ 3) Idempotent
         if (strtolower((string) $order->status) === 'paid') {
             return response()->json(['ok' => true]);
         }

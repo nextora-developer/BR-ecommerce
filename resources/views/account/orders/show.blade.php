@@ -46,13 +46,13 @@
 
                             @php
                                 $colors = [
-                                    'pending' => 'bg-amber-100 text-[#8f6a10]',
-                                    'paid' => 'bg-green-100 text-green-700',
-                                    'processing' => 'bg-blue-100 text-blue-700',
-                                    'shipped' => 'bg-indigo-100 text-indigo-700',
-                                    'completed' => 'bg-emerald-100 text-emerald-700',
-                                    'cancelled' => 'bg-red-100 text-red-600',
-                                    'failed' => 'bg-rose-100 text-rose-700',
+                                    'pending' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                    'paid' => 'bg-green-50 text-green-700 border-green-100',
+                                    'processing' => 'bg-purple-50 text-purple-700 border-purple-100',
+                                    'shipped' => 'bg-blue-50 text-blue-700 border-blue-100',
+                                    'completed' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                    'cancelled' => 'bg-gray-50 text-gray-700 border-gray-100',
+                                    'failed' => 'bg-red-50 text-red-700 border-red-100',
                                 ];
                             @endphp
 

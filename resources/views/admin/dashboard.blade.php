@@ -136,13 +136,13 @@
                             <td class="px-6 py-4">
                                 @php
                                     $statusColors = [
-                                        'PENDING' => 'bg-amber-50 text-amber-700 border-amber-100',
-                                        'PAID' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
-                                        'PROCESSING' => 'bg-blue-50 text-blue-700 border-blue-100',
-                                        'SHIPPED' => 'bg-purple-50 text-purple-700 border-purple-100',
-                                        'COMPLETED' => 'bg-gray-100 text-gray-700 border-gray-200',
-                                        'CANCELLED' => 'bg-red-50 text-red-700 border-red-100',
-                                        'FAILED' => 'bg-rose-50 text-rose-700 border-rose-100',
+                                        'PENDING' => 'bg-amber-50 text-amber-700 border border-amber-200',
+                                        'PAID' => 'bg-green-50 text-green-700 border border-green-200',
+                                        'PROCESSING' => 'bg-purple-50 text-purple-700 border border-purple-200',
+                                        'SHIPPED' => 'bg-blue-50 text-blue-700 border border-blue-200',
+                                        'COMPLETED' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                                        'CANCELLED' => 'bg-gray-50 text-gray-700 border border-gray-200',
+                                        'FAILED' => 'bg-red-50 text-red-700 border border-red-200',
                                     ];
                                     $statusStyle =
                                         $statusColors[strtoupper($o->status)] ??
