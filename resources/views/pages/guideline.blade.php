@@ -295,6 +295,49 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="space-y-6">
+
+    <h3 class="text-xl font-extrabold text-gray-900 flex items-center gap-2">
+        <span class="text-lg">🛡️</span>
+        Why do I need to verify my identity?
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Prevent Scammers --><div class="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
+            <div class="text-2xl mb-3">🚫</div>
+            <strong class="block text-gray-900 font-bold mb-1">
+                Prevent Scammers
+            </strong>
+            <p class="text-sm text-gray-600 leading-relaxed">
+                Verification stops scammers from using fake or stolen IDs to deceive our users.
+            </p>
+        </div>
+
+        <!-- Protect Identity --><div class="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
+            <div class="text-2xl mb-3">🔒</div>
+            <strong class="block text-gray-900 font-bold mb-1">
+                Protect Your Identity
+            </strong>
+            <p class="text-sm text-gray-600 leading-relaxed">
+                It ensures no one else is using your personal details to apply for services illegally.
+            </p>
+        </div>
+
+        <!-- Trust & Safety --><div class="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
+            <div class="text-2xl mb-3">✅</div>
+            <strong class="block text-gray-900 font-bold mb-1">
+                Trust & Safety
+            </strong>
+            <p class="text-sm text-gray-600 leading-relaxed">
+                We build a secure environment for everyone by verifying that all users are real humans.
+            </p>
+        </div>
+
+    </div>
+</div>
+
         </div>',
         ],
 

@@ -248,7 +248,65 @@
                     </div>
                 </div>
 
+                {{-- Question 12 --}}
+                <div
+                    class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-[#D4AF37]/30">
+                    <button @click="active !== 12 ? active = 12 : active = null"
+                        class="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none">
+                        <span class="font-bold text-gray-900">Why was my ID rejected?</span>
+                        <svg class="w-5 h-5 text-gray-400 transition-transform duration-300"
+                            :class="active === 12 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="active === 12" x-collapse x-cloak
+                        class="px-6 pb-5 text-sm leading-relaxed text-gray-600">
+                        Common reasons include: flash glare covering the name, the image being too blurry, or corners
+                        being cut off. Please use natural lighting.
+                    </div>
+                </div>
 
+                {{-- Question 13 --}}
+                <div
+                    class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-[#D4AF37]/30">
+                    <button @click="active !== 13 ? active = 13 : active = null"
+                        class="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none">
+                        <span class="font-bold text-gray-900">Why do I need the note?</span>
+                        <svg class="w-5 h-5 text-gray-400 transition-transform duration-300"
+                            :class="active === 13 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="active === 13" x-collapse x-cloak
+                        class="px-6 pb-5 text-sm leading-relaxed text-gray-600">
+                        The "For Verification Use Only" note is a security measure. It prevents identity theft by
+                        ensuring your ID photo cannot be reused for other illegal applications.
+                    </div>
+                </div>
+
+                {{-- Question 14 --}}
+                <div
+                    class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-[#D4AF37]/30">
+                    <button @click="active !== 14 ? active = 14 : active = null"
+                        class="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none">
+                        <span class="font-bold text-gray-900">Can I use a photocopy?</span>
+                        <svg class="w-5 h-5 text-gray-400 transition-transform duration-300"
+                            :class="active === 14 ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="active === 14" x-collapse x-cloak
+                        class="px-6 pb-5 text-sm leading-relaxed text-gray-600">
+                        No. We require a photo of the <strong>original</strong> physical ID card to verify authenticity.
+                        Black and white photocopies are not accepted.
+                    </div>
+                </div>
             </div>
 
             {{-- Support CTA --}}
