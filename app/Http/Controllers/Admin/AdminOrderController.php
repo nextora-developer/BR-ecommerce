@@ -11,30 +11,45 @@ use Illuminate\Validation\Rule;
 
 class AdminOrderController extends Controller
 {
+   
     public function index(Request $request)
     {
-        $q = Order::query();
+        $q = Order::query()
+            ->with('user'); // ✅ avoid N+1 in blade ($o->user)
 
-        // Filters
+        // Status
         if ($request->filled('status')) {
-            $q->where('status', $request->string('status'));
+            $q->where('status', $request->string('status')->toString());
         }
 
+        // Keyword (order/customer + related user)
         if ($request->filled('keyword')) {
-            $keyword = $request->string('keyword');
+            $keyword = trim($request->string('keyword')->toString());
+
             $q->where(function ($qq) use ($keyword) {
                 $qq->where('order_no', 'like', "%{$keyword}%")
                     ->orWhere('customer_name', 'like', "%{$keyword}%")
-                    ->orWhere('customer_phone', 'like', "%{$keyword}%");
+                    ->orWhere('customer_phone', 'like', "%{$keyword}%")
+                    ->orWhere('customer_email', 'like', "%{$keyword}%")
+                    ->orWhereHas('user', function ($uq) use ($keyword) {
+                        $uq->where('email', 'like', "%{$keyword}%")
+                            ->orWhere('name', 'like', "%{$keyword}%");
+
+                        // 如果 users table 有 phone 才加（没有就删掉这段）
+                        $uq->orWhere('phone', 'like', "%{$keyword}%");
+                    });
             });
         }
 
+        // Date range
         if ($request->filled('from')) {
-            $q->whereDate('created_at', '>=', $request->date('from'));
+            $from = $request->date('from'); // Carbon
+            $q->whereDate('created_at', '>=', $from);
         }
 
         if ($request->filled('to')) {
-            $q->whereDate('created_at', '<=', $request->date('to'));
+            $to = $request->date('to');
+            $q->whereDate('created_at', '<=', $to);
         }
 
         $orders = $q->latest()->paginate(10)->withQueryString();
@@ -43,6 +58,7 @@ class AdminOrderController extends Controller
 
         return view('admin.orders.index', compact('orders', 'statuses'));
     }
+
 
     public function show(Order $order)
     {

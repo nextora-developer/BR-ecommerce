@@ -84,7 +84,7 @@
                                 'SHIPPED' => 'bg-blue-50 text-blue-700 border border-blue-200',
                                 'COMPLETED' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
                                 'CANCELLED' => 'bg-gray-50 text-gray-700 border border-gray-200',
-                                'FAILED' => 'bg-red-50 text-red-700 border border-red-200', 
+                                'FAILED' => 'bg-red-50 text-red-700 border border-red-200',
                             ];
                             $style = $colors[$status] ?? 'bg-gray-50 text-gray-500 border border-gray-200';
                         @endphp
@@ -95,9 +95,20 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                <div class="font-medium text-gray-900">{{ $o->customer_name ?? '-' }}</div>
-                                <div class="text-xs text-gray-400">{{ $o->customer_phone ?? '' }}</div>
+                                @if ($o->user)
+                                    <div class="font-medium text-gray-900">
+                                        {{ $o->user->name }}
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        {{ $o->user->phone ?? $o->user->email }}
+                                    </div>
+                                @else
+                                    <div class="text-gray-400 italic">
+                                        Guest (no user)
+                                    </div>
+                                @endif
                             </td>
+
 
                             <td class="px-6 py-4">
                                 <span
