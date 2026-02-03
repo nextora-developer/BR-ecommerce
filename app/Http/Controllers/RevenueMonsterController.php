@@ -231,7 +231,7 @@ class RevenueMonsterController extends Controller
                 ->with('error', 'Order not found.');
         }
 
-        $localStatus   = strtolower((string) $order->status);
+        $localStatus    = strtolower((string) $order->status);
         $rmReturnStatus = strtoupper((string) $request->query('status', ''));
 
         Log::info('RM RETURN status snapshot', [
@@ -240,11 +240,25 @@ class RevenueMonsterController extends Controller
             'rm'       => $rmReturnStatus,
         ]);
 
+
+        if ($rmReturnStatus !== '') {
+            $order->forceFill([
+                'rm_status' => $rmReturnStatus,
+            ])->save();
+
+            Log::info('RM RETURN stored rm_status', [
+                'order_no'  => $order->order_no,
+                'rm_status' => $rmReturnStatus,
+            ]);
+        }
+
+        // ✅ 已经 paid（webhook 已处理）
         if ($localStatus === 'paid') {
             return redirect()->route('checkout.success', $order);
         }
 
-        if (in_array($rmReturnStatus, ['FAILED', 'CANCELLED', 'EXPIRED'], true)) {
+        // ✅ 2) 只有 pending 才允许被 return 改成 failed（避免误伤）
+        if ($localStatus === 'pending' && in_array($rmReturnStatus, ['FAILED', 'CANCELLED', 'EXPIRED'], true)) {
             $order->update(['status' => 'failed']);
 
             Log::warning('RM RETURN marked order failed (by rm status)', [
@@ -259,7 +273,6 @@ class RevenueMonsterController extends Controller
         return redirect()->route('account.orders.show', $order)
             ->with('info', 'Payment status is updating. Please refresh in a moment.');
     }
-
 
 
 
