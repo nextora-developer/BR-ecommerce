@@ -213,7 +213,6 @@ class RevenueMonsterController extends Controller
     //Version 2
     public function handleReturn(Request $request)
     {
-        // 🔵 1) Return 是否真的被打到（最重要）
         Log::info('RM RETURN HIT', [
             'order_no' => $request->query('order_no'),
             'ip'       => $request->ip(),
@@ -221,59 +220,46 @@ class RevenueMonsterController extends Controller
         ]);
 
         $orderNo = $request->query('order_no');
-
         if (!$orderNo) {
-            Log::warning('RM RETURN missing order_no', [
-                'query' => $request->query(),
-            ]);
-
-            return redirect()
-                ->route('account.orders.index')
+            return redirect()->route('account.orders.index')
                 ->with('error', 'Missing order reference.');
         }
 
         $order = Order::where('order_no', $orderNo)->first();
-
         if (!$order) {
-            Log::warning('RM RETURN order not found', [
-                'order_no' => $orderNo,
-            ]);
-
-            return redirect()
-                ->route('account.orders.index')
+            return redirect()->route('account.orders.index')
                 ->with('error', 'Order not found.');
         }
 
-        // 🔵 2) Return 进来时，订单原始状态
-        Log::info('RM RETURN order status snapshot', [
+        $localStatus   = strtolower((string) $order->status);
+        $rmReturnStatus = strtoupper((string) $request->query('status', ''));
+
+        Log::info('RM RETURN status snapshot', [
             'order_no' => $order->order_no,
-            'status'   => $order->status,
+            'local'    => $localStatus,
+            'rm'       => $rmReturnStatus,
         ]);
 
-        $status = strtolower((string) $order->status);
-
-        // ✅ webhook 已先更新为 paid
-        if ($status === 'paid') {
-            Log::info('RM RETURN redirect success (already paid)', [
-                'order_no' => $order->order_no,
-            ]);
-
+        if ($localStatus === 'paid') {
             return redirect()->route('checkout.success', $order);
         }
 
-        // ❌ 这里才是真正把订单改 failed 的地方
-        $order->update(['status' => 'failed']);
+        if (in_array($rmReturnStatus, ['FAILED', 'CANCELLED', 'EXPIRED'], true)) {
+            $order->update(['status' => 'failed']);
 
-        Log::warning('RM RETURN marked order failed', [
-            'order_no'    => $order->order_no,
-            'prev_status' => $status,
-            'new_status'  => 'failed',
-        ]);
+            Log::warning('RM RETURN marked order failed (by rm status)', [
+                'order_no' => $order->order_no,
+                'rm'       => $rmReturnStatus,
+            ]);
 
-        return redirect()
-            ->route('account.orders.index')
-            ->with('error', 'Payment not completed. Order marked as failed.');
+            return redirect()->route('account.orders.index')
+                ->with('error', 'Payment not completed. Order marked as failed.');
+        }
+
+        return redirect()->route('account.orders.show', $order)
+            ->with('info', 'Payment status is updating. Please refresh in a moment.');
     }
+
 
 
 
