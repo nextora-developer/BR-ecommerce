@@ -39,6 +39,12 @@
                                         'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
                                 ],
                                 [
+                                    'id' => 'kyc-guide',
+                                    'label' => 'KYC Guide',
+                                    'icon' =>
+                                        'M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z',
+                                ],
+                                [
                                     'id' => 'language',
                                     'label' => 'Switch Language',
                                     'icon' =>
@@ -172,6 +178,126 @@
                                     </div>
                                 </div>',
         ],
+
+        'kyc-guide' => [
+            'title' => 'KYC Guide',
+            'badge' => 'Security',
+            'content' => '
+<div class="space-y-10">
+
+    <div class="space-y-3">
+        <p class="text-lg text-gray-700 leading-relaxed">
+            To protect your identity and prevent misuse, we require a clear IC (MyKad) photo before approving verification.
+        </p>
+
+        <div class="flex items-start gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+            <svg class="w-5 h-5 text-blue-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clip-rule="evenodd"></path>
+            </svg>
+            <p class="text-sm text-blue-700">
+                <strong>Tip:</strong> Use natural lighting and avoid flash glare so text stays sharp.
+            </p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="p-8 rounded-3xl bg-gray-50 border border-gray-100 space-y-5">
+            <div class="flex items-center justify-between gap-3">
+                <h4 class="text-lg font-extrabold text-gray-900">Method 1: Physical Note</h4>
+                <span class="px-3 py-1 rounded-full bg-[#D4AF37]/10 text-[#8f6a10] text-[10px] font-black uppercase tracking-widest">
+                    Best
+                </span>
+            </div>
+
+            <p class="text-sm text-gray-600 leading-relaxed">
+                Write a note on a small paper and place it <strong class="text-gray-900">next to your IC</strong> when taking the photo.
+            </p>
+
+            <div class="rounded-2xl bg-white border border-gray-200 p-4">
+                <div class="text-xs font-black text-gray-900 uppercase tracking-widest mb-3">Recommended Note</div>
+
+                <div id="kyc-note-text" class="text-sm font-mono text-gray-700 leading-relaxed">
+                    For Verification Only<br>
+                    <strong class="text-gray-900">BR Innovate Future</strong><br>
+                    Date: <strong class="text-gray-900">DD/MM/YYYY</strong>
+                </div>
+
+                <p class="mt-3 text-xs text-gray-500 italic">
+                    This prevents your ID image from being reused for other purposes.
+                </p>
+            </div>
+        </div>
+
+        <div class="p-8 rounded-3xl bg-white border border-gray-100 space-y-5">
+            <h4 class="text-lg font-extrabold text-gray-900">Method 2: Digital Watermark</h4>
+
+            <p class="text-sm text-gray-600 leading-relaxed">
+                Take a photo of your IC first, then add a watermark text across the image.
+            </p>
+
+            <ul class="text-sm text-gray-600 space-y-2 list-disc pl-5">
+                <li>Place text diagonally across the ID photo.</li>
+                <li><strong class="text-gray-900">Do not cover</strong> Name, IC Number, or Face.</li>
+                <li>Recommended text: <strong class="text-gray-900">For Verification Use Only</strong></li>
+            </ul>
+
+            
+
+            <!-- Sample IC Image --><div class="mt-4">
+                <div class="text-xs font-black text-gray-900 uppercase tracking-widest mb-2">
+                    Sample (Digital Watermark)
+                </div>
+
+                <div class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 cursor-zoom-in">
+                    <img
+                        src="/images/ic-sample.jpeg"
+                        alt="Sample IC with Digital Watermark"
+                        class="w-full object-cover transition-transform duration-500 group-hover:scale-105">
+
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center">
+                        <span class="opacity-0 group-hover:opacity-100 text-white text-xs font-bold uppercase tracking-widest">
+                            View Sample
+                        </span>
+                    </div>
+                </div>
+
+                <p class="mt-2 text-xs text-gray-500 italic">
+                    Example only. Personal details are hidden for demonstration.
+                </p>
+            </div>
+        </div>
+    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 rounded-2xl bg-green-50/60 border border-green-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            <h5 class="font-black text-green-800 uppercase tracking-widest text-xs">Please Do</h5>
+                        </div>
+                        <ul class="space-y-2 text-sm text-green-900/80">
+                            <li>• Use a <strong>color photo</strong></li>
+                            <li>• Ensure <strong>all 4 corners</strong> are visible</li>
+                            <li>• Keep text <strong>sharp and readable</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-red-50/60 border border-red-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                            <h5 class="font-black text-red-800 uppercase tracking-widest text-xs">Please Avoid</h5>
+                        </div>
+                        <ul class="space-y-2 text-sm text-red-900/80">
+                            <li>• Blurry / glare-heavy photos</li>
+                            <li>• Covering Name / IC No. / Face</li>
+                            <li>• Screenshots or photocopies</li>
+                        </ul>
+                    </div>
+                </div>
+        </div>',
+        ],
+
         'language' => [
             'title' => 'How to Switch Language',
             'badge' => 'Interface',
