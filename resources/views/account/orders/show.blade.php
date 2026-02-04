@@ -227,8 +227,8 @@
 
                                     {{-- Customer Card --}}
                                     <div
-                                        class="group rounded-3xl border border-gray-100 bg-white/60 backdrop-blur-md p-8 shadow-sm transition-all hover:shadow-md">
-                                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                                        class="group rounded-3xl border border-gray-200 bg-white/60 backdrop-blur-md p-8 shadow-sm transition-all hover:shadow-md">
+                                        <div class="flex items-center justify-between border-b border-gray-200 pb-4">
                                             <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase">
                                                 Customer Info
                                             </h2>
@@ -260,25 +260,25 @@
 
                                     {{-- Shipping / Digital Card --}}
                                     <div
-                                        class="rounded-3xl border border-gray-100 bg-white/60 backdrop-blur-md p-8 shadow-sm">
+                                        class="rounded-3xl border border-gray-200 bg-white/60 backdrop-blur-md p-8 shadow-sm">
                                         @php
                                             $isDigitalOrder = $order->items->contains(
                                                 fn($it) => (bool) ($it->digital_payload ?? null),
                                             );
                                         @endphp
 
-                                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                                        <div class="flex items-center justify-between border-b border-gray-200 pb-4">
                                             <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase">
                                                 {{ $isDigitalOrder ? 'Digital Info' : 'Delivery Address' }}
                                             </h2>
                                             @if ($isDigitalOrder)
-                                                <span
-                                                    class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-600 ring-1 ring-emerald-200">
-                                                    DIGITAL
-                                                </span>
+                                                <button type="button" onclick="openDigitalModal({{ $order->id }})"
+                                                    class="text-xs font-black text-emerald-700 hover:text-emerald-900 uppercase tracking-widest transition-colors">
+                                                    Track →
+                                                </button>
                                             @elseif ($order->shipping_courier || $order->tracking_number)
                                                 <button type="button" onclick="openTrackingModal({{ $order->id }})"
-                                                    class="text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest transition-colors">
+                                                    class="text-xs font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest transition-colors">
                                                     Track →
                                                 </button>
                                             @endif
@@ -338,11 +338,11 @@
 
                                 {{-- Remark Card --}}
                                 <div
-                                    class="rounded-3xl border border-gray-100 bg-white/40 backdrop-blur-sm p-6 shadow-sm">
+                                    class="rounded-3xl border border-gray-200 bg-white/40 backdrop-blur-sm p-6 shadow-sm">
                                     <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase mb-3">
                                         Order Remark
                                     </h2>
-                                    <div class="rounded-2xl bg-white/50 p-4 border border-gray-50">
+                                    <div class="rounded-2xl bg-white/50 p-4 border border-gray-100">
                                         <p
                                             class="text-sm leading-relaxed {{ $order->remark ? 'text-gray-800 font-medium' : 'text-gray-400' }}">
                                             {{ $order->remark ? trim($order->remark) : 'No instructions provided by customer.' }}
@@ -354,9 +354,9 @@
                             {{-- 🟣 RIGHT: Summary --}}
                             <div class="lg:col-span-4">
                                 <div
-                                    class="lg:sticky lg:top-24 rounded-[2rem] border border-amber-100 bg-gradient-to-b from-amber-50/80 to-white p-8 shadow-xl shadow-amber-900/5">
+                                    class="lg:sticky lg:top-24 rounded-[2rem] border border-amber-200 bg-gradient-to-b from-amber-50/80 to-white p-8 shadow-xl shadow-amber-900/5">
 
-                                    <div class="flex items-center justify-between border-b border-amber-100 pb-6">
+                                    <div class="flex items-center justify-between border-b border-amber-200 pb-6">
                                         <h2 class="font-black text-gray-900 text-lg tracking-tight">Order Summary</h2>
                                         <div
                                             class="bg-amber-100 px-3 py-1 rounded-full text-[10px] font-black text-amber-700 tracking-tighter">
@@ -444,7 +444,7 @@
                                         </div>
 
 
-                                        <div class="my-6 border-t border-dashed border-amber-200"></div>
+                                        <div class="my-6 border-t border-dashed border-amber-300"></div>
 
                                         {{-- Grand Total --}}
                                         <div class="flex items-end justify-between py-2">
@@ -468,7 +468,7 @@
                                     </div>
 
                                     {{-- Payment Footer --}}
-                                    <div class="mt-8 pt-6 border-t border-amber-100">
+                                    <div class="mt-8 pt-6 border-t border-amber-200">
                                         <div class="flex flex-col gap-4">
                                             <div class="flex justify-between items-center">
                                                 <span
@@ -712,6 +712,101 @@
         </div>
     @endif
 
+    @php
+        $isDigitalOrder = $order->items->contains(fn($it) => (bool) ($it->digital_payload ?? null));
+        $pins = $order->pin_codes ?? [];
+
+        // 兼容：如果你 pin_codes 未来可能是 text
+        if (is_string($pins)) {
+            $pins = array_filter(array_map('trim', preg_split("/\r\n|\n|\r/", $pins)));
+        }
+    @endphp
+
+    @if ($isDigitalOrder)
+        <div id="digitalModal-{{ $order->id }}" class="fixed inset-0 z-50 hidden bg-black/50">
+            {{-- 点击背景关闭 --}}
+            <div class="flex items-center justify-center min-h-screen sm:pt-24"
+                onclick="closeDigitalModal({{ $order->id }})">
+
+                {{-- 内容卡片，阻止冒泡 --}}
+                <div class="bg-white rounded-2xl shadow-xl max-w-md w-[92%] overflow-hidden"
+                    onclick="event.stopPropagation()">
+
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                        <h3 class="text-sm font-semibold text-gray-900">
+                            Digital Delivery
+                        </h3>
+                        <button type="button" class="text-gray-400 hover:text-gray-600"
+                            onclick="closeDigitalModal({{ $order->id }})">
+                            ✕
+                        </button>
+                    </div>
+
+                    <div class="p-4 space-y-4 text-sm text-gray-900">
+
+                        {{-- Fulfilled At --}}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Fulfilled At</span>
+                            <span class="font-semibold">
+                                {{ $order->digital_fulfilled_at
+                                    ? \Illuminate\Support\Carbon::parse($order->digital_fulfilled_at)->timezone('Asia/Kuala_Lumpur')->format('d M Y, h:i A')
+                                    : '-' }}
+                            </span>
+                        </div>
+
+                        {{-- PIN Codes --}}
+                        <div class="pt-2 border-t border-gray-100">
+                            <div class="flex items-center justify-between my-2">
+                                <span class="text-gray-600 font-medium">PIN Code(s)</span>
+                            </div>
+
+                            @if (!empty($pins))
+                                <div class="space-y-2">
+                                    @foreach ($pins as $i => $pin)
+                                        <div
+                                            class="flex items-center justify-between gap-3 rounded-xl bg-gray-50 border border-gray-200 px-3 py-2">
+                                            <div class="min-w-0">
+                                                <div
+                                                    class="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                                                    PIN {{ $i + 1 }}
+                                                </div>
+                                                <div class="text-sm font-black text-gray-900 break-all">
+                                                    {{ $pin }}
+                                                </div>
+                                            </div>
+
+                                            <button type="button" onclick="copyText(@js($pin))"
+                                                class="shrink-0 inline-flex items-center px-3 py-1.5 rounded-lg
+                                                   bg-gray-900 text-white text-[11px] font-black hover:bg-black active:scale-95 transition">
+                                                Copy
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="rounded-xl bg-amber-50 border border-amber-100 p-3 text-amber-900">
+                                    PIN code(s) not available yet. Please check again later.
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Note --}}
+                        @if (!empty($order->fulfillment_note))
+                            <div class="pt-2 border-t border-gray-100">
+                                <div class="text-gray-600 font-medium mb-2">Note</div>
+                                <div
+                                    class="rounded-xl bg-gray-50 border border-gray-200 p-3 text-gray-800 whitespace-pre-line">
+                                    {{ trim($order->fulfillment_note) }}
+                                </div>
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    @endif
 
     <script>
         function openReceiptModal(orderId) {
@@ -742,7 +837,136 @@
                 el.classList.add('hidden');
             }
         }
+
+        function openDigitalModal(orderId) {
+            const el = document.getElementById('digitalModal-' + orderId);
+            if (el) el.classList.remove('hidden');
+        }
+
+        function closeDigitalModal(orderId) {
+            const el = document.getElementById('digitalModal-' + orderId);
+            if (el) el.classList.add('hidden');
+        }
     </script>
+
+    <script>
+        function notifySuccess(message) {
+            const isMobile = window.matchMedia('(max-width: 640px)').matches;
+
+            if (!isMobile) {
+                Swal.fire({
+                    icon: 'success',
+                    title: message,
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                });
+            } else {
+                const bar = document.createElement('div');
+                bar.innerHTML = `
+        <div class="fixed left-1/2 bottom-24 -translate-x-1/2 z-[9999]
+                    bg-black text-white
+                    px-5 py-3 rounded-full
+                    text-sm font-semibold
+                    shadow-xl
+                    flex items-center gap-2
+                    animate-[fadeUp_.25s_ease-out]">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+          ${escapeHtml(message)}
+        </div>
+      `;
+                document.body.appendChild(bar);
+                setTimeout(() => bar.remove(), 2200);
+            }
+        }
+
+        function notifyError(message) {
+            const isMobile = window.matchMedia('(max-width: 640px)').matches;
+
+            if (!isMobile) {
+                Swal.fire({
+                    icon: 'error',
+                    title: message,
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true,
+                });
+            } else {
+                const bar = document.createElement('div');
+                bar.innerHTML = `
+        <div class="fixed left-1/2 bottom-24 -translate-x-1/2 z-[9999]
+                    bg-black text-white
+                    px-5 py-3 rounded-full
+                    text-sm font-semibold
+                    shadow-xl
+                    flex items-center gap-2
+                    animate-[fadeUp_.25s_ease-out]">
+          <span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>
+          ${escapeHtml(message)}
+        </div>
+      `;
+                document.body.appendChild(bar);
+                setTimeout(() => bar.remove(), 2400);
+            }
+        }
+
+        // 防止 message 里有 < > 破坏 HTML
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+    </script>
+
+    <style>
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+    </style>
+
+
+    <script>
+        async function copyText(text) {
+            if (!text) return;
+
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.setAttribute('readonly', '');
+                    ta.style.position = 'fixed';
+                    ta.style.top = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+
+                notifySuccess('Copied!');
+            } catch (e) {
+                console.error(e);
+                notifyError('Copy failed. Please copy manually.');
+            }
+        }
+    </script>
+
 
 
 </x-app-layout>

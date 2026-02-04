@@ -31,6 +31,9 @@ class Order extends Model
         'shipping_courier',
         'tracking_number',
         'shipped_at',
+        'pin_codes',
+        'fulfillment_note',
+        'digital_fulfilled_at',
         'total',
         'status',
 
@@ -71,6 +74,8 @@ class Order extends Model
         'points_discount' => 'decimal:2',
         'rm_transaction_at' => 'datetime',
         'rm_raw_payload' => 'array',
+        'pin_codes' => 'array',
+        'digital_fulfilled_at' => 'datetime',
     ];
 
     public function items(): HasMany

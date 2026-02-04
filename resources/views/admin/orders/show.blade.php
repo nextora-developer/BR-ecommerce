@@ -113,14 +113,18 @@
                                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
                                     </div>
-                                    <div>
-                                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Email
-                                            Address</p>
-                                        <p class="text-sm font-medium text-gray-900 truncate max-w-[180px] lg:max-w-none">
+
+                                    {{-- 🔑 关键在这里 --}}
+                                    <div class="min-w-0">
+                                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                                            Email Address
+                                        </p>
+                                        <p class="text-sm font-medium text-gray-900 truncate">
                                             {{ $order->customer_email ?? 'No email provided' }}
                                         </p>
                                     </div>
                                 </div>
+
 
                                 {{-- Phone --}}
                                 <div class="group flex items-center gap-4 p-3 rounded-xl transition-all hover:bg-gray-50">
@@ -171,7 +175,7 @@
 
                                     @if (is_array($payload) && !empty($payload))
                                         <div
-                                            class="group relative rounded-2xl border border-gray-100 bg-gray-50/30 p-5 transition-all hover:bg-white hover:shadow-xl hover:shadow-gray-200/40">
+                                            class="group relative rounded-2xl border border-gray-200 bg-gray-50/30 p-5 transition-all hover:bg-white hover:shadow-xl hover:shadow-gray-200/40">
                                             <div class="flex justify-between items-start mb-4">
                                                 <div>
                                                     <div
@@ -179,7 +183,7 @@
                                                         {{ $it->product_name }}
                                                     </div>
                                                     @if ($it->variant_label)
-                                                        <div class="text-[10px] text-gray-400 mt-0.5 italic">
+                                                        <div class="text-[10px] text-gray-400 mt-0.5">
                                                             {{ $it->variant_label }}</div>
                                                     @endif
                                                 </div>
@@ -514,6 +518,12 @@
                                 </option>
                             @endforeach
                         </select>
+                        @php
+                            $isDigitalOrder = $order->items->contains(fn($it) => !empty($it->digital_payload));
+                        @endphp
+
+                        <input type="hidden" id="is-digital-order" value="{{ $isDigitalOrder ? '1' : '0' }}">
+
                     </div>
 
                     {{-- 物流信息区块 --}}
@@ -557,6 +567,57 @@
                                 class="w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm">
                         </div>
                     </div>
+
+                    <div id="digital-fields" class="space-y-3 mt-3 hidden">
+                        <div class="flex items-center justify-between gap-2">
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-gray-400">
+                                Digital Delivery
+                            </h4>
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                                Required when COMPLETED
+                            </span>
+                        </div>
+
+                        {{-- PIN Codes (multiple) --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">
+                                PIN Code(s)
+                                <span class="ml-2 text-[10px] text-gray-400 font-bold">one per line</span>
+                            </label>
+
+                            <textarea name="pin_codes" rows="4"
+                                class="w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm font-semibold"
+                                placeholder="PIN1&#10;PIN2&#10;PIN3">{{ old('pin_codes', is_array($order->pin_codes ?? null) ? implode("\n", $order->pin_codes) : $order->pin_codes ?? '') }}</textarea>
+
+                            <p class="mt-1 text-[11px] text-gray-400">
+                                Paste multiple PINs, one per line.
+                            </p>
+                        </div>
+
+
+                        {{-- Fulfillment Note --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">
+                                Fulfillment Note
+                            </label>
+                            <textarea name="fulfillment_note" rows="3"
+                                class="w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm"
+                                placeholder="Internal note / how this PIN was delivered to customer...">{{ old('fulfillment_note', $order->fulfillment_note ?? '') }}</textarea>
+                        </div>
+
+                        {{-- Fulfilled At --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">
+                                Fulfilled At
+                            </label>
+                            <input type="datetime-local" name="digital_fulfilled_at"
+                                value="{{ old('digital_fulfilled_at', !empty($order->digital_fulfilled_at) ? \Carbon\Carbon::parse($order->digital_fulfilled_at)->format('Y-m-d\TH:i') : '') }}"
+                                class="w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm">
+                        </div>
+                    </div>
+
+
 
                     <button
                         class="w-full py-3 rounded-xl bg-[#D4AF37] text-white font-bold text-sm hover:bg-[#c29c2f] transition-all shadow-lg shadow-[#D4AF37]/20 active:scale-[0.98]">
@@ -717,31 +778,50 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.getElementById('order-status-select');
+
+            const isDigital = document.getElementById('is-digital-order')?.value === '1';
+
             const shippingFields = document.getElementById('shipping-fields');
             const courierInput = document.querySelector('input[name="shipping_courier"]');
             const trackingInput = document.querySelector('input[name="tracking_number"]');
             const shippedAtInput = document.querySelector('input[name="shipped_at"]');
 
-            function toggleShippingFields() {
-                const value = statusSelect.value;
+            const digitalFields = document.getElementById('digital-fields');
+            const pinCodes = document.querySelector('[name="pin_codes"]');
+            const digitalFulfilledAt = document.querySelector('[name="digital_fulfilled_at"]');
 
-                const needShipping = (value === 'shipped' || value === 'completed');
 
-                if (needShipping) {
-                    shippingFields.classList.remove('hidden');
-                    courierInput?.setAttribute('required', 'required');
-                    trackingInput?.setAttribute('required', 'required');
-                } else {
-                    shippingFields.classList.add('hidden');
-                    courierInput?.removeAttribute('required');
-                    trackingInput?.removeAttribute('required');
-                }
+            function setRequired(el, on) {
+                if (!el) return;
+                if (on) el.setAttribute('required', 'required');
+                else el.removeAttribute('required');
             }
 
-            statusSelect.addEventListener('change', toggleShippingFields);
+            function toggleFields() {
+                const value = statusSelect.value;
 
-            // 初次载入时根据当前状态决定要不要显示（例如订单已经是 shipped）
-            toggleShippingFields();
+                // 你可以决定哪些状态需要填写
+                const needShipping = !isDigital && (value === 'shipped' || value === 'completed');
+                const needDigital = isDigital && (value === 'completed'); // digital 通常 completed 才算交付完成
+
+                // Shipping
+                if (shippingFields) {
+                    shippingFields.classList.toggle('hidden', !needShipping);
+                }
+                setRequired(courierInput, needShipping);
+                setRequired(trackingInput, needShipping);
+                // shippedAt 通常不需要 required（可选）
+                setRequired(shippedAtInput, false);
+
+                // Digital
+                if (digitalFields) {
+                    digitalFields.classList.toggle('hidden', !needDigital);
+                }
+                setRequired(pinCodes, needDigital);
+            }
+
+            statusSelect?.addEventListener('change', toggleFields);
+            toggleFields();
         });
     </script>
 @endpush
