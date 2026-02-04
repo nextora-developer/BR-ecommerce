@@ -68,11 +68,11 @@
                                                 viewBox="0 0 24 24" class="h-6 w-6">
                                                 <path
                                                     d="M12 21.35l-1.45-1.32C5.4 15.36
-                                                                                                                   2 12.28 2 8.5 2 5.42 4.42
-                                                                                                                   3 7.5 3c1.74 0 3.41.81 4.5
-                                                                                                                   2.09C13.09 3.81 14.76 3 16.5
-                                                                                                                   3 19.58 3 22 5.42 22 8.5c0
-                                                                                                                   3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                                                                                       2 12.28 2 8.5 2 5.42 4.42
+                                                                                                                       3 7.5 3c1.74 0 3.41.81 4.5
+                                                                                                                       2.09C13.09 3.81 14.76 3 16.5
+                                                                                                                       3 19.58 3 22 5.42 22 8.5c0
+                                                                                                                       3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                             </svg>
                                         </button>
                                     </form>
@@ -933,21 +933,60 @@
             }
 
             // 点击 Color / Size 的 pill 时更新 selections
+            // pills.forEach(btn => {
+            //     btn.addEventListener('click', () => {
+            //         const key = btn.dataset.optionKey; // "Color" 或 "Size"
+            //         const value = btn.dataset.optionValue; // "red" 或 "M"
+
+            //         // 再点一次同一个可以取消选中，你不想取消就把这一段 if 删掉
+            //         if (selections[key] === value) {
+            //             delete selections[key];
+            //         } else {
+            //             selections[key] = value;
+            //         }
+
+            //         updateState();
+            //     });
+            // });
+            let touchTriggered = false;
+
+            function pickFromBtn(btn) {
+                const key = btn.dataset.optionKey;
+                const value = btn.dataset.optionValue;
+
+                if (selections[key] === value) {
+                    delete selections[key];
+                } else {
+                    selections[key] = value;
+                }
+
+                updateState();
+            }
+
             pills.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const key = btn.dataset.optionKey; // "Color" 或 "Size"
-                    const value = btn.dataset.optionValue; // "red" 或 "M"
+                // ✅ iOS / Android：第一下就生效（不靠 click）
+                btn.addEventListener('touchstart', (e) => {
+                    touchTriggered = true;
+                    // 只在 touchstart 阻止默认（避免 iOS hover 机制）
+                    e.preventDefault();
+                    pickFromBtn(e.currentTarget);
+                }, {
+                    passive: false
+                });
 
-                    // 再点一次同一个可以取消选中，你不想取消就把这一段 if 删掉
-                    if (selections[key] === value) {
-                        delete selections[key];
-                    } else {
-                        selections[key] = value;
-                    }
+                // ✅ 桌面/鼠标：正常 click
+                btn.addEventListener('click', (e) => {
+                    // 如果刚刚是 touchstart 触发的，就跳过合成 click
+                    if (touchTriggered) return;
+                    pickFromBtn(e.currentTarget);
+                });
 
-                    updateState();
+                // ✅ 手指离开后清掉 flag（避免下一次 click 被误伤）
+                btn.addEventListener('touchend', () => {
+                    setTimeout(() => (touchTriggered = false), 0);
                 });
             });
+
 
 
         });
