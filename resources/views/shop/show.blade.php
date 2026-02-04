@@ -397,7 +397,7 @@
                                                     data-option-key="{{ $option->name }}">
                                                     @foreach ($option->values as $value)
                                                         <button type="button"
-                                                            class="variant-pill h-11 px-6 rounded-xl border border-gray-200 text-sm font-medium transition-all hover:border-[#D4AF37] hover:bg-[#FDFBF7] active:scale-95"
+                                                            class="variant-pill h-11 px-6 rounded-xl border border-gray-200 text-sm font-medium transition-all hover:border-[#D4AF37] hover:bg-[#FDFBF7] active:scale-95 touch-manipulation"
                                                             data-option-key="{{ $option->name }}"
                                                             data-option-value="{{ $value->value }}">
                                                             {{ $value->value }}
