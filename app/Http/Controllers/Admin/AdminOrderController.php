@@ -76,8 +76,7 @@ class AdminOrderController extends Controller
 
         // 先 load items 来判断是否 digital
         $order->loadMissing('items');
-        $isDigitalOrder = $order->items->contains(fn($it) => !empty($it->digital_payload));
-
+        $isDigitalOrder = $order->items->contains(fn($it) => (bool) ($it->product?->is_digital ?? false));
         // Base rules
         $rules = [
             'status'     => ['required', Rule::in($statuses)],

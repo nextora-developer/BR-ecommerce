@@ -263,15 +263,20 @@
                                         class="rounded-3xl border border-gray-200 bg-white/60 backdrop-blur-md p-8 shadow-sm">
                                         @php
                                             $isDigitalOrder = $order->items->contains(
-                                                fn($it) => (bool) ($it->digital_payload ?? null),
+                                                fn($it) => (bool) ($it->product->is_digital ?? false),
+                                            );
+
+                                            $hasAnyDigitalPayload = $order->items->contains(
+                                                fn($it) => !empty($it->digital_payload),
                                             );
                                         @endphp
 
+
                                         <div class="flex items-center justify-between border-b border-gray-200 pb-4">
                                             <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase">
-                                                {{ $isDigitalOrder ? 'Digital Info' : 'Delivery Address' }}
+                                                {{ $isDigitalOrder ? 'Digital Info' : 'Shipping Address' }}
                                             </h2>
-                                            @if ($isDigitalOrder)
+                                            @if ($order->pin_codes)
                                                 <button type="button" onclick="openDigitalModal({{ $order->id }})"
                                                     class="text-xs font-black text-emerald-700 hover:text-emerald-900 uppercase tracking-widest transition-colors">
                                                     Track →
@@ -287,6 +292,40 @@
                                         <div class="mt-6">
                                             @if ($isDigitalOrder)
                                                 <div class="space-y-4">
+
+                                                    {{-- 🟡 No digital field required --}}
+                                                    @if (!$hasAnyDigitalPayload)
+                                                        <div
+                                                            class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 shadow-sm">
+                                                            <div class="flex gap-3">
+                                                                <div class="shrink-0 text-blue-500">
+                                                                    <svg class="h-5 w-5" fill="none"
+                                                                        viewBox="0 0 24 24" stroke-width="2"
+                                                                        stroke="currentColor">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round"
+                                                                            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                                                    </svg>
+                                                                </div>
+
+                                                                <div class="space-y-1">
+                                                                    <h4
+                                                                        class="text-xs font-bold uppercase tracking-widest text-blue-700">
+                                                                        No digital details are required
+                                                                    </h4>
+                                                                    <p
+                                                                        class="text-sm leading-relaxed text-blue-900/80">
+                                                                        Your digital item will be delivered once the
+                                                                        admin completes the fulfillment.
+                                                                        A Track link will appear here when it’s
+                                                                        available.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+
+                                                    {{-- 🔽 Existing payload rendering --}}
                                                     @foreach ($order->items as $it)
                                                         @php
                                                             $payload = is_string($it->digital_payload)
@@ -308,10 +347,12 @@
                                                                     @foreach ($payload as $k => $v)
                                                                         <div
                                                                             class="flex justify-between text-xs border-b border-white/50 pb-1 last:border-0">
-                                                                            <span
-                                                                                class="text-gray-600 capitalize">{{ str_replace('_', ' ', $k) }}</span>
-                                                                            <span
-                                                                                class="font-bold text-gray-900">{{ is_array($v) ? 'Data' : $v }}</span>
+                                                                            <span class="text-gray-600 capitalize">
+                                                                                {{ str_replace('_', ' ', $k) }}
+                                                                            </span>
+                                                                            <span class="font-bold text-gray-900">
+                                                                                {{ is_array($v) ? 'Data' : $v }}
+                                                                            </span>
                                                                         </div>
                                                                     @endforeach
                                                                 </div>
@@ -722,7 +763,7 @@
         }
     @endphp
 
-    @if ($isDigitalOrder)
+    @if ($order->pin_codes)
         <div id="digitalModal-{{ $order->id }}" class="fixed inset-0 z-50 hidden bg-black/50">
             {{-- 点击背景关闭 --}}
             <div class="flex items-center justify-center min-h-screen sm:pt-24"

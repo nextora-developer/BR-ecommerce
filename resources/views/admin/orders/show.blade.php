@@ -148,14 +148,16 @@
                     </div>
 
                     @php
-                        $isDigitalOrder = $order->items->contains(fn($it) => !empty($it->digital_payload));
+                        $isDigitalOrder = $order->items->contains(
+                            fn($it) => (bool) ($it->product->is_digital ?? false),
+                        );
                     @endphp
 
                     {{-- ================= Row 2: Delivery Info ================= --}}
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
-                            <label class="text-xs uppercase tracking-[0.15em] text-gray-600 font-black">
-                                {{ $isDigitalOrder ? 'Digital Info' : 'Shipping Info' }}
+                            <label class="text-sm font-bold text-gray-900">
+                                {{ $isDigitalOrder ? 'Digital Information' : 'Shipping Information' }}
                             </label>
                             @if ($isDigitalOrder)
                                 <span
@@ -214,7 +216,7 @@
                                 @if ($order->items->every(fn($it) => empty($it->digital_payload)))
                                     <div
                                         class="col-span-full rounded-xl border border-dashed border-gray-200 p-8 text-center">
-                                        <span class="text-gray-400 italic">No fulfillment data found.</span>
+                                        <span class="text-gray-400">No fulfillment data found.</span>
                                     </div>
                                 @endif
                             </div>
@@ -532,9 +534,13 @@
                                 </option>
                             @endforeach
                         </select>
+
                         @php
-                            $isDigitalOrder = $order->items->contains(fn($it) => !empty($it->digital_payload));
+                            $isDigitalOrder = $order->items->contains(
+                                fn($it) => (bool) ($it->product->is_digital ?? false),
+                            );
                         @endphp
+
 
                         <input type="hidden" id="is-digital-order" value="{{ $isDigitalOrder ? '1' : '0' }}">
 
