@@ -7,7 +7,8 @@
 
                     @if (isset($banners) && $banners->count())
                         {{-- 用固定比例，避免不同 breakpoint 高度不一样导致裁切不同 --}}
-                        <div class="relative w-full aspect-[21/10] sm:aspect-[21/9] lg:aspect-auto lg:h-[420px]">
+                        {{-- <div class="relative w-full aspect-[21/10] sm:aspect-[21/9] lg:aspect-auto lg:h-[420px]"> --}}
+                        <div class="relative w-full aspect-[21/10] sm:aspect-[21/7] lg:aspect-auto lg:h-[420px]">
                             {{-- 轨道 --}}
                             <div class="absolute inset-0 flex h-full transition-transform duration-700 ease-out"
                                 data-banner-track>

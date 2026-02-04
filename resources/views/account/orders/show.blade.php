@@ -367,9 +367,9 @@
                                         {{-- Line Items --}}
                                         @php
                                             $isCompleted = $order->status === 'completed';
-                                            $pointsRate = 1;
-                                            $earnedPoints = (int) floor(($order->total ?? 0) * $pointsRate);
+                                            $earnedPoints = (int) floor($order->subtotal ?? 0);
                                         @endphp
+
 
                                         <div class="space-y-3 text-sm">
 

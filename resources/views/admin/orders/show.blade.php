@@ -358,114 +358,128 @@
                     {{-- 🟢 Totals (Right, Span 1) --}}
                     <div class="md:col-span-2 flex md:justify-end">
                         <div
-                            class="w-full max-w-xs bg-white rounded-2xl border border-gray-50 p-4 shadow-sm md:shadow-none md:border-none md:p-0">
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-500 font-medium">Subtotal</span>
-                                    <span class="text-gray-900 font-bold tracking-tight">
-                                        <span class="text-sm text-gray-400 mr-0.5 font-normal">RM
-                                        </span>{{ number_format($order->subtotal ?? 0, 2) }}
-                                    </span>
-                                </div>
+                            class="w-full max-w-xs bg-white rounded-2xl border border-gray-100 p-5 shadow-sm md:shadow-md">
+                            <div class="space-y-4">
 
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-500 font-medium">Shipping</span>
-                                    <span
-                                        class="font-bold tracking-tight {{ ($order->shipping_fee ?? 0) > 0 ? 'text-gray-900' : 'text-green-600' }}">
-                                        @if (($order->shipping_fee ?? 0) > 0)
-                                            <span class="text-sm text-gray-400 mr-0.5 font-normal">RM
-                                            </span>{{ number_format($order->shipping_fee, 2) }}
-                                        @else
-                                            FREE
-                                        @endif
-                                    </span>
-                                </div>
-
-                                {{-- ✅ Handling Fee (Gateway only) --}}
-                                @if (($order->handling_fee ?? 0) > 0)
+                                <div class="space-y-2.5 pb-4 border-b border-dashed border-gray-200">
                                     <div class="flex justify-between items-center text-sm">
-                                        <span class="text-gray-500 font-medium">
-                                            Handling Fee
-                                            @if (($order->handling_fee_percent ?? 0) > 0)
-                                                <span class="text-xs text-gray-400 font-bold ml-1">
-                                                    ({{ rtrim(rtrim(number_format((float) $order->handling_fee_percent, 2), '0'), '.') }}%)
-                                                </span>
-                                            @endif
-                                        </span>
-
-                                        <span class="font-bold tracking-tight text-gray-900">
-                                            <span class="text-sm text-gray-400 mr-0.5 font-normal">RM</span>
-                                            {{ number_format((float) $order->handling_fee, 2) }}
-                                        </span>
-                                    </div>
-                                @endif
-
-
-                                @if (($order->voucher_discount ?? 0) > 0)
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="text-gray-500 font-medium flex items-center gap-1">
-                                            Voucher
-                                            @if ($order->voucher_code)
-                                                <span
-                                                    class="text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 font-bold tracking-wide">
-                                                    {{ $order->voucher_code }}
-                                                </span>
-                                            @endif
-                                        </span>
-
-                                        <span class="font-bold tracking-tight text-green-700">
-                                            - <span
-                                                class="text-sm font-normal mr-0.5">RM</span>{{ number_format($order->voucher_discount, 2) }}
-                                        </span>
-                                    </div>
-                                @endif
-
-                                {{-- ✅ Shipping Discount (Free Shipping) --}}
-                                @if (($order->shipping_discount ?? 0) > 0)
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="text-gray-500 font-medium flex items-center gap-1">
-                                            Shipping Discount
-                                            @if ($order->voucher_code)
-                                                <span
-                                                    class="text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 font-bold tracking-wide">
-                                                    {{ $order->voucher_code }}
-                                                </span>
-                                            @endif
-                                        </span>
-
-                                        <span class="font-bold tracking-tight text-green-700">
-                                            - <span
-                                                class="text-sm font-normal mr-0.5">RM</span>{{ number_format($order->shipping_discount, 2) }}
-                                        </span>
-                                    </div>
-                                @endif
-
-                                {{-- ✅ Points Redeemed --}}
-                                @if (($order->points_discount ?? 0) > 0)
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="text-gray-500 font-medium flex items-center gap-1">
-                                            Points Redeemed
+                                        <span class="text-gray-500">Subtotal</span>
+                                        <span class="text-gray-900 font-semibold tracking-tight">
                                             <span
-                                                class="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold tracking-wide">
-                                                {{ number_format((int) ($order->points_redeem ?? 0)) }} pts
+                                                class="text-[10px] text-gray-400 font-bold mr-0.5">RM</span>{{ number_format($order->subtotal ?? 0, 2) }}
+                                        </span>
+                                    </div>
+
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-gray-500">Shipping Fee</span>
+                                        <span
+                                            class="font-bold tracking-tight {{ ($order->shipping_fee ?? 0) > 0 ? 'text-gray-900' : 'text-emerald-600' }}">
+                                            @if (($order->shipping_fee ?? 0) > 0)
+                                                <span
+                                                    class="text-[10px] text-gray-400 font-bold mr-0.5 uppercase">RM</span>{{ number_format($order->shipping_fee, 2) }}
+                                            @else
+                                                FREE
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    @if (($order->handling_fee ?? 0) > 0)
+                                        <div class="flex justify-between items-center text-sm">
+                                            <span class="text-gray-500">
+                                                Handling Fee
+                                                @if (($order->handling_fee_percent ?? 0) > 0)
+                                                    <span
+                                                        class="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded ml-1 text-gray-600">
+                                                        {{ rtrim(rtrim(number_format((float) $order->handling_fee_percent, 2), '0'), '.') }}%
+                                                    </span>
+                                                @endif
                                             </span>
-                                        </span>
+                                            <span class="font-bold tracking-tight text-gray-900 text-sm">
+                                                <span
+                                                    class="text-[10px] text-gray-400 font-bold mr-0.5">RM</span>{{ number_format((float) $order->handling_fee, 2) }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
 
-                                        <span class="font-bold tracking-tight text-amber-700">
-                                            - <span
-                                                class="text-sm font-normal mr-0.5">RM</span>{{ number_format((float) $order->points_discount, 2) }}
-                                        </span>
+                                @if (($order->voucher_discount ?? 0) > 0 || ($order->shipping_discount ?? 0) > 0 || ($order->points_discount ?? 0) > 0)
+                                    <div class="space-y-2 pb-4 border-b border-dashed border-gray-200">
+                                        @if (($order->voucher_discount ?? 0) > 0)
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-gray-500 flex items-center gap-2">
+                                                    Voucher
+                                                    <span
+                                                        class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 font-bold tracking-wide uppercase">
+                                                        {{ $order->voucher_code }}
+                                                    </span>
+                                                </span>
+                                                <span class="font-bold tracking-tight text-emerald-600">
+                                                    - RM{{ number_format($order->voucher_discount, 2) }}
+                                                </span>
+                                            </div>
+                                        @endif
+
+                                        @if (($order->shipping_discount ?? 0) > 0)
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-gray-500">Shipping Discount</span>
+                                                <span class="font-bold tracking-tight text-emerald-600 italic">
+                                                    - RM{{ number_format($order->shipping_discount, 2) }}
+                                                </span>
+                                            </div>
+                                        @endif
+
+                                        @if (($order->points_discount ?? 0) > 0)
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-gray-500 flex items-center gap-2">
+                                                    Points Redeemed
+                                                    <span
+                                                        class="text-[10px] px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 font-bold tracking-wide uppercase">
+                                                        {{ number_format((int) ($order->points_redeem ?? 0)) }} pts
+                                                    </span>
+                                                </span>
+                                                <span class="font-bold tracking-tight text-amber-600">
+                                                    - RM{{ number_format((float) $order->points_discount, 2) }}
+                                                </span>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
 
-                                <div class="pt-4 mt-2 border-t border-gray-100 flex justify-between items-end">
-                                    <div class="flex flex-col">
-                                        <span class="text-base font-black text-gray-900 leading-none">Grand Total</span>
-                                    </div>
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-lg font-bold text-gray-900 tracking-tight">Total</span>
                                     <div class="text-right">
-                                        <span class="text-3xl font-black text-[#8f6a10] tracking-tighter">
+                                        <span class="text-3xl font-black text-gray-900 tracking-tighter">
                                             <span
-                                                class="text-sm font-bold mr-1">RM</span>{{ number_format($order->total ?? 0, 2) }}
+                                                class="text-sm font-bold mr-1 align-top mt-1 inline-block">RM</span>{{ number_format($order->total ?? 0, 2) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                @php
+                                    $isCompleted = ($order->status ?? '') === 'completed';
+                                    $earnedPoints = (int) floor((float) ($order->subtotal ?? 0));
+                                @endphp
+
+                                <div
+                                    class="flex items-center justify-between p-3 rounded-2xl {{ $isCompleted ? 'bg-emerald-50 border border-emerald-100' : 'bg-gray-50 border border-gray-100' }}">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="text-[10px] font-bold uppercase tracking-widest {{ $isCompleted ? 'text-emerald-700' : 'text-gray-500' }}">
+                                            {{ $isCompleted ? 'Points Earned' : 'Estimated Points' }}
+                                        </span>
+                                        <span class="text-[11px] leading-tight text-gray-400">
+                                            {{ $isCompleted ? 'Added to wallet' : 'Pending completion' }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white shadow-sm border border-emerald-100">
+                                        <div
+                                            class="w-2 h-2 rounded-full {{ $isCompleted ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse' }}">
+                                        </div>
+                                        <span class="text-sm font-black text-gray-800">
+                                            {{ number_format($earnedPoints) }} <span
+                                                class="text-[9px] text-gray-400">PTS</span>
                                         </span>
                                     </div>
                                 </div>

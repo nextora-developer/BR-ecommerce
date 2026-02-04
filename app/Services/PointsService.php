@@ -51,12 +51,59 @@ class PointsService
         });
     }
 
+    // public function creditPurchase(
+    //     User $buyer,
+    //     Order $order,
+    //     int $points,
+    //     string $note = 'Purchase cashback (RM 1 = 1 point)'
+    // ): bool {
+    //     return DB::transaction(function () use ($buyer, $order, $points, $note) {
+
+    //         $exists = PointTransaction::where('source', 'purchase')
+    //             ->where('order_id', $order->id)
+    //             ->where('user_id', $buyer->id)
+    //             ->exists();
+
+    //         if ($exists) return false;
+
+    //         $lockedBuyer = User::whereKey($buyer->id)->lockForUpdate()->first();
+
+    //         PointTransaction::create([
+    //             'user_id'  => $lockedBuyer->id,
+    //             'type'     => 'earn',
+    //             'source'   => 'purchase',
+    //             'order_id' => $order->id,
+    //             'points'   => $points,
+    //             'note'     => $note,
+    //         ]);
+
+    //         $lockedBuyer->increment('points_balance', $points);
+
+    //         return true;
+    //     });
+    // }
+
     public function creditPurchase(
         User $buyer,
         Order $order,
-        int $points,
-        string $note = 'Purchase cashback (RM 1 = 1 point)'
+        $pointsOrNote = null,
+        ?string $note = null
     ): bool {
+
+        $defaultNote = 'Purchase cashback (RM 1 = 1 point, based on subtotal)';
+
+        // ✅ 永远基于 subtotal
+        $points = (int) floor((float) $order->subtotal);
+        if ($points <= 0) return false;
+
+        // ✅ 旧调用如果传了数字，直接忽略它（不再用它当 note）
+        if (is_numeric($pointsOrNote)) {
+            $note = $note ?: $defaultNote;
+        } else {
+            // 新调用：第三个参数是 note（string）
+            $note = (string) ($pointsOrNote ?: ($note ?: $defaultNote));
+        }
+
         return DB::transaction(function () use ($buyer, $order, $points, $note) {
 
             $exists = PointTransaction::where('source', 'purchase')
@@ -74,7 +121,7 @@ class PointsService
                 'source'   => 'purchase',
                 'order_id' => $order->id,
                 'points'   => $points,
-                'note'     => $note,
+                'note'     => $note, // ✅ 不会再出现 40
             ]);
 
             $lockedBuyer->increment('points_balance', $points);
@@ -82,6 +129,10 @@ class PointsService
             return true;
         });
     }
+
+
+
+
 
     public static function grantBirthdayPointsIfEligible($user, int $points = 50): bool
     {

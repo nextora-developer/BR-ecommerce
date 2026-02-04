@@ -124,7 +124,8 @@
                                 @if (isset($addresses) && $addresses->count())
                                     <div>
                                         <div class="flex items-center justify-between mb-4">
-                                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Saved Information</h3>
+                                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Saved
+                                                Information</h3>
                                             <span class="text-xs text-gray-400">Scroll to view more →</span>
                                         </div>
 
@@ -1526,7 +1527,10 @@
                 if (handlingFeeText) handlingFeeText.textContent = handlingFee.toFixed(2);
 
                 // Estimated Earn: 你现在是 RM1=1point（按 finalTotal）
-                if (cashbackPointsText) cashbackPointsText.textContent = String(Math.floor(finalTotal));
+                // if (cashbackPointsText) cashbackPointsText.textContent = String(Math.floor(finalTotal));
+
+                // Estimated Earn: 你现在是 RM1=1point（按 subtotal）
+                if (cashbackPointsText) {cashbackPointsText.textContent = String(Math.floor(subtotal));}
             }
 
             function refreshAll() {
