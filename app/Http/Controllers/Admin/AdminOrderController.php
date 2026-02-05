@@ -75,16 +75,16 @@ class AdminOrderController extends Controller
         $oldStatus = $order->status;
 
         // 先 load items 来判断是否 digital
-        $order->loadMissing('items');
+        $order->loadMissing('items.product');
         $isDigitalOrder = $order->items->contains(fn($it) => (bool) ($it->product?->is_digital ?? false));
+
         // Base rules
         $rules = [
             'status'     => ['required', Rule::in($statuses)],
             'shipped_at' => ['nullable', 'date'],
 
-            // Digital fields (A: textarea one-per-line)
-            'pin_codes'          => ['nullable', 'string'], // completed 才强制（下面用 after）
-            'fulfillment_note'   => ['nullable', 'string', 'max:2000'],
+            // Digital fields
+            'fulfillment_note'     => ['nullable', 'string', 'max:2000'],
             'digital_fulfilled_at' => ['nullable', 'date'],
         ];
 
@@ -100,18 +100,13 @@ class AdminOrderController extends Controller
 
         $validated = $request->validate($rules);
 
-        // ✅ Digital: completed 时必须至少 1 个 PIN
+        // ✅ Digital: completed 时必须有 Note
         if ($isDigitalOrder && ($validated['status'] ?? null) === 'completed') {
-            $raw = (string) ($validated['pin_codes'] ?? '');
-            $pins = collect(preg_split("/\r\n|\n|\r/", $raw))
-                ->map(fn($s) => trim($s))
-                ->filter()
-                ->values()
-                ->all();
+            $note = trim((string) ($validated['fulfillment_note'] ?? ''));
 
-            if (count($pins) === 0) {
+            if ($note === '') {
                 return back()
-                    ->withErrors(['pin_codes' => 'PIN Code is required for digital orders (one per line).'])
+                    ->withErrors(['fulfillment_note' => 'Fulfillment note is required for digital orders when marking as COMPLETED.'])
                     ->withInput();
             }
         }
@@ -124,29 +119,19 @@ class AdminOrderController extends Controller
         if (!$isDigitalOrder && in_array($validated['status'], ['shipped', 'completed'], true)) {
             $data['shipping_courier'] = $validated['shipping_courier'] ?? $order->shipping_courier;
             $data['tracking_number']  = $validated['tracking_number'] ?? $order->tracking_number;
-            $data['shipped_at']        = $validated['shipped_at'] ?? ($order->shipped_at ?? now());
+            $data['shipped_at']       = $validated['shipped_at'] ?? ($order->shipped_at ?? now());
         }
 
-        // ✅ Digital: 保存 PIN + note + fulfilled_at
+        // ✅ Digital: 保存 note + fulfilled_at（不再处理 pin_codes）
         if ($isDigitalOrder) {
-            $raw = (string) ($validated['pin_codes'] ?? '');
-            $pins = collect(preg_split("/\r\n|\n|\r/", $raw))
-                ->map(fn($s) => trim($s))
-                ->filter()
-                ->values()
-                ->all();
 
-            // 有填才更新（避免 admin 不小心清空）
-            if (!empty($raw)) {
-                $data['pin_codes'] = $pins;
-            }
-
+            // 有带这个字段就更新（允许清空：你如果不想允许清空，我下面也给你版本）
             if ($request->has('fulfillment_note')) {
                 $data['fulfillment_note'] = $validated['fulfillment_note'] ?? null;
             }
 
             // ✅ Digital: auto set fulfilled_at when completed
-            if ($isDigitalOrder && $validated['status'] === 'completed') {
+            if (($validated['status'] ?? null) === 'completed') {
                 $data['digital_fulfilled_at'] =
                     $validated['digital_fulfilled_at']
                     ?? ($order->digital_fulfilled_at ?? now());

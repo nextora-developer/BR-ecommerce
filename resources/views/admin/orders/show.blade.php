@@ -600,7 +600,7 @@
                         </div>
 
                         {{-- PIN Codes (multiple) --}}
-                        <div>
+                        {{-- <div>
                             <label class="block text-xs font-semibold text-gray-500 mb-1">
                                 PIN Code(s)
                                 <span class="ml-2 text-[10px] text-gray-400 font-bold">one per line</span>
@@ -613,7 +613,7 @@
                             <p class="mt-1 text-[11px] text-gray-400">
                                 Paste multiple PINs, one per line.
                             </p>
-                        </div>
+                        </div> --}}
 
 
                         {{-- Fulfillment Note --}}
@@ -621,7 +621,7 @@
                             <label class="block text-xs font-semibold text-gray-500 mb-1">
                                 Fulfillment Note
                             </label>
-                            <textarea name="fulfillment_note" rows="3"
+                            <textarea name="fulfillment_note" rows="10"
                                 class="w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm"
                                 placeholder="Internal note / how this PIN was delivered to customer...">{{ old('fulfillment_note', $order->fulfillment_note ?? '') }}</textarea>
                         </div>
@@ -807,7 +807,8 @@
             const shippedAtInput = document.querySelector('input[name="shipped_at"]');
 
             const digitalFields = document.getElementById('digital-fields');
-            const pinCodes = document.querySelector('[name="pin_codes"]');
+            // const pinCodes = document.querySelector('[name="pin_codes"]');
+            const fulfillmentNote = document.querySelector('[name="fulfillment_note"]');
             const digitalFulfilledAt = document.querySelector('[name="digital_fulfilled_at"]');
 
 
@@ -837,7 +838,9 @@
                 if (digitalFields) {
                     digitalFields.classList.toggle('hidden', !needDigital);
                 }
-                setRequired(pinCodes, needDigital);
+                // setRequired(pinCodes, needDigital);
+                setRequired(fulfillmentNote, needDigital);
+
             }
 
             statusSelect?.addEventListener('change', toggleFields);

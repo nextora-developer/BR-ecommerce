@@ -276,7 +276,7 @@
                                             <h2 class="text-xs font-black text-gray-600 tracking-[0.2em] uppercase">
                                                 {{ $isDigitalOrder ? 'Digital Info' : 'Shipping Address' }}
                                             </h2>
-                                            @if ($order->pin_codes)
+                                            @if ($isDigitalOrder && $order->status === 'completed' && $order->fulfillment_note)
                                                 <button type="button" onclick="openDigitalModal({{ $order->id }})"
                                                     class="text-xs font-black text-emerald-700 hover:text-emerald-900 uppercase tracking-widest transition-colors">
                                                     Track →
@@ -754,16 +754,10 @@
     @endif
 
     @php
-        $isDigitalOrder = $order->items->contains(fn($it) => (bool) ($it->digital_payload ?? null));
-        $pins = $order->pin_codes ?? [];
-
-        // 兼容：如果你 pin_codes 未来可能是 text
-        if (is_string($pins)) {
-            $pins = array_filter(array_map('trim', preg_split("/\r\n|\n|\r/", $pins)));
-        }
+        $isDigitalOrder = $order->items->contains(fn($it) => (bool) ($it->product?->is_digital ?? false));
     @endphp
 
-    @if ($order->pin_codes)
+    @if ($order->fulfillment_note)
         <div id="digitalModal-{{ $order->id }}" class="fixed inset-0 z-50 hidden bg-black/50">
             {{-- 点击背景关闭 --}}
             <div class="flex items-center justify-center min-h-screen sm:pt-24"
@@ -796,7 +790,7 @@
                         </div>
 
                         {{-- PIN Codes --}}
-                        <div class="pt-2 border-t border-gray-100">
+                        {{-- <div class="pt-2 border-t border-gray-100">
                             <div class="flex items-center justify-between my-2">
                                 <span class="text-gray-600 font-medium">PIN Code(s)</span>
                             </div>
@@ -829,18 +823,28 @@
                                     PIN code(s) not available yet. Please check again later.
                                 </div>
                             @endif
-                        </div>
+                        </div> --}}
 
                         {{-- Note --}}
                         @if (!empty($order->fulfillment_note))
                             <div class="pt-2 border-t border-gray-100">
-                                <div class="text-gray-600 font-medium mb-2">Note</div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="text-gray-600 font-medium">Note</div>
+
+                                    {{-- 可选：太长时给个小提示 --}}
+                                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                        Scroll
+                                    </span>
+                                </div>
+
                                 <div
-                                    class="rounded-xl bg-gray-50 border border-gray-200 p-3 text-gray-800 whitespace-pre-line">
+                                    class="note-scroll rounded-xl bg-gray-50 border border-gray-200 p-3 text-gray-800 whitespace-pre-line
+           max-h-44 sm:max-h-56 overflow-y-auto">
                                     {{ trim($order->fulfillment_note) }}
                                 </div>
                             </div>
                         @endif
+
 
                     </div>
                 </div>
@@ -848,6 +852,23 @@
             </div>
         </div>
     @endif
+
+    <style>
+        .note-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .note-scroll::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            /* gray-300 */
+            border-radius: 9999px;
+        }
+
+        .note-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    </style>
+
 
     <script>
         function openReceiptModal(orderId) {
