@@ -18,7 +18,7 @@ class ShopController extends Controller
             ->get();
 
         $categories = Category::where('is_active', true)
-            ->whereNull('parent_id') // ✅ 只拿 parent
+            ->whereNull('parent_id')
             ->with(['children' => function ($q) {
                 $q->where('is_active', true)
                     ->orderBy('sort_order')
@@ -28,8 +28,28 @@ class ShopController extends Controller
             ->orderBy('name')
             ->get();
 
+        // ✅ New Arrivals (latest)
+        $featured = Product::query()
+            ->where('is_active', true)
+            ->withMin('variants', 'price')
+            ->with(['category', 'variants']) // 你前端有用到 $product->category / variants
+            ->latest()
+            ->limit(10)
+            ->get();
 
-        $featured = Product::where('is_active', true)
+        // ✅ Popular (by sales)
+        $popular = Product::query()
+            ->where('is_active', true)
+            ->withMin('variants', 'price')
+            ->with(['category', 'variants'])
+            ->withSum([
+                'orderItems as sold_qty' => function ($q) {
+                    $q->whereHas('order', function ($oq) {
+                        $oq->whereIn('status', ['paid', 'completed']);
+                    });
+                }
+            ], 'qty')
+            ->orderByRaw('COALESCE(sold_qty, 0) desc')
             ->latest()
             ->limit(10)
             ->get();
@@ -46,8 +66,15 @@ class ShopController extends Controller
             ->take(2)
             ->get();
 
-        return view('shop.home', compact('featured', 'categories', 'banners', 'homeVouchers'));
+        return view('shop.home', compact(
+            'featured',
+            'popular',
+            'categories',
+            'banners',
+            'homeVouchers'
+        ));
     }
+
 
     // Shop listing + Search
     public function index(Request $request)

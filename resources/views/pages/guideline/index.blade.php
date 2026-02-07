@@ -79,22 +79,19 @@
 
 
                     {{-- Support --}}
-                    <div class="rounded-[2.5rem] bg-white border border-gray-100 p-8 shadow-sm">
+                    {{-- <div class="rounded-[2.5rem] bg-white border border-gray-100 p-8 shadow-sm">
                         <div class="text-xl font-extrabold text-gray-900">Still need help?</div>
                         <p class="text-sm text-gray-600 mt-2">
                             Contact our support and we’ll assist you as soon as possible.
                         </p>
                         <div class="flex flex-col sm:flex-row gap-3 mt-5">
-                            <a href=""
-                                class="px-5 py-3 rounded-2xl bg-gray-900 text-white text-sm font-bold text-center hover:bg-black transition">
-                                Contact Us
-                            </a>
+                            
                             <a href="https://wa.me/60123456789" target="_blank"
                                 class="px-5 py-3 rounded-2xl bg-[#D4AF37] text-white text-sm font-bold text-center hover:brightness-95 transition">
                                 WhatsApp Support
                             </a>
                         </div>
-                    </div>
+                    </div> --}}
 
                 </div>
             </div>

@@ -1,5 +1,5 @@
 @if (isset($homeVouchers) && $homeVouchers->count())
-    <section class="relative bg-[#FDFCFB] py-10 overflow-hidden">
+    <section class="relative py-10 overflow-hidden">
         {{-- Ambient Background --}}
         <div class="pointer-events-none absolute inset-0 z-0">
             <div

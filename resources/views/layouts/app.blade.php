@@ -88,46 +88,46 @@
                         {{-- Payment Methods --}}
                         <div class="flex items-center gap-4 flex-wrap">
                             <img src="/images/payments/fpx.png" alt="FPX"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/visa.png" alt="Visa"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/mastercard.png" alt="Mastercard"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/tng.png" alt="TNG"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/grabpay.png" alt="GRABPAY"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/grabpaylater.png" alt="GRABPAYLATER"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/boost.png" alt="BOOST"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/boostpaylater.png" alt="BOOSTPAYLATER"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/shopeepay.png" alt="SHOPEEPAY"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/spaylater.png" alt="SPAYLATER"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/alipay.png" alt="ALIPAY"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/wechatpay.png" alt="WECHATPAY"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/mae.png" alt="MAE"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
 
                             <img src="/images/payments/mcash.png" alt="MCASH"
-                                class="h-6 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+                                class="h-6" />
                         </div>
                     </div>
 

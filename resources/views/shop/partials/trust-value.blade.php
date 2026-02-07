@@ -1,110 +1,87 @@
-{{-- Trust & Value Section --}}
-<section class="relative overflow-hidden bg-[#FDFCFB] py-2 lg:py-14">
+{{-- Trust Banner (Light Refined) --}}
+<section class="relative overflow-hidden py-3 lg:py-5">
 
-    {{-- Ambient Background --}}
-    <div class="pointer-events-none absolute inset-0 z-0">
-        <div
-            class="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-gradient-to-b from-[#D4AF37]/10 to-transparent blur-[120px] rounded-full">
+    <div class="relative z-10 max-w-7xl5 mx-auto px-6">
+
+        {{-- Headline --}}
+        <div class="text-center max-w-2xl mx-auto mb-5">
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#0B0B0B] mb-6">
+                Shop With <span class="font-semibold text-[#8f6a10]">Absolute Confidence</span>
+            </h2>
         </div>
-    </div>
-    
-    <div class="relative max-w-7xl5 mx-auto px-6">
 
-        {{-- Feature Grid --}}
-        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8">
+        {{-- Trust Bar --}}
+        <div
+            class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0
+                   bg-white/70 backdrop-blur-xl
+                   border border-black/[0.06]
+                   rounded-3xl p-8 lg:p-12
+                   ">
 
-            {{-- Feature 1: Fast Delivery --}}
-            <div class="group relative">
-                <div class="mb-6 relative">
-                    <div
-                        class="w-14 h-14 rounded-2xl bg-white shadow-sm border border-black/[0.03] flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-all duration-500 group-hover:-rotate-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V11.25c0-4.446-3.51-8.11-8.048-8.11h-.852a4.482 4.482 0 00-4.488 4.488v2.602M19.5 14.25l-2.25-6.75m-10.5 6.75h12.75" />
-                        </svg>
-                    </div>
+            {{-- Item --}}
+            <div class="flex flex-col items-center text-center lg:border-r lg:border-black/[0.06] px-4">
+                <div class="mb-4 text-[#8f6a10]">
+
+                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                    </svg>
+
                 </div>
-                <h4 class="text-lg font-bold text-black tracking-tight mb-2">Express Dispatch</h4>
-                <p class="text-base text-black/50 leading-relaxed mb-4">
-                    Your order leaves our hands within <span class="text-black font-semibold">1–3 working
-                        days</span>.
-                </p>
-                <span
-                    class="text-xs font-bold uppercase tracking-widest text-[#8f6a10] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Priority Handling
-                </span>
+                <h4 class="text-sm font-bold text-[#0B0B0B] uppercase tracking-widest">
+                    Fast Dispatch
+                </h4>
+                <p class="text-xs text-[#0B0B0B]/50">1–3 Working Days</p>
             </div>
 
-            {{-- Feature 2: Secure Checkout --}}
-            <div class="group relative">
-                <div class="mb-6 relative">
-                    <div
-                        class="w-14 h-14 rounded-2xl bg-white shadow-sm border border-black/[0.03] flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-all duration-500 group-hover:-rotate-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.744c0 5.052 3.823 9.213 8.712 9.637.222.019.447.029.672.029.224 0 .449-.01.671-.029 4.89-.423 8.713-4.585 8.713-9.637 0-1.305-.209-2.56-.598-3.744A11.959 11.959 0 0112 2.714z" />
-                        </svg>
-                    </div>
+            <div class="flex flex-col items-center text-center lg:border-r lg:border-black/[0.06] px-4">
+                <div class="mb-4 text-[#8f6a10]">
+
+                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                    </svg>
+
                 </div>
-                <h4 class="text-lg font-bold text-black tracking-tight mb-2">Secure Payments</h4>
-                <p class="text-base text-black/50 leading-relaxed mb-4">
-                    Industry-leading <span class="text-black font-semibold">SSL encryption</span> protects every
-                    transaction.
-                </p>
-                <span
-                    class="text-xs font-bold uppercase tracking-widest text-[#8f6a10] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Verified Security
-                </span>
+                <h4 class="text-sm font-bold text-[#0B0B0B] uppercase tracking-widest">
+                    Secure Payment
+                </h4>
+                <p class="text-xs text-[#0B0B0B]/50">SSL Protected</p>
             </div>
 
-            {{-- Feature 3: Easy Returns --}}
-            <div class="group relative">
-                <div class="mb-6 relative">
-                    <div
-                        class="w-14 h-14 rounded-2xl bg-white shadow-sm border border-black/[0.03] flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-all duration-500 group-hover:-rotate-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                        </svg>
-                    </div>
+            <div class="flex flex-col items-center text-center lg:border-r lg:border-black/[0.06] px-4">
+                <div class="mb-4 text-[#8f6a10]">
+
+                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+
                 </div>
-                <h4 class="text-lg font-bold text-black tracking-tight mb-2">Simple Returns</h4>
-                <p class="text-base text-black/50 leading-relaxed mb-4">
-                    Not quite right? We offer a <span class="text-black font-semibold">seamless return
-                        process</span> for you.
-                </p>
-                <span
-                    class="text-xs font-bold uppercase tracking-widest text-[#8f6a10] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Hassle-Free
-                </span>
+                <h4 class="text-sm font-bold text-[#0B0B0B] uppercase tracking-widest">
+                    Easy Returns
+                </h4>
+                <p class="text-xs text-[#0B0B0B]/50">Hassle-Free Policy</p>
             </div>
 
-            {{-- Feature 4: Malaysian Seller --}}
-            <div class="group relative">
-                <div class="mb-6 relative">
-                    <div
-                        class="w-14 h-14 rounded-2xl bg-white shadow-sm border border-black/[0.03] flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-all duration-500 group-hover:-rotate-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                        </svg>
-                    </div>
+            <div class="flex flex-col items-center text-center px-4">
+                <div class="mb-4 text-[#8f6a10]">
+                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                    </svg>
+
                 </div>
-                <h4 class="text-lg font-bold text-black tracking-tight mb-2">Malaysia Owned</h4>
-                <p class="text-base text-black/50 leading-relaxed mb-4">
-                    Based locally in <span class="text-black font-semibold">Malaysia</span>, supporting our
-                    local community.
-                </p>
-                <span
-                    class="text-xs font-bold uppercase tracking-widest text-[#8f6a10] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Local Reliability
-                </span>
+                <h4 class="text-sm font-bold text-[#0B0B0B] uppercase tracking-widest">
+                    Malaysia Owned
+                </h4>
+                <p class="text-xs text-[#0B0B0B]/50">Local Support</p>
             </div>
 
         </div>

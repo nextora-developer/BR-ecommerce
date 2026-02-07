@@ -1,132 +1,149 @@
 <x-app-layout>
     <div class="bg-[#F9F7F2]">
-        {{-- Banner Section: Cinematic & Deep --}}
-        <section class="w-full relative z-0" data-banner-slider>
-            <div class="max-w-7xl5 mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10 pt-5">
-                <div class="relative rounded-3xl overflow-hidden shadow-[0_18px_40px_rgba(0,0,0,0.25)]">
 
-                    @if (isset($banners) && $banners->count())
-                        {{-- 用固定比例，避免不同 breakpoint 高度不一样导致裁切不同 --}}
-                        {{-- <div class="relative w-full aspect-[21/10] sm:aspect-[21/9] lg:aspect-auto lg:h-[420px]"> --}}
-                        <div class="relative w-full aspect-[21/10] sm:aspect-[21/7] lg:aspect-auto lg:h-[420px]">
-                            {{-- 轨道 --}}
-                            <div class="absolute inset-0 flex h-full transition-transform duration-700 ease-out"
-                                data-banner-track>
-                                @foreach ($banners as $banner)
-                                    @php
-                                        $url = $banner->link_url ?: route('shop.index');
-                                    @endphp
+        <div class="relative overflow-hidden">
 
-                                    <a href="{{ $url }}" class="relative w-full h-full shrink-0 block group">
-                                        <img src="{{ asset('storage/' . $banner->image_path) }}" alt="Banner"
-                                            class="w-full h-full object-cover object-center block">
-                                    </a>
-                                @endforeach
-                            </div>
+            {{-- 背景图 --}}
+            {{-- <div class="pointer-events-none absolute inset-0 bg-cover bg-center"
+                style="background-image: url('{{ asset('images/hero-bg1.png') }}');">
+            </div> --}}
 
-                            {{-- 左右箭头 --}}
-                            @if ($banners->count() > 1)
-                                <button type="button"
-                                    class="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2
-                                   w-9 h-9 rounded-full bg-black/45 hover:bg-black/70
-                                   text-white items-center justify-center text-sm"
-                                    data-banner-prev>
-                                    ‹
-                                </button>
 
-                                <button type="button"
-                                    class="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2
-                                   w-9 h-9 rounded-full bg-black/45 hover:bg-black/70
-                                   text-white items-center justify-center text-sm"
-                                    data-banner-next>
-                                    ›
-                                </button>
+            {{-- 实际内容 --}}
+            <div class="relative z-10">
 
-                                {{-- 小点点 --}}
-                                <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2"
-                                    data-banner-dots>
-                                    @foreach ($banners as $index => $banner)
+                {{-- Banner Section: Cinematic & Deep --}}
+                <section class="w-full relative z-0" data-banner-slider>
+
+                    <div class="max-w-7xl5 mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10 pt-5">
+                        <div class="relative rounded-3xl overflow-hidden shadow-[0_18px_40px_rgba(0,0,0,0.25)]">
+
+                            @if (isset($banners) && $banners->count())
+                                {{-- 用固定比例，避免不同 breakpoint 高度不一样导致裁切不同 --}}
+                                {{-- <div class="relative w-full aspect-[21/10] sm:aspect-[21/9] lg:aspect-auto lg:h-[420px]"> --}}
+                                <div class="relative w-full aspect-[21/10] sm:aspect-[21/7] lg:aspect-auto lg:h-[420px]">
+                                    {{-- 轨道 --}}
+                                    <div class="absolute inset-0 flex h-full transition-transform duration-700 ease-out"
+                                        data-banner-track>
+                                        @foreach ($banners as $banner)
+                                            @php
+                                                $url = $banner->link_url ?: route('shop.index');
+                                            @endphp
+
+                                            <a href="{{ $url }}"
+                                                class="relative w-full h-full shrink-0 block group">
+                                                <img src="{{ asset('storage/' . $banner->image_path) }}" alt="Banner"
+                                                    class="w-full h-full object-cover object-center block">
+                                            </a>
+                                        @endforeach
+                                    </div>
+
+                                    {{-- 左右箭头 --}}
+                                    @if ($banners->count() > 1)
                                         <button type="button"
-                                            class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/80 transition"
-                                            data-banner-dot="{{ $index }}"></button>
-                                    @endforeach
+                                            class="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2
+                                   w-9 h-9 rounded-full bg-black/45 hover:bg-black/70
+                                   text-white items-center justify-center text-sm"
+                                            data-banner-prev>
+                                            ‹
+                                        </button>
+
+                                        <button type="button"
+                                            class="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2
+                                   w-9 h-9 rounded-full bg-black/45 hover:bg-black/70
+                                   text-white items-center justify-center text-sm"
+                                            data-banner-next>
+                                            ›
+                                        </button>
+
+                                        {{-- 小点点 --}}
+                                        <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2"
+                                            data-banner-dots>
+                                            @foreach ($banners as $index => $banner)
+                                                <button type="button"
+                                                    class="w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/80 transition"
+                                                    data-banner-dot="{{ $index }}"></button>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @else
+                                {{-- 没有 banner 的时候显示一个占位背景 --}}
+                                <div
+                                    class="w-full aspect-[21/10] sm:aspect-[21/9] lg:aspect-auto lg:h-[420px] bg-[#F5F5F7] flex items-center justify-center rounded-3xl">
+                                    <p class="text-gray-400 text-sm">Shop Banner coming soon</p>
                                 </div>
                             @endif
+
                         </div>
-                    @else
-                        {{-- 没有 banner 的时候显示一个占位背景 --}}
-                        <div
-                            class="w-full aspect-[21/10] sm:aspect-[21/9] lg:aspect-auto lg:h-[420px] bg-[#F5F5F7] flex items-center justify-center rounded-3xl">
-                            <p class="text-gray-400 text-sm">Shop Banner coming soon</p>
-                        </div>
-                    @endif
-
-                </div>
-            </div>
-        </section>
+                    </div>
+                </section>
 
 
-        {{-- Category Section: Boutique Shelf Look --}}
-        <section id="categories" class="relative scroll-mt-48">
-            <div class="relative mx-auto max-w-7xl5 px-4 sm:px-6 lg:px-8 sm:py-3 lg:py-4">
+                {{-- Category Section: Boutique Shelf Look --}}
+                <section id="categories" class="relative scroll-mt-48">
+                    <div class="relative mx-auto max-w-7xl5 px-4 sm:px-6 lg:px-8 sm:py-3 lg:py-2">
 
-                @if (isset($categories) && $categories->count())
-                    <div class="overflow-x-auto scrollbar-hide select-none" data-scroll-x>
-                        <div class="flex gap-3 min-w-max pb-6">
-                            @foreach ($categories as $category)
-                                <a href="{{ route('shop.index', ['category' => $category->slug]) }}"
-                                    class="group block w-[100px] sm:w-[130px] lg:w-[140px] text-center">
+                        @if (isset($categories) && $categories->count())
+                            <div class="overflow-x-auto scrollbar-hide select-none" data-scroll-x>
+                                <div class="flex gap-3 min-w-max pb-6">
+                                    @foreach ($categories as $category)
+                                        <a href="{{ route('shop.index', ['category' => $category->slug]) }}"
+                                            class="group block w-[100px] sm:w-[130px] lg:w-[140px] text-center">
 
-                                    {{-- Floating Icon Container --}}
-                                    <div class="relative mx-auto w-24 h-24 sm:w-28 sm:h-28 mb-4 sm:mb-5">
-                                        {{-- Back floating card --}}
-                                        <div
-                                            class="absolute inset-0 bg-white rounded-[1.75rem] sm:rounded-[2rem]
+                                            {{-- Floating Icon Container --}}
+                                            <div class="relative mx-auto w-24 h-24 sm:w-28 sm:h-28 mb-4 sm:mb-5">
+                                                {{-- Back floating card --}}
+                                                <div
+                                                    class="absolute inset-0 bg-white rounded-[1.75rem] sm:rounded-[2rem]
                                                     rotate-0 group-hover:rotate-12 transition-transform duration-500
                                                     border border-black/[0.03] shadow-sm">
-                                        </div>
+                                                </div>
 
-                                        {{-- Main card --}}
-                                        <div
-                                            class="relative w-full h-full rounded-[1.75rem] sm:rounded-[2rem] overflow-hidden
+                                                {{-- Main card --}}
+                                                <div
+                                                    class="relative w-full h-full rounded-[1.75rem] sm:rounded-[2rem] overflow-hidden
                                                     bg-white border border-black/[0.05] shadow-md
                                                     flex items-center justify-center
                                                     transition-all duration-500
                                                     group-hover:-translate-y-2 sm:group-hover:-translate-y-3
                                                     group-hover:shadow-xl group-hover:shadow-[#D4AF37]/15">
-                                            @if ($category->icon)
-                                                <img src="{{ asset('storage/' . $category->icon) }}"
-                                                    alt="{{ $category->name }}" class="w-full h-full object-cover">
-                                            @else
-                                                <span
-                                                    class="text-[10px] sm:text-[11px] text-black/20 font-bold uppercase tracking-tight">
-                                                    No Image
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
+                                                    @if ($category->icon)
+                                                        <img src="{{ asset('storage/' . $category->icon) }}"
+                                                            alt="{{ $category->name }}"
+                                                            class="w-full h-full object-cover">
+                                                    @else
+                                                        <span
+                                                            class="text-[10px] sm:text-[11px] text-black/20 font-bold uppercase tracking-tight">
+                                                            No Image
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
 
-                                    <span
-                                        class="block text-[12px] sm:text-[13px] font-bold text-black/70 tracking-tight
+                                            <span
+                                                class="block text-[12px] sm:text-[13px] font-bold text-black/70 tracking-tight
                            transition-colors duration-300 group-hover:text-black">
-                                        {{ $category->name }}
-                                    </span>
-                                </a>
-                            @endforeach
-                        </div>
+                                                {{ $category->name }}
+                                            </span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                        @endif
                     </div>
+                </section>
 
-                @endif
             </div>
-        </section>
-
+        </div>
 
         {{-- Partials --}}
         @include('shop.partials.new-arrivals')
-        @include('shop.partials.voucher-promo')
+        @include('shop.partials.popular-product')
+        @include('shop.partials.reviews')
         @include('shop.partials.trust-value')
-
-        {{-- Grand Finale CTA (Previously Refined) --}}
+        @include('shop.partials.voucher-promo')
         @include('shop.partials.bottom-cta')
     </div>
 

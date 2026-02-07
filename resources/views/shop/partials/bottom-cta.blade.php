@@ -1,26 +1,22 @@
 {{-- Bottom CTA Section --}}
-<section class="relative isolate bg-[#F9F7F2] overflow-hidden antialiased">
+<section class="relative isolate overflow-hidden antialiased">
 
     {{-- High-End Ambient Background Composition --}}
-    <div class="absolute inset-0 pointer-events-none z-0 select-none">
-        {{-- Top Central Dome --}}
+    {{-- <div class="absolute inset-0 pointer-events-none z-0 select-none">
         <div class="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
             <div class="w-[1200px] h-[600px] rounded-full bg-[#D4AF37]/10 blur-[100px]"></div>
         </div>
 
-        {{-- Right Side Soft Eclipse --}}
         <div class="absolute right-[-10%] top-1/2 -translate-y-1/2">
             <div class="w-[600px] h-[600px] rounded-full bg-black/[0.02] blur-[80px]"></div>
         </div>
 
-        {{-- Texture Overlay --}}
         <div class="absolute inset-0 opacity-[0.3]"
             style="background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,.05) 1px, transparent 1px);
                    background-size: 32px 32px;">
         </div>
 
-    </div>
-
+    </div> --}}
 
     <div class="relative max-w-7xl5 mx-auto px-6 py-10 lg:py-16">
         <div
@@ -67,7 +63,7 @@
                     <a href="#categories"
                         class="w-full sm:w-auto inline-flex items-center justify-center px-10 py-5 rounded-2xl
                         text-[13px] font-bold uppercase tracking-[0.2em]
-                        bg-transparent text-black border border-black/10
+                        bg-transparent text-black 
                         hover:bg-black/5 hover:border-black transition-all duration-300">
                         View Categories
                     </a>
