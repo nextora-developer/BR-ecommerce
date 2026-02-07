@@ -20,22 +20,34 @@
             {{-- Search Bar --}}
             <div class="relative group mb-10">
                 <form method="GET"
-                    class="relative z-10 flex items-center bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-2 focus-within:ring-4 focus-within:ring-[#D4AF37]/10 transition-all">
-                    <div class="pl-4 text-gray-400">
+                    class="relative z-10 flex items-center flex-wrap sm:flex-nowrap
+           bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100
+           p-2 focus-within:ring-4 focus-within:ring-[#D4AF37]/10 transition-all">
+
+                    <div class="pl-4 text-gray-400 shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
+
                     <input name="q" value="{{ $q }}"
                         placeholder="Enter Agent ID / Name / Phone Number..."
-                        class="flex-1 border-none focus:ring-0 text-gray-900 font-medium placeholder:text-gray-400 px-4 py-3 bg-transparent">
+                        class="flex-1 min-w-[180px] sm:min-w-0
+               border-none focus:ring-0 text-gray-900 font-medium placeholder:text-gray-400
+               px-4 py-3 bg-transparent" />
+
                     <button
-                        class="bg-black text-[#D4AF37] px-8 py-3 rounded-xl font-bold text-sm hover:bg-gray-900 transition-all active:scale-95">
+                        class="w-full sm:w-auto mt-2 sm:mt-0
+               bg-black text-[#D4AF37]
+               px-6 sm:px-8 py-3 rounded-xl font-bold text-sm
+               hover:bg-gray-900 transition-all active:scale-95">
                         Verify Now
                     </button>
                 </form>
+
             </div>
+
 
             {{-- Results Section --}}
             @if ($q !== '')
@@ -67,7 +79,7 @@
                                         System Verified
                                     </span>
 
-                                    <a href="{{ route('agents.verify.pdf', ['q' => $q]) }}"  target="_blank"
+                                    <a href="{{ route('agents.verify.pdf', ['q' => $q]) }}" target="_blank"
                                         class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10
                                   border border-white/20 text-white text-xs font-black uppercase tracking-wider
                                   hover:bg-white/15 transition">
@@ -313,7 +325,7 @@
                                 <span class="text-xs font-black uppercase tracking-widest text-gray-400">Support
                                     Line</span>
                             </div>
-                            <div class="text-xl font-bold text-gray-900">012-301 1610</div> 
+                            <div class="text-xl font-bold text-gray-900">012-301 1610</div>
                             <p class="mt-2 text-sm text-gray-500 font-medium">Verified WhatsApp for support & agent
                                 verification identity.</p>
                         </div>

@@ -13,7 +13,7 @@ class PageController extends Controller
 
     public function guideline()
     {
-        return view('pages.guideline');
+        return view('pages.guideline.index');
     }
 
     public function faq()
