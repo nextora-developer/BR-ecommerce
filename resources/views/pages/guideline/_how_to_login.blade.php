@@ -41,7 +41,7 @@
         <div class="rounded-2xl bg-[#FAF9F6] border border-gray-100 p-5">
             <div class="text-xs text-gray-500 font-black uppercase tracking-widest">🔒 Security</div>
             <div class="mt-2 text-sm font-bold text-gray-900">Keep password private</div>
-            <p class="mt-1 text-xs text-gray-500">Never share OTP/password.</p>
+            <p class="mt-1 text-xs text-gray-500">Never share password.</p>
         </div>
     </div>
 
@@ -126,7 +126,7 @@
 
         <div class="rounded-2xl bg-blue-50/60 border border-blue-100 p-4 text-sm text-blue-700">
             <strong>Forgot password?</strong><br>
-            Please contact the system administrator to reset your access or resolve account issues
+            Please contact the our customer support to reset your access or resolve account issues
         </div>
 
         <div class="rounded-2xl bg-blue-50/60 border border-blue-100 p-4 text-sm text-blue-700">
