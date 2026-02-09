@@ -142,8 +142,11 @@
                             </div>
                         @endforelse
 
-                        <div class="mt-8">
+                        {{-- <div class="mt-8">
                             {{ $items->links() }}
+                        </div> --}}
+                        <div>
+                            {{ $items->withQueryString()->links('vendor.pagination.shop-minimal') }}
                         </div>
                     </div>
 

@@ -4,15 +4,14 @@
 
             {{-- Header + 小标题 --}}
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
-                <div>
+                {{-- <div>
                     <h1 class="text-2xl sm:text-3xl font-semibold text-gray-900">Shop</h1>
                     <p class="text-sm text-gray-500">
                         Browse Shop products and find what you need.
                     </p>
-                </div>
+                </div> --}}
 
                 <div class="flex items-center gap-3">
-                    {{-- Mobile Filter Button --}}
                     <button type="button" id="openFilters"
                         class="lg:hidden inline-flex items-center gap-2.5 rounded-2xl border border-[#D4AF37]/20 bg-white px-5 py-3 text-[11px] font-black uppercase tracking-widest text-[#8f6a10] shadow-[0_10px_20px_rgba(212,175,55,0.08)] active:scale-[0.96] transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
@@ -23,9 +22,6 @@
                         Filter
                     </button>
 
-                    <div class="text-xs sm:text-sm text-gray-500">
-                        Showing <span class="font-semibold text-gray-800">{{ $products->total() }}</span> items
-                    </div>
                 </div>
             </div>
 
@@ -310,8 +306,11 @@
                             @endforeach
                         </div>
 
-                        <div class="mt-8">
+                        {{-- <div class="mt-8">
                             {{ $products->withQueryString()->links() }}
+                        </div> --}}
+                        <div class="mt-8">
+                            {{ $products->withQueryString()->links('vendor.pagination.shop-minimal') }}
                         </div>
                     @else
                         <div

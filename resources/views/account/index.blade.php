@@ -215,8 +215,11 @@
                                 </table>
                             </div>
                         </div>
-                        <div class="mt-4">
+                        {{-- <div class="mt-4">
                             {{ $pointTransactions->links() }}
+                        </div> --}}
+                        <div>
+                            {{ $pointTransactions->withQueryString()->links('vendor.pagination.shop-minimal') }}
                         </div>
 
                     </section>

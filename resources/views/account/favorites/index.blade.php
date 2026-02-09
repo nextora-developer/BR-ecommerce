@@ -167,8 +167,11 @@
 
 
                         {{-- Pagination --}}
-                        <div class="mt-12">
+                        {{-- <div class="mt-12">
                             {{ $favorites->links() }}
+                        </div> --}}
+                        <div>
+                            {{ $favorites->withQueryString()->links('vendor.pagination.shop-minimal') }}
                         </div>
                     @endif
 
