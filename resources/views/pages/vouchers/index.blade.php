@@ -5,61 +5,94 @@
             {{-- Page Header --}}
             <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <span class="text-xs uppercase tracking-[0.5em] text-[#D4AF37] font-bold mb-4 block">Exclusive
-                        Privileges</span>
-                    <h2 class="text-3xl md:text-4xl font-serif text-black leading-tight">Vouchers</h2>
+                    <h2 class="text-3xl md:text-4xl font-bold text-black">Available Vouchers</h2>
                     <p class="mt-2 text-sm text-black/45 max-w-xl">
-                        Copy a code and apply it during checkout. Limited releases rotate frequently.
+                        Apply voucher codes at checkout to enjoy instant savings, exclusive rewards, and special offers
+                        available for a limited time.
                     </p>
                 </div>
 
 
-                {{-- Search --}}
                 <form method="GET" action="{{ route('vouchers.index') }}" class="w-full md:w-[360px]">
-                    <label class="block text-[11px] uppercase tracking-wide text-black/40 mb-2 font-bold">Search</label>
+                    <label class="block text-[11px] uppercase tracking-wide text-black/40 mb-2 font-bold">
+                        Search
+                    </label>
+
                     <div class="relative">
-                        <input name="q" value="{{ request('q') }}" placeholder="Search by code or name..."
+                        <input id="voucherSearch" name="q" value="{{ request('q') }}"
+                            placeholder="Search by code or name..."
                             class="w-full rounded-2xl border border-black/5 bg-white/80 backdrop-blur
-                                   px-4 py-3 text-sm text-black/70
-                                   focus:border-[#D4AF37]/60 focus:ring-[#D4AF37]/20 focus:outline-none">
+                   px-4 py-3 pr-20 text-sm text-black/70
+                   focus:border-[#D4AF37]/60 focus:ring-[#D4AF37]/20 focus:outline-none">
+
+                        {{-- Clear --}}
+                        <button type="button" id="clearSearch"
+                            class="absolute right-14 top-1/2 -translate-y-1/2
+                   hidden text-[11px] font-black uppercase tracking-widest
+                   text-black/30 hover:text-black transition">
+                            Clear
+                        </button>
+
+                        {{-- Submit --}}
                         <button type="submit"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-black text-white text-xs font-bold">
+                            class="absolute right-2 top-1/2 -translate-y-1/2
+                   px-3 py-1.5 rounded-xl bg-black text-white
+                   text-xs font-bold hover:bg-black/90 transition">
                             Go
                         </button>
                     </div>
                 </form>
+
             </div>
 
             {{-- ✅ Section Wrapper (改成你参考那段的 “Premium Ticket” 风格) --}}
-            <section class="relative bg-[#FDFCFB] py-8 overflow-hidden rounded-[2.5rem] border border-black/[0.04]">
-                {{-- Ambient Background --}}
-                <div class="pointer-events-none absolute inset-0 z-0">
-                    <div
-                        class="absolute -top-[25%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-gradient-to-b from-[#D4AF37]/10 to-transparent blur-[120px] rounded-full">
-                    </div>
-                    <div
-                        class="absolute right-[-10%] top-[20%] w-[600px] h-[600px] rounded-full bg-black/[0.02] blur-[90px]">
-                    </div>
-
-                    {{-- subtle grid --}}
-                    <div class="absolute inset-0 opacity-[0.25]"
-                        style="background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,.08) 1px, transparent 1px);
-                               background-size: 32px 32px;">
-                    </div>
-
-                    {{-- large vertical word --}}
-                    <div class="absolute left-10 top-1/2 -translate-y-1/2 hidden xl:block">
-                        <span class="text-[10rem] font-black text-black/[0.01] uppercase tracking-tighter select-none"
-                            style="writing-mode: vertical-rl;">
-                            Privilege
-                        </span>
-                    </div>
-                </div>
-
-                <div class="relative z-10 px-6 py-8">
-                    {{-- <div class="h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-8"></div> --}}
+            <section class="relative py-2 overflow-hidden">
+                <div class="relative z-10 px-0 py-0">
 
                     @if ($vouchers->count())
+
+                        {{-- ✅ Apply Voucher Steps --}}
+                        <div
+                            class="mb-12 rounded-[2rem] bg-white border border-black/[0.03] p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                            <div class="mb-8 text-center">
+                                <h3 class="text-2xl font-black text-black">
+                                    How to Apply Voucher
+                                </h3>
+                            </div>
+
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative">
+
+                                @foreach ([['1', 'Copy Code', 'Tap copy on any voucher ticket.'], ['2', 'Fill Cart', 'Add your favorite items to bag.'], ['3', 'Paste it', 'Find the voucher box at checkout.'], ['4', 'Activate', 'Tap apply & watch prices drop.']] as $step)
+                                    <div
+                                        class="relative group rounded-2xl border border-black/[0.04] bg-gray-50/30 p-5 hover:bg-white hover:border-[#D4AF37]/20 hover:shadow-xl hover:shadow-[#D4AF37]/5 transition-all duration-300">
+                                        <div class="flex flex-col gap-4">
+                                            {{-- Step Number with Glow --}}
+                                            <div class="relative">
+                                                <div
+                                                    class="w-10 h-10 rounded-xl bg-white shadow-sm border border-black/[0.03] text-[#D4AF37] font-black flex items-center justify-center text-sm z-10 relative group-hover:bg-[#D4AF37] group-hover:text-white transition-colors duration-300">
+                                                    {{ $step[0] }}
+                                                </div>
+                                                {{-- Decorative background number --}}
+                                                <span
+                                                    class="absolute -top-2 -left-1 text-4xl font-black text-black/[0.02] select-none group-hover:text-[#D4AF37]/5 transition-colors">{{ $step[0] }}</span>
+                                            </div>
+
+                                            <div class="space-y-1">
+                                                <h4
+                                                    class="text-sm font-bold text-black group-hover:text-[#8f6a10] transition-colors">
+                                                    {{ $step[1] }}</h4>
+                                                <p
+                                                    class="text-[12px] leading-relaxed text-black/40 font-medium group-hover:text-black/60 transition-colors">
+                                                    {{ $step[2] }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
                             @foreach ($vouchers as $v)
                                 @php
@@ -438,5 +471,28 @@
                 });
             });
         </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const input = document.getElementById('voucherSearch');
+                const clearBtn = document.getElementById('clearSearch');
+
+                if (!input || !clearBtn) return;
+
+                const toggleClear = () => {
+                    clearBtn.classList.toggle('hidden', !input.value);
+                };
+
+                toggleClear();
+
+                input.addEventListener('input', toggleClear);
+
+                clearBtn.addEventListener('click', () => {
+                    input.value = '';
+                    input.form.submit(); // 如果你不想自动 submit，这行删掉
+                });
+            });
+        </script>
+
     </div>
 </x-app-layout>

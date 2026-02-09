@@ -1,18 +1,12 @@
 @if (isset($homeVouchers) && $homeVouchers->count())
-    <section class="relative py-10 overflow-hidden">
-        {{-- Ambient Background --}}
-        <div class="pointer-events-none absolute inset-0 z-0">
-            <div
-                class="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-gradient-to-b from-[#D4AF37]/10 to-transparent blur-[120px] rounded-full">
-            </div>
-        </div>
+    <section class="relative py-16 overflow-hidden">
 
         <div class="relative max-w-7xl5 mx-auto px-6">
-            {{-- Header --}}
-            <div class="mb-10 text-center lg:text-left">
-                <span class="text-xs uppercase tracking-[0.5em] text-[#D4AF37] font-bold mb-4 block">Exclusive
-                    Privileges</span>
-                <h2 class="text-3xl md:text-4xl font-serif text-black leading-tight">Your Member Rewards</h2>
+
+            <div class="text-center max-w-2xl mx-auto mb-5">
+                <h2 class="text-3xl lg:text-4xl font-bold text-[#0B0B0B] mb-6">
+                    Available<span class="font-semibold text-[#8f6a10]">Voucher</span>
+                </h2>
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
@@ -115,7 +109,8 @@
                             </div>
 
                             <div class="relative w-full text-center z-10">
-                                <p class="text-[9px] uppercase tracking-[0.4em] font-bold text-[#D4AF37] mb-5">Click to copy</p>
+                                <p class="text-[9px] uppercase tracking-[0.4em] font-bold text-[#D4AF37] mb-5">Click to
+                                    copy</p>
 
                                 <button type="button" data-copy-voucher="{{ $v->code }}"
                                     class="voucher-button group/btn w-full bg-white/10 border border-white/20 p-5 rounded-2xl backdrop-blur-sm hover:bg-white/20 hover:border-[#D4AF37]/50 transition-all duration-300 active:scale-95 relative overflow-hidden">
@@ -146,6 +141,24 @@
                     </div>
                 @endforeach
             </div>
+            {{-- View More --}}
+            <div class="mt-10 flex justify-center">
+                <a href="{{ route('vouchers.index') }}"
+                    class="inline-flex items-center gap-2
+          rounded-xl bg-black px-8 py-3
+          text-xs font-black uppercase tracking-[0.25em] text-white
+          border border-[#D4AF37]/40
+          hover:border-[#D4AF37]/70 hover:text-[#D4AF37]
+          transition active:scale-95">
+                    <span>View More</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </a>
+
+            </div>
+
         </div>
     </section>
 
