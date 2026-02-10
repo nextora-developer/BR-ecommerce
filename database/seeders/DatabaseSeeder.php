@@ -50,6 +50,8 @@ class DatabaseSeeder extends Seeder
             // ProductSeeder::class,
             PaymentMethodSeeder::class,
             ShippingRateSeeder::class,
+            GameSpinRewardSeeder::class,
+
         ]);
     }
 }

@@ -26,9 +26,10 @@ class AccountController extends Controller
         $stats['points'] = (int) ($user->points_balance ?? 0);
 
         $pointTransactions = PointTransaction::where('user_id', $user->id)
-            ->whereIn('source', ['purchase', 'redeem', 'review', 'birthday', 'admin_adjust'])
+            ->whereIn('source', ['purchase', 'redeem', 'review', 'birthday', 'admin_adjust', 'spin'])
             ->latest()
             ->paginate(3);
+
 
 
         $latestOrders = $user->orders()

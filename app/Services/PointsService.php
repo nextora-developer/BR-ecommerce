@@ -132,8 +132,6 @@ class PointsService
 
 
 
-
-
     public static function grantBirthdayPointsIfEligible($user, int $points = 50): bool
     {
         if (!$user || empty($user->birth_date)) return false;
@@ -176,5 +174,39 @@ class PointsService
         });
 
         return true;
+    }
+
+    public function creditSpin(User $user, int $points, ?int $spinPlayId = null, ?string $note = null): bool
+    {
+        if ($points <= 0) return false;
+        $note = $note ?: "Spin reward (+{$points} pts)";
+
+        return DB::transaction(function () use ($user, $points, $spinPlayId, $note) {
+
+            if ($spinPlayId) {
+                $exists = PointTransaction::where('source', 'spin')
+                    ->where('user_id', $user->id)
+                    ->where('spin_play_id', $spinPlayId)
+                    ->exists();
+
+                if ($exists) return false;
+            }
+
+            $lockedUser = User::whereKey($user->id)->lockForUpdate()->first();
+
+            PointTransaction::create([
+                'user_id'      => $lockedUser->id,
+                'type'         => 'earn',
+                'source'       => 'spin',
+                'order_id'     => null,
+                'spin_play_id' => $spinPlayId,
+                'points'       => $points,
+                'note'         => $note, // ✅ 给用户看的，不含ID
+            ]);
+
+            $lockedUser->increment('points_balance', $points);
+
+            return true;
+        });
     }
 }

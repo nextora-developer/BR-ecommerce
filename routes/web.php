@@ -9,6 +9,7 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\VoucherPageController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\PublicAgentController;
+use App\Http\Controllers\GameSpinController;
 
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Admin\AdminPointTransactionController;
 use App\Http\Controllers\Admin\AdminOrderInvoiceController;
 use App\Http\Controllers\Admin\AdminAgentController;
 use App\Http\Controllers\Admin\AdminHandlingFeeController;
+use App\Http\Controllers\Admin\AdminGameSpinRewardController;
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountOrderController;
@@ -109,8 +111,6 @@ Route::get('/acca-professional-courses', [PageController::class, 'accaCourses'])
     ->name('acca.courses');
 
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Customer (需要登录的功能：Cart + Checkout + Account
@@ -125,6 +125,12 @@ Route::middleware('auth')->group(function () {
         ->name('checkout.store');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])
         ->name('checkout.success');
+
+
+    Route::get('/games/spin', [GameSpinController::class, 'index'])->name('games.spin');
+    Route::post('/games/spin/play', [GameSpinController::class, 'play'])->name('games.spin.play');
+
+
 
     // Account 相关
     Route::prefix('account')->name('account.')->group(function () {
@@ -289,6 +295,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
         ->name('fees.handling');
     Route::post('fees/handling', [AdminHandlingFeeController::class, 'update'])
         ->name('fees.handling.update');
+
+    // Spin
+    Route::get('spin-rewards', [AdminGameSpinRewardController::class, 'index'])->name('spin-rewards.index');
+    Route::get('spin-rewards/{spin_reward}/edit', [AdminGameSpinRewardController::class, 'edit'])->name('spin-rewards.edit');
+    Route::put('spin-rewards/{spin_reward}', [AdminGameSpinRewardController::class, 'update'])->name('spin-rewards.update');
 });
 
 /*

@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $code;
     }
 
+    // app/Models/User.php
+    public function isVerified(): bool
+    {
+        return (bool) $this->is_verified;
+    }
 
     public function addresses()
     {

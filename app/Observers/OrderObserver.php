@@ -5,14 +5,28 @@ namespace App\Observers;
 use App\Models\Order;
 use App\Models\ReferralLog;
 use App\Services\PointsService;
+use Illuminate\Support\Facades\DB;
 
 class OrderObserver
 {
     public function updated(Order $order): void
     {
-        if ($order->isDirty('status') && $order->status === 'completed') {
-            $this->handlePurchasePoints($order); // ✅ 买家 cashback
-            $this->handleReferralPoints($order); // ✅ 上级 referral（你原本的）
+        if ($order->wasChanged('status') && $order->status === 'completed') {
+
+            DB::transaction(function () use ($order) {
+                $fresh = Order::query()->lockForUpdate()->with('user')->find($order->id);
+                if (!$fresh) return;
+
+                // 已发过 spin 就不要再发
+                if ($fresh->spin_rewarded) return;
+
+                $this->handlePurchasePoints($fresh);
+                $this->handleReferralPoints($fresh);
+                $this->handleSpinCredit($fresh);
+
+                // 最后才标记，确保上面成功才算完成
+                $fresh->update(['spin_rewarded' => true]);
+            });
         }
     }
 
@@ -59,5 +73,16 @@ class OrderObserver
             $points,
             'Purchase cashback (RM 1 = 1 point)'
         );
+    }
+
+    protected function handleSpinCredit(Order $order): void
+    {
+        $buyer = $order->user;
+        if (!$buyer) return;
+
+        if (!$buyer->is_verified) return;
+
+        // ✅ 买一次送一次（+1 credit）
+        $buyer->increment('spin_credits', 1);
     }
 }

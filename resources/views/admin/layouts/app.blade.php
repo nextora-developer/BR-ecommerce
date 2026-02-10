@@ -302,7 +302,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                     </svg>
-
                     <span x-show="!collapsed" class="text-sm tracking-tight">Users</span>
                     <div x-show="collapsed"
                         class="fixed left-20 ml-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
@@ -327,6 +326,28 @@
                         Agents
                     </div>
                 </a>
+
+                {{-- Single: Spin Rewards --}}
+                <a href="{{ route('admin.spin-rewards.index') }}"
+                    class="{{ $linkBase }} {{ request()->routeIs('admin.spin-rewards.*') ? $active : $idle }}">
+                    @if (request()->routeIs('admin.spin-rewards.*'))
+                        <span class="absolute left-[-16px] h-6 w-1 bg-[#D4AF37] rounded-r-full"></span>
+                    @endif
+
+                    <svg class="{{ $iconClass }}" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364-6.364-2.121 2.121M7.757 16.243l-2.121 2.121m0-12.728 2.121 2.121m10.486 10.486 2.121 2.121" />
+                    </svg>
+
+                    <span x-show="!collapsed" class="text-sm tracking-tight">Spin Rewards</span>
+
+                    <div x-show="collapsed"
+                        class="fixed left-20 ml-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                        Spin Rewards
+                    </div>
+                </a>
+
 
                 {{-- Single: Point Transaction --}}
                 <a href="{{ route('admin.points.index') }}"
