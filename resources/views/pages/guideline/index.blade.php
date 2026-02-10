@@ -35,6 +35,7 @@
                                 ['id' => 'verify', 'label' => 'Verify Account'],
                                 ['id' => 'kyc', 'label' => 'KYC Guide'],
                                 ['id' => 'language', 'label' => 'Switch Language'],
+                                ['id' => 'spin', 'label' => 'How to Play Spin Wheel'],
                             ];
                         @endphp
 
@@ -75,6 +76,10 @@
 
                     <div id="language" class="guide-section scroll-mt-48">
                         @include('pages.guideline._language')
+                    </div>
+
+                    <div id="spin" class="guide-section scroll-mt-48">
+                        @include('pages.guideline._spin_wheel')
                     </div>
 
 
