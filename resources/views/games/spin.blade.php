@@ -206,29 +206,42 @@
             box-shadow: 0 0 18px rgba(250, 204, 21, .75);
         }
 
-        .credits-box {
+        .spin-head {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .spin-head-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             padding: 10px 14px;
-            border-radius: 18px;
+            border-radius: 999px;
             background: rgba(0, 0, 0, .35);
             border: 1px solid rgba(255, 255, 255, .12);
-            color: rgba(255, 255, 255, .9);
-            text-align: right;
-            line-height: 1.1;
             box-shadow: 0 18px 55px rgba(0, 0, 0, .28);
+            color: rgba(255, 255, 255, .9);
         }
 
-        .credits-box .sub {
+
+
+        .spin-head-label {
             font-size: 12px;
-            opacity: .70;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            opacity: .85;
         }
 
-        .credits-box .num {
-            margin-top: 4px;
-            font-size: 30px;
+        .spin-head-num {
+            font-size: 22px;
             font-weight: 1000;
             color: #facc15;
             text-shadow: 0 14px 40px rgba(0, 0, 0, .55);
+            line-height: 1;
         }
+
 
         /* content grid */
         .arcade-grid {
@@ -410,13 +423,34 @@
             top: 50%;
             translate: -50% -50%;
             font-weight: 1000;
-            font-size: clamp(12px, 2.6vw, 16px);
+            font-size: 18px;
+            /* 你要小一点就 14~16 */
             letter-spacing: .02em;
-            color: rgba(255, 255, 255, .96);
-            text-shadow: 0 12px 22px rgba(0, 0, 0, .45);
+            color: #fff;
+            text-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+            /* 轻微立体感 */
             white-space: nowrap;
-            text-align: center;
             user-select: none;
+            pointer-events: none;
+        }
+
+        /* 默认（桌面 / 大屏） */
+        :root {
+            --label-radius: 120px;
+        }
+
+        /* 平板 */
+        @media (max-width: 1024px) {
+            :root {
+                --label-radius: 120px;
+            }
+        }
+
+        /* 手机 */
+        @media (max-width: 640px) {
+            :root {
+                --label-radius: 92px;
+            }
         }
 
         /* center button */
@@ -494,6 +528,29 @@
             background: rgba(250, 204, 21, .95);
             box-shadow: 0 0 14px rgba(250, 204, 21, .55);
         }
+
+        .mini-btn {
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(0, 0, 0, .32);
+            color: rgba(255, 255, 255, .88);
+            font-size: 11px;
+            font-weight: 1000;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform .12s ease, filter .12s ease, background .12s ease;
+        }
+
+        .mini-btn:hover {
+            filter: brightness(1.08);
+        }
+
+        .mini-btn:active {
+            transform: scale(.98);
+        }
+
 
         /* =========================
            MODAL
@@ -584,6 +641,63 @@
         .modal .ok:active {
             transform: scale(.99);
         }
+
+        /* scrollable modal content */
+        .modal .sub.scrollable {
+            max-height: min(55vh, 320px);
+            /* 桌面 + 手机都安全 */
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        /* scrollbar 美化（可选） */
+        .modal .sub.scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal .sub.scrollable::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .25);
+            border-radius: 999px;
+        }
+
+        .modal .sub.scrollable::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+
+        /* =========================
+            CONFETTI (WIN EFFECT)
+        ========================= */
+        .confetti {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 999;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 14px;
+            opacity: .95;
+            will-change: transform, opacity;
+            animation: confetti-fall linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translate3d(var(--x), var(--y), 0) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate3d(calc(var(--x) + var(--dx)),
+                        calc(var(--y) + 520px),
+                        0) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
     </style>
 
     <div class="arcade-page">
@@ -593,7 +707,7 @@
 
         <div class="arcade-shell">
 
-            <div class="arcade-top">
+            {{-- <div class="arcade-top">
                 <div class="brand-pill">
                     <span class="brand-dot"></span>
                     BRIF SPIN WHEEL
@@ -603,16 +717,23 @@
                     <div class="sub">Available Spins</div>
                     <div id="remainUI" class="num">{{ $credits }}</div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="arcade-grid">
                 {{-- LEFT: WHEEL --}}
                 <div class="panel">
                     <div class="panel-hd">
-                        <div class="panel-title">Spin Wheel</div>
+                        {{-- <div class="panel-title">Spin Wheel</div> --}}
                         <div class="status-pill">
                             <span class="status-dot"></span>
                             <span id="status">Ready</span>
+                        </div>
+
+                        <div class="spin-head">
+                            <div class="spin-head-pill">
+                                <span class="spin-head-label">Available Spins</span>
+                                <span id="remainUI" class="spin-head-num">{{ $credits }}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -627,21 +748,17 @@
                                     <div class="labels">
                                         @foreach ($items as $i => $r)
                                             @php
-                                                $angle = $i * $step;
-                                                $mid = $angle + $step / 2;
+                                                $mid = $i * $step + $step / 2; // 每块中线角度（0deg = 顶部）
+                                                $radius = 128; // 字离中心距离：可调 110~150
                                             @endphp
 
                                             <div class="label"
-                                                style="
-                                                    transform:
-                                                        rotate({{ $mid }}deg)
-                                                        translateY(calc(-1 * clamp(92px, 12vw, 140px)))
-                                                        rotate(-{{ $mid }}deg);
-                                                ">
+                                                style="--r: var(--label-radius);transform:rotate({{ $mid }}deg)translateY(calc(-1 * var(--r)));">
                                                 {{ $r->points }} pts
                                             </div>
                                         @endforeach
                                     </div>
+
 
                                     {{-- bulbs --}}
                                     <div id="bulbs" class="bulbs"></div>
@@ -654,9 +771,11 @@
                             </div>
                         </div>
 
-                        <div class="muted" style="text-align:center; font-size: 13px;">
-                            Tip: More purchases = more spins. Rewards are credited instantly.
+                        <div class="muted" style="text-align:center; font-size: 13px;  margin-top: 15px;">
+                            🎟️ Buy more, play more — earn more points!
                         </div>
+
+
                     </div>
                 </div>
 
@@ -666,8 +785,13 @@
                     <div class="panel">
                         <div class="panel-hd">
                             <div class="panel-title">Result Panel</div>
-                            <div class="panel-title" style="opacity:.65;">Live</div>
+
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <button type="button" class="mini-btn" data-open="howtoModal">How to Play</button>
+                                <button type="button" class="mini-btn" data-open="tcModal">T&amp;C</button>
+                            </div>
                         </div>
+
 
                         <div class="panel-body">
                             <div class="panel-title" style="opacity:.75;">Latest Result</div>
@@ -678,187 +802,355 @@
                         </div>
                     </div>
 
-                    {{-- Card 2: Rules --}}
+                    {{-- Card 2: Rewards --}}
                     <div class="panel">
                         <div class="panel-hd">
-                            <div class="panel-title">Rules</div>
+                            <div class="panel-title">Rewards</div>
                         </div>
 
                         <div class="panel-body">
                             <div class="muted" style="line-height:1.6; font-size:13px;">
-                                🎟️ <strong>Every spin consumes 1 chance.</strong><br>
-                                🎯 Watch the wheel stop to see what you win!<br>
-                                🔄 If something goes wrong, just try again.<br>
+                                🎁 <strong>Available Rewards</strong><br>
+                                Spin the wheel to win reward points.<br>
                                 <br>
-                                <strong>How to get chances:</strong> <br>
-                                Complete purchases or special activities to earn
-                                more spin chances.
+
+
+                                @foreach ($items->pluck('points')->unique()->sort()->values() as $pts)
+                                    • {{ $pts }} points<br>
+                                @endforeach
                             </div>
                         </div>
+
                     </div>
+
                 </div>
 
             </div>
-
         </div>
-    </div>
 
-    {{-- modal --}}
-    <div id="modal" class="modal">
-        <div class="bg"></div>
-        <div class="box">
-            <div class="kicker">Congratulations</div>
-            <div id="modalTitle" class="headline">—</div>
-            <div id="modalSub" class="sub">—</div>
-            <button id="modalOk" class="ok">OK</button>
+        {{-- modal --}}
+        <div id="modal" class="modal">
+            <div class="bg"></div>
+            <div class="box">
+                <div class="kicker">Congratulations</div>
+                <div id="modalTitle" class="headline">—</div>
+                <div id="modalSub" class="sub">—</div>
+                <button id="modalOk" class="ok">OK</button>
+            </div>
         </div>
-    </div>
 
-    <script>
-        (function() {
-            const wheel = document.getElementById('wheel');
-            const bulbs = document.getElementById('bulbs');
-            const btn = document.getElementById('spinBtn');
-            const status = document.getElementById('status');
-            const result = document.getElementById('result');
-            const remainUI = document.getElementById('remainUI');
+        {{-- How to Play modal --}}
+        <div id="howtoModal" class="modal modal-info">
+            <div class="bg" data-close="howtoModal"></div>
+            <div class="box">
+                <div class="kicker">How to Play</div>
+                <div class="headline" style="font-size:22px;">Spin & Earn Points</div>
+                <div class="sub" style="line-height:1.6;">
+                    1) This game is available to <strong>verified users only</strong>.<br>
+                    2) Complete a purchase with order status <strong>Completed</strong> to earn <strong>1 spin
+                        chance</strong>.<br>
+                    3) Check your <strong>Available Spins</strong> below the wheel.<br>
+                    4) Tap <strong>SPIN</strong> to play.<br>
+                    5) The wheel will stop automatically and show your result.<br>
+                    6) Reward points are credited instantly to your account.<br><br>
 
-            const modal = document.getElementById('modal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalSub = document.getElementById('modalSub');
-            const modalOk = document.getElementById('modalOk');
+                    💡 Tip: Each completed order gives you another chance to spin.
+                </div>
 
-            const n = {{ $items->count() }};
-            const step = 360 / n;
+                <button class="ok" data-close="howtoModal">OK</button>
+            </div>
+        </div>
 
-            let spinning = false;
-            let rotation = 0;
+        {{-- T&C modal --}}
+        <div id="tcModal" class="modal modal-info">
+            <div class="bg" data-close="tcModal"></div>
+            <div class="box">
+                <div class="kicker">Terms &amp; Conditions</div>
+                <div class="headline" style="font-size:22px;">Spin Wheel Rules</div>
 
-            // ✅ credits 由 server 扣；前端只显示
-            let credits = Number({{ (int) ($credits ?? 0) }});
+                <div class="sub scrollable" style="line-height:1.65;">
+                    <strong>1. Eligibility</strong><br>
+                    • This spin wheel feature is available to <strong>verified BRIF users only</strong>.<br>
+                    • Unverified accounts are not eligible to participate.<br><br>
 
-            function buildBulbs(count = 22) {
-                if (!bulbs) return;
-                bulbs.innerHTML = '';
-                const rect = bulbs.getBoundingClientRect();
-                const cx = rect.width / 2;
-                const cy = rect.height / 2;
-                const radius = Math.min(cx, cy) - 6;
+                    <strong>2. Spin Chances</strong><br>
+                    • Each spin consumes <strong>1</strong> spin chance.<br>
+                    • Users earn <strong>1 spin chance</strong> for every purchase with order status marked as
+                    <strong>Completed</strong>.<br>
+                    • Spin chances are credited after the order is successfully completed.<br><br>
 
-                for (let i = 0; i < count; i++) {
-                    const ang = (i / count) * Math.PI * 2;
-                    const x = cx + Math.cos(ang - Math.PI / 2) * radius;
-                    const y = cy + Math.sin(ang - Math.PI / 2) * radius;
+                    <strong>3. Rewards & Results</strong><br>
+                    • All spin results are generated and verified <strong>server-side</strong>.<br>
+                    • Results displayed on screen are final once confirmed.<br>
+                    • Reward points are credited instantly after a successful spin.<br><br>
 
-                    const d = document.createElement('div');
-                    d.className = 'bulb' + (i % 2 === 0 ? '' : ' dim');
-                    d.style.left = (x - 6) + 'px';
-                    d.style.top = (y - 6) + 'px';
-                    bulbs.appendChild(d);
+                    <strong>4. Reward Points</strong><br>
+                    • Reward points are non-transferable and have no cash value.<br>
+                    • Points may only be used according to BRIF’s reward and redemption rules.<br><br>
+
+                    <strong>5. Fair Use</strong><br>
+                    • Any attempt to abuse, automate, manipulate, or exploit the system is strictly prohibited.<br>
+                    • BRIF reserves the right to revoke rewards or suspend accounts involved in suspicious
+                    activity.<br><br>
+
+                    <strong>6. System Issues</strong><br>
+                    • In the event of system errors, network failures, or interruptions, BRIF reserves the right to
+                    review, adjust, or void affected results.<br><br>
+
+                    <strong>7. Modifications</strong><br>
+                    • BRIF reserves the right to modify, suspend, or terminate this feature at any time without prior
+                    notice.
+                </div>
+
+                <button class="ok" data-close="tcModal">OK</button>
+            </div>
+        </div>
+
+
+
+        <script>
+            (function() {
+                const wheel = document.getElementById('wheel');
+                const bulbs = document.getElementById('bulbs');
+                const btn = document.getElementById('spinBtn');
+                const status = document.getElementById('status');
+                const result = document.getElementById('result');
+                const remainUI = document.getElementById('remainUI');
+
+                const modal = document.getElementById('modal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalSub = document.getElementById('modalSub');
+                const modalOk = document.getElementById('modalOk');
+
+                const n = {{ $items->count() }};
+                const step = 360 / n;
+
+                let spinning = false;
+                let rotation = 0;
+
+                // ✅ credits 由 server 扣；前端只显示
+                let credits = Number({{ (int) ($credits ?? 0) }});
+
+                function buildBulbs(count = 22) {
+                    if (!bulbs) return;
+                    bulbs.innerHTML = '';
+                    const rect = bulbs.getBoundingClientRect();
+                    const cx = rect.width / 2;
+                    const cy = rect.height / 2;
+                    const radius = Math.min(cx, cy) - 6;
+
+                    for (let i = 0; i < count; i++) {
+                        const ang = (i / count) * Math.PI * 2;
+                        const x = cx + Math.cos(ang - Math.PI / 2) * radius;
+                        const y = cy + Math.sin(ang - Math.PI / 2) * radius;
+
+                        const d = document.createElement('div');
+                        d.className = 'bulb' + (i % 2 === 0 ? '' : ' dim');
+                        d.style.left = (x - 6) + 'px';
+                        d.style.top = (y - 6) + 'px';
+                        bulbs.appendChild(d);
+                    }
                 }
-            }
 
-            let blinkOn = false;
-            setInterval(() => {
-                if (!bulbs) return;
-                const all = bulbs.querySelectorAll('.bulb');
-                blinkOn = !blinkOn;
-                all.forEach((b, i) => {
-                    b.classList.toggle('dim', blinkOn ? (i % 2 === 0) : (i % 2 !== 0));
-                });
-            }, 260);
-
-            function openModal(title, sub) {
-                if (!modal) return;
-                modalTitle.textContent = title;
-                modalSub.textContent = sub;
-                modal.classList.add('show');
-            }
-
-            function closeModal() {
-                modal?.classList.remove('show');
-            }
-
-            modalOk?.addEventListener('click', closeModal);
-            modal?.querySelector('.bg')?.addEventListener('click', closeModal);
-
-            setTimeout(() => buildBulbs(22), 30);
-            window.addEventListener('resize', () => buildBulbs(22));
-
-            function setCredits(next) {
-                credits = Math.max(0, Number(next || 0));
-                if (remainUI) remainUI.textContent = String(credits);
-            }
-
-            async function spin() {
-                if (spinning) return;
-
-                if (credits <= 0) {
-                    status.textContent = 'No spins available';
-                    result.textContent = '—';
-                    return;
-                }
-
-                spinning = true;
-                btn.disabled = true;
-                status.textContent = 'Spinning...';
-                result.textContent = '—';
-
-                try {
-                    const res = await fetch("{{ route('games.spin.play') }}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            "Accept": "application/json",
-                        },
-                        body: JSON.stringify({})
+                let blinkOn = false;
+                setInterval(() => {
+                    if (!bulbs) return;
+                    const all = bulbs.querySelectorAll('.bulb');
+                    blinkOn = !blinkOn;
+                    all.forEach((b, i) => {
+                        b.classList.toggle('dim', blinkOn ? (i % 2 === 0) : (i % 2 !== 0));
                     });
+                }, 260);
 
-                    const data = await res.json().catch(() => ({}));
+                function openModal(title, sub) {
+                    if (!modal) return;
+                    modalTitle.textContent = title;
+                    modalSub.textContent = sub;
+                    modal.classList.add('show');
+                }
 
-                    if (!res.ok || !data.ok) {
-                        throw new Error(data.message || `Request failed (${res.status})`);
+                function closeModal() {
+                    modal?.classList.remove('show');
+                }
+
+                modalOk?.addEventListener('click', closeModal);
+                modal?.querySelector('.bg')?.addEventListener('click', closeModal);
+
+                setTimeout(() => buildBulbs(22), 30);
+                window.addEventListener('resize', () => buildBulbs(22));
+
+                function setCredits(next) {
+                    credits = Math.max(0, Number(next || 0));
+                    if (remainUI) remainUI.textContent = String(credits);
+                }
+
+                async function spin() {
+                    if (spinning) return;
+
+                    if (credits <= 0) {
+                        status.textContent = 'No spins available';
+                        result.textContent = '—';
+                        return;
                     }
 
-                    const idx = Number(data.landing_index ?? 0);
+                    spinning = true;
+                    btn.disabled = true;
+                    status.textContent = 'Spinning...';
+                    result.textContent = '—';
 
-                    // pointer 在 top，目标：把 idx 对应那块的中线转到 pointer
-                    const target = 360 - (idx * step + step / 2);
+                    try {
+                        const res = await fetch("{{ route('games.spin.play') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                "Accept": "application/json",
+                            },
+                            body: JSON.stringify({})
+                        });
 
-                    const spins = 7;
-                    const cur = ((rotation % 360) + 360) % 360;
+                        const data = await res.json().catch(() => ({}));
 
-                    let diff = target - cur;
-                    diff = ((diff % 360) + 360) % 360;
-
-                    rotation += spins * 360 + diff;
-                    wheel.style.transform = `rotate(${rotation}deg)`;
-
-                    setTimeout(() => {
-                        status.textContent = 'Done';
-                        result.textContent = `${data.reward.name} (+${data.reward.points} pts)`;
-
-                        if (data.credits_left != null) {
-                            setCredits(data.credits_left);
-                        } else {
-                            setCredits(credits - 1);
+                        if (!res.ok || !data.ok) {
+                            throw new Error(data.message || `Request failed (${res.status})`);
                         }
 
-                        openModal(data.reward.name, `You got +${data.reward.points} points.`);
+                        const idx = Number(data.landing_index ?? 0);
+
+                        // pointer 在 top，目标：把 idx 对应那块的中线转到 pointer
+                        const target = 360 - (idx * step + step / 2);
+
+                        const spins = 7;
+                        const cur = ((rotation % 360) + 360) % 360;
+
+                        let diff = target - cur;
+                        diff = ((diff % 360) + 360) % 360;
+
+                        rotation += spins * 360 + diff;
+                        wheel.style.transform = `rotate(${rotation}deg)`;
+
+                        setTimeout(() => {
+                            status.textContent = 'Done';
+                            result.textContent = `${data.reward.name} (+${data.reward.points} pts)`;
+
+                            if (data.credits_left != null) {
+                                setCredits(data.credits_left);
+                            } else {
+                                setCredits(credits - 1);
+                            }
+
+                            openModal(data.reward.name, `You got +${data.reward.points} points.`);
+                            fireConfettiSideBurst();
+                            spinning = false;
+                            btn.disabled = false;
+                        }, 4050);
+
+                    } catch (e) {
+                        status.textContent = 'Error';
+                        result.textContent = e?.message || 'Something went wrong';
                         spinning = false;
                         btn.disabled = false;
-                    }, 4050);
-
-                } catch (e) {
-                    status.textContent = 'Error';
-                    result.textContent = e?.message || 'Something went wrong';
-                    spinning = false;
-                    btn.disabled = false;
+                    }
                 }
-            }
 
-            btn?.addEventListener('click', spin);
-        })();
-    </script>
+                function fireConfettiSideBurst() {
+                    const modalBox = document.querySelector('#modal .box');
+                    if (!modalBox) return;
+
+                    const rect = modalBox.getBoundingClientRect();
+                    const ox = rect.left + rect.width / 2;
+                    const oy = rect.top + rect.height / 2;
+
+                    const container = document.createElement('div');
+                    container.className = 'confetti';
+                    document.body.appendChild(container);
+
+                    const colors = [
+                        '#facc15', '#22c55e', '#38bdf8',
+                        '#fb7185', '#a78bfa', '#fb923c', '#ffffff'
+                    ];
+
+                    const COUNT_PER_SIDE = 60; // 每一边的数量
+                    const SPREAD_X = 700; // 横向喷射距离
+                    const LIFT_Y = 120; // 初始往上冲的高度
+
+                    function createPiece(direction) {
+                        const p = document.createElement('div');
+                        p.className = 'confetti-piece';
+
+                        const size = Math.random() * 6 + 6;
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+
+                        // direction: -1 = 左喷，+1 = 右喷
+                        const dx =
+                            direction *
+                            (Math.random() * SPREAD_X * 0.6 + SPREAD_X * 0.4);
+
+                        const startY = oy - (Math.random() * LIFT_Y + 40);
+                        const rot = (Math.random() * 900 - 450) + 'deg';
+                        const dur = Math.random() * 0.8 + 1.8;
+
+                        p.style.background = color;
+                        p.style.width = size + 'px';
+                        p.style.height = size * 1.4 + 'px';
+
+                        p.style.left = '0';
+                        p.style.top = '0';
+
+                        p.style.setProperty('--x', ox + 'px');
+                        p.style.setProperty('--y', startY + 'px');
+                        p.style.setProperty('--dx', dx + 'px');
+                        p.style.setProperty('--rot', rot);
+                        p.style.animationDuration = dur + 's';
+
+                        container.appendChild(p);
+                    }
+
+                    // 左边喷
+                    for (let i = 0; i < COUNT_PER_SIDE; i++) {
+                        createPiece(-1);
+                    }
+
+                    // 右边喷
+                    for (let i = 0; i < COUNT_PER_SIDE; i++) {
+                        createPiece(1);
+                    }
+
+                    setTimeout(() => container.remove(), 2600);
+                }
+
+                // ===== Info modals (How to Play / T&C) =====
+                function openInfoModal(id) {
+                    const m = document.getElementById(id);
+                    if (!m) return;
+                    m.classList.add('show');
+                }
+
+                function closeInfoModal(id) {
+                    const m = document.getElementById(id);
+                    if (!m) return;
+                    m.classList.remove('show');
+                }
+
+                // open buttons
+                document.querySelectorAll('[data-open]').forEach(el => {
+                    el.addEventListener('click', () => openInfoModal(el.getAttribute('data-open')));
+                });
+
+                // close areas/buttons
+                document.querySelectorAll('[data-close]').forEach(el => {
+                    el.addEventListener('click', () => closeInfoModal(el.getAttribute('data-close')));
+                });
+
+                // ESC to close any open modal
+                window.addEventListener('keydown', (e) => {
+                    if (e.key !== 'Escape') return;
+                    document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+                });
+
+
+
+                btn?.addEventListener('click', spin);
+            })();
+        </script>
 </x-app-layout>

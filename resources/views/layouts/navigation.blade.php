@@ -313,21 +313,31 @@
                         <div x-cloak x-show="openMore"
                             class="absolute left-0 mt-2 w-56 rounded-2xl border border-white/10 bg-black/95 backdrop-blur shadow-xl ring-1 ring-black/40 overflow-hidden z-50">
                             <div class="p-1.5">
+
+                                @php
+                                    $linkBase = 'block px-4 py-2.5 text-sm rounded-xl transition';
+                                    $linkIdle = 'text-gray-300 hover:bg-white/10 hover:text-[#D4AF37]';
+                                    $linkActive = 'bg-white/10 text-[#D4AF37] ';
+                                @endphp
+
                                 <a href="{{ route('reward-point') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
+                                    class="{{ $linkBase }} {{ request()->routeIs('reward-point') ? $linkActive : $linkIdle }}">
                                     Reward Point
                                 </a>
+
                                 <a href="{{ route('acca.courses') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
+                                    class="{{ $linkBase }} {{ request()->routeIs('acca.courses') ? $linkActive : $linkIdle }}">
                                     ACCA Courses
                                 </a>
+
                                 <a href="{{ route('games.spin') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition
-                                    {{ request()->routeIs('games.*') ? 'bg-white/10 text-[#D4AF37]' : '' }}">
+                                    class="{{ $linkBase }} {{ request()->routeIs('games.spin') || request()->routeIs('games.spin.*') ? $linkActive : $linkIdle }}">
                                     Spin Game
                                 </a>
+
                             </div>
                         </div>
+
                     </div>
 
                     {{-- More --}}
@@ -345,20 +355,31 @@
                         <div x-cloak x-show="openMore"
                             class="absolute left-0 mt-2 w-56 rounded-2xl border border-white/10 bg-black/95 backdrop-blur shadow-xl ring-1 ring-black/40 overflow-hidden z-50">
                             <div class="p-1.5">
+
+                                @php
+                                    $linkBase = 'block px-4 py-2.5 text-sm rounded-xl transition';
+                                    $linkIdle = 'text-gray-300 hover:bg-white/10 hover:text-[#D4AF37]';
+                                    $linkActive = 'bg-white/10 text-[#D4AF37]';
+                                @endphp
+
                                 <a href="{{ route('guideline') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
+                                    class="{{ $linkBase }} {{ request()->routeIs('guideline') ? $linkActive : $linkIdle }}">
                                     Guideline
                                 </a>
+
                                 <a href="{{ route('faq') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
+                                    class="{{ $linkBase }} {{ request()->routeIs('faq') ? $linkActive : $linkIdle }}">
                                     FAQ
                                 </a>
+
                                 <a href="{{ route('agents.index') }}"
-                                    class="block px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-[#D4AF37] rounded-xl transition">
+                                    class="{{ $linkBase }} {{ request()->routeIs('agents.*') ? $linkActive : $linkIdle }}">
                                     Verify Agent
                                 </a>
+
                             </div>
                         </div>
+
                     </div>
 
                 </div>
@@ -733,21 +754,21 @@
                                     stroke-width="1.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0
-                                                                                                                                                                                                                                                       a1.724 1.724 0 002.573 1.066
-                                                                                                                                                                                                                                                       c1.543-.94 3.31.826 2.37 2.37
-                                                                                                                                                                                                                                                       a1.724 1.724 0 001.065 2.572
-                                                                                                                                                                                                                                                       c1.756.426 1.756 2.924 0 3.35
-                                                                                                                                                                                                                                                       a1.724 1.724 0 00-1.066 2.573
-                                                                                                                                                                                                                                                       c.94 1.543-.826 3.31-2.37 2.37
-                                                                                                                                                                                                                                                       a1.724 1.724 0 00-2.572 1.065
-                                                                                                                                                                                                                                                       c-.426 1.756-2.924 1.756-3.35 0
-                                                                                                                                                                                                                                                       a1.724 1.724 0 00-2.573-1.066
-                                                                                                                                                                                                                                                       c-1.543.94-3.31-.826-2.37-2.37
-                                                                                                                                                                                                                                                       a1.724 1.724 0 00-1.065-2.572
-                                                                                                                                                                                                                                                       c-1.756-.426-1.756-2.924 0-3.35
-                                                                                                                                                                                                                                                       a1.724 1.724 0 001.066-2.573
-                                                                                                                                                                                                                                                       c-.94-1.543.826-3.31 2.37-2.37
-                                                                                                                                                                                                                                                       a1.724 1.724 0 002.572-1.065z" />
+                                                                                                                                                                                                                                                               a1.724 1.724 0 002.573 1.066
+                                                                                                                                                                                                                                                               c1.543-.94 3.31.826 2.37 2.37
+                                                                                                                                                                                                                                                               a1.724 1.724 0 001.065 2.572
+                                                                                                                                                                                                                                                               c1.756.426 1.756 2.924 0 3.35
+                                                                                                                                                                                                                                                               a1.724 1.724 0 00-1.066 2.573
+                                                                                                                                                                                                                                                               c.94 1.543-.826 3.31-2.37 2.37
+                                                                                                                                                                                                                                                               a1.724 1.724 0 00-2.572 1.065
+                                                                                                                                                                                                                                                               c-.426 1.756-2.924 1.756-3.35 0
+                                                                                                                                                                                                                                                               a1.724 1.724 0 00-2.573-1.066
+                                                                                                                                                                                                                                                               c-1.543.94-3.31-.826-2.37-2.37
+                                                                                                                                                                                                                                                               a1.724 1.724 0 00-1.065-2.572
+                                                                                                                                                                                                                                                               c-1.756-.426-1.756-2.924 0-3.35
+                                                                                                                                                                                                                                                               a1.724 1.724 0 001.066-2.573
+                                                                                                                                                                                                                                                               c-.94-1.543.826-3.31 2.37-2.37
+                                                                                                                                                                                                                                                               a1.724 1.724 0 002.572-1.065z" />
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
