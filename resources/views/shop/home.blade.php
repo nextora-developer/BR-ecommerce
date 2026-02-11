@@ -141,8 +141,8 @@
         @include('shop.partials.new-arrivals')
         @include('shop.partials.popular-product')
         @include('shop.partials.reviews')
-        @include('shop.partials.trust-value')
         @include('shop.partials.voucher-promo')
+        @include('shop.partials.trust-value')
         @include('shop.partials.payment-methods')
         @include('shop.partials.bottom-cta')
     </div>
