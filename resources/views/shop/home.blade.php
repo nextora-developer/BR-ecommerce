@@ -122,8 +122,7 @@
                                             </div>
 
                                             <span
-                                                class="block text-[12px] sm:text-[13px] font-bold text-black/70 tracking-tight
-                           transition-colors duration-300 group-hover:text-black">
+                                                class="block text-[12px] sm:text-[13px] font-bold text-black/70 tracking-tight transition-colors duration-300 group-hover:text-black">
                                                 {{ $category->name }}
                                             </span>
                                         </a>
@@ -144,6 +143,7 @@
         @include('shop.partials.reviews')
         @include('shop.partials.trust-value')
         @include('shop.partials.voucher-promo')
+        @include('shop.partials.payment-methods')
         @include('shop.partials.bottom-cta')
     </div>
 

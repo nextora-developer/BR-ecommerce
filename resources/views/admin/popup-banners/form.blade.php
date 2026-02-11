@@ -8,7 +8,7 @@
                 {{ $banner->exists ? 'Edit Popup Banner' : 'Create Popup Banner' }}
             </h1>
             <p class="text-sm text-gray-500 mt-1">
-                Recommended size: <strong>700 × 900 px</strong> (Popup Modal)
+                Recommended size: <strong>700×800px or 800x800px</strong> (Popup Modal)
             </p>
         </div>
 

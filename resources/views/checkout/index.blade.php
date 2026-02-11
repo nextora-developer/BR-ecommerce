@@ -693,15 +693,9 @@
                                                                         class="h-7">
                                                                     <img src="/images/payments/grabpay.png"
                                                                         class="h-7">
-                                                                    <img src="/images/payments/grabpaylater.png"
-                                                                        class="h-7">
                                                                     <img src="/images/payments/boost.png"
                                                                         class="h-7">
-                                                                    <img src="/images/payments/boostpaylater.png"
-                                                                        class="h-7">
                                                                     <img src="/images/payments/shopeepay.png"
-                                                                        class="h-7">
-                                                                    <img src="/images/payments/spaylater.png"
                                                                         class="h-7">
                                                                     <img src="/images/payments/alipay.png"
                                                                         class="h-7">

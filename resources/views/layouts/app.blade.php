@@ -102,19 +102,10 @@
                             <img src="/images/payments/grabpay.png" alt="GRABPAY"
                                 class="h-6" />
 
-                            <img src="/images/payments/grabpaylater.png" alt="GRABPAYLATER"
-                                class="h-6" />
-
                             <img src="/images/payments/boost.png" alt="BOOST"
                                 class="h-6" />
 
-                            <img src="/images/payments/boostpaylater.png" alt="BOOSTPAYLATER"
-                                class="h-6" />
-
                             <img src="/images/payments/shopeepay.png" alt="SHOPEEPAY"
-                                class="h-6" />
-
-                            <img src="/images/payments/spaylater.png" alt="SPAYLATER"
                                 class="h-6" />
 
                             <img src="/images/payments/alipay.png" alt="ALIPAY"
