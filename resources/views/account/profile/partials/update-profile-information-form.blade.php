@@ -73,7 +73,7 @@
         {{-- Name --}}
         <div>
             <label for="name" class="block text-sm text-gray-500 mb-1">
-                {{ __('Name') }}
+                {{ __('Full Name') }}
             </label>
 
             <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}"

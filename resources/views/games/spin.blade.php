@@ -814,12 +814,12 @@
                                 Spin the wheel to win reward points.<br>
                                 <br>
 
-
-                                @foreach ($items->pluck('points')->unique()->sort()->values() as $pts)
-                                    • {{ $pts }} points<br>
+                                @foreach ($items->pluck('name')->unique()->sort()->values() as $name)
+                                    • {{ $name }}<br>
                                 @endforeach
                             </div>
                         </div>
+
 
                     </div>
 

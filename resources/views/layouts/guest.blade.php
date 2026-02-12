@@ -18,13 +18,14 @@
 </head>
 
 <body class="font-sans text-gray-900 antialiased">
-    <div
-        class="min-h-[100svh] flex items-center justify-center px-4 py-10
+    <div class="min-h-[100svh] flex items-center justify-center px-4 py-10
                bg-[#F9F7F2]">
 
-        <div class="w-full max-w-6xl mx-auto px-4">
+        <div class="w-full lg:max-w-6xl lg:mx-auto lg:px-4">
             {{ $slot }}
         </div>
+
+
     </div>
 </body>
 

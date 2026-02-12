@@ -28,7 +28,7 @@
 
                 {{-- RIGHT REGISTER FORM --}}
                 <div class="lg:col-span-7 xl:col-span-7 h-full bg-white flex items-center px-8 py-10 sm:px-16">
-                    <div class="w-full max-w-sm mx-auto">
+                    <div class="w-full max-w-md mx-auto">
 
                         <div class="mb-8 text-center lg:text-left">
                             <div class="inline-flex items-center gap-3 mb-4">
@@ -50,18 +50,24 @@
                             {{-- Full Name (full row) --}}
                             <div class="group">
                                 <label
-                                    class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1
-                   group-focus-within:text-[#D4AF37] transition-colors">
+                                    class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 group-focus-within:text-[#D4AF37] transition-colors">
                                     Full Name
                                 </label>
                                 <input id="name" type="text" name="name" value="{{ old('name') }}" required
-                                    autofocus placeholder="John Doe"
+                                    autofocus placeholder="Abdul Fattah bin Mohd Amin"
                                     class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100
-                   focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5
-                   outline-none transition-all duration-300 text-gray-900 placeholder:text-gray-300" />
+           focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5
+           outline-none transition-all duration-300 text-gray-900 placeholder:text-gray-300" />
+
+                                <p class="mt-1 ml-1 text-[12px] text-red-400">
+                                    Please enter your <span class="font-semibold">full legal name</span>, not a
+                                    username.
+                                </p>
+
                                 @error('name')
                                     <p class="text-xs text-red-500 mt-2 ml-1">{{ $message }}</p>
                                 @enderror
+
                             </div>
 
                             {{-- Two-column row --}}

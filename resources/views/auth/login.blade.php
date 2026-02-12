@@ -19,7 +19,7 @@
                         {{-- fallback --}}
                         <div id="luxury-placeholder"
                             class="hidden absolute inset-0 items-center justify-center
-                   border-2 border-dashed border-white/30 bg-[#D4AF37]/30">
+                                   border-2 border-dashed border-white/30 bg-[#D4AF37]/30">
                             <span class="text-white/60 text-[11px] font-bold uppercase tracking-widest">
                                 Asset: login-figures.png
                             </span>
