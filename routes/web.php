@@ -225,6 +225,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::post('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
     Route::get('orders/{order}/invoice/pdf', [AdminOrderInvoiceController::class, 'pdf'])->name('orders.invoice.pdf');
+    Route::post('/admin/orders/bulk-update', [AdminOrderController::class, 'bulkUpdateStatus'])->name('orders.bulk-update');
 
     Route::resource('users', AdminUserController::class)
         ->only(['index', 'show', 'edit', 'update']);

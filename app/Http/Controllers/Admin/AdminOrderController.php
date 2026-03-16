@@ -170,4 +170,45 @@ class AdminOrderController extends Controller
 
         return back()->with('success', 'Order status updated.');
     }
+
+    public function bulkUpdateStatus(Request $request)
+    {
+        $allowedStatuses = ['pending', 'processing', 'cancelled', 'failed'];
+
+        $request->validate([
+            'orders' => ['required', 'array'],
+            'orders.*' => ['exists:orders,id'],
+            'bulk_status' => ['required', Rule::in($allowedStatuses)],
+        ]);
+
+        $status = $request->bulk_status;
+
+        $orders = Order::whereIn('id', $request->orders)->get();
+
+        foreach ($orders as $order) {
+
+            $oldStatus = $order->status;
+
+            $order->update([
+                'status' => $status
+            ]);
+
+            if ($oldStatus !== $status && $order->customer_email) {
+
+                try {
+
+                    Mail::to($order->customer_email)
+                        ->send(new OrderStatusUpdatedMail($order, $oldStatus, $status));
+                } catch (\Throwable $e) {
+
+                    Log::error('Bulk order email failed', [
+                        'order_no' => $order->order_no,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+        return back()->with('success', 'Orders updated successfully');
+    }
 }
