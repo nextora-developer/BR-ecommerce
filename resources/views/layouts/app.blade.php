@@ -3,7 +3,14 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#D4AF37">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="BRIF.MY">
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'BRIF.MY') }}</title>
@@ -87,38 +94,27 @@
 
                         {{-- Payment Methods --}}
                         <div class="flex items-center gap-4 flex-wrap">
-                            <img src="/images/payments/fpx.png" alt="FPX"
-                                class="h-6" />
+                            <img src="/images/payments/fpx.png" alt="FPX" class="h-6" />
 
-                            <img src="/images/payments/visa.png" alt="Visa"
-                                class="h-6" />
+                            <img src="/images/payments/visa.png" alt="Visa" class="h-6" />
 
-                            <img src="/images/payments/mastercard.png" alt="Mastercard"
-                                class="h-6" />
+                            <img src="/images/payments/mastercard.png" alt="Mastercard" class="h-6" />
 
-                            <img src="/images/payments/tng.png" alt="TNG"
-                                class="h-6" />
+                            <img src="/images/payments/tng.png" alt="TNG" class="h-6" />
 
-                            <img src="/images/payments/grabpay.png" alt="GRABPAY"
-                                class="h-6" />
+                            <img src="/images/payments/grabpay.png" alt="GRABPAY" class="h-6" />
 
-                            <img src="/images/payments/boost.png" alt="BOOST"
-                                class="h-6" />
+                            <img src="/images/payments/boost.png" alt="BOOST" class="h-6" />
 
-                            <img src="/images/payments/shopeepay.png" alt="SHOPEEPAY"
-                                class="h-6" />
+                            <img src="/images/payments/shopeepay.png" alt="SHOPEEPAY" class="h-6" />
 
-                            <img src="/images/payments/alipay.png" alt="ALIPAY"
-                                class="h-6" />
+                            <img src="/images/payments/alipay.png" alt="ALIPAY" class="h-6" />
 
-                            <img src="/images/payments/wechatpay.png" alt="WECHATPAY"
-                                class="h-6" />
+                            <img src="/images/payments/wechatpay.png" alt="WECHATPAY" class="h-6" />
 
-                            <img src="/images/payments/mae.png" alt="MAE"
-                                class="h-6" />
+                            <img src="/images/payments/mae.png" alt="MAE" class="h-6" />
 
-                            <img src="/images/payments/mcash.png" alt="MCASH"
-                                class="h-6" />
+                            <img src="/images/payments/mcash.png" alt="MCASH" class="h-6" />
                         </div>
                     </div>
 
@@ -672,6 +668,20 @@
 
 
     @stack('scripts')
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registered:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 
 </html>
