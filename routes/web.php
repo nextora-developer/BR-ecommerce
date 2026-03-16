@@ -42,6 +42,7 @@ use App\Http\Controllers\AccountOrderInvoiceController;
 use App\Http\Controllers\HitpayController;
 use App\Http\Controllers\RevenueMonsterController;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 
@@ -324,5 +325,23 @@ Route::get('/pay/rm/{order}', [RevenueMonsterController::class, 'pay'])
 
 Route::get('/payment/rm/return', [RevenueMonsterController::class, 'handleReturn'])
     ->name('payment.rm.return');
+
+
+Route::get('/system/test-mail', function (Request $request) {
+
+    // simple security
+    if ($request->key !== 'brifmailtest123') {
+        abort(403);
+    }
+
+    Mail::raw('BRIF Mail System Test - SMTP working', function ($message) {
+        $message->to('brinnovategroup@gmail.com')
+            ->subject('BRIF SMTP TEST');
+    });
+
+    return response()->json([
+        'status' => 'mail_sent_attempted'
+    ]);
+});
 
 require __DIR__ . '/auth.php';
