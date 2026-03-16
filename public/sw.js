@@ -1,6 +1,6 @@
-const CACHE_NAME = "brif-pwa-v2";
+const CACHE_NAME = "brif-pwa-v3";
 
-const urlsToCache = [
+const STATIC_ASSETS = [
     "/manifest.json",
     "/images/icon-192.png",
     "/images/icon-512.png",
@@ -8,8 +8,9 @@ const urlsToCache = [
 
 self.addEventListener("install", (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)),
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)),
     );
+    self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -30,20 +31,45 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
     const request = event.request;
 
-    if (request.method !== "GET") {
-        return;
-    }
+    if (request.method !== "GET") return;
 
+    const acceptHeader = request.headers.get("accept") || "";
     const url = new URL(request.url);
 
-    // 不要缓存 HTML 页面 / 登录相关页面
-    if (request.headers.get("accept")?.includes("text/html")) {
-        event.respondWith(fetch(request));
+    // HTML 页面永远走网络，不走 cache
+    if (acceptHeader.includes("text/html")) {
+        event.respondWith(fetch(request).catch(() => caches.match(request)));
         return;
     }
 
-    // 静态资源才走 cache
-    event.respondWith(
-        caches.match(request).then((response) => response || fetch(request)),
-    );
+    // 只缓存同域静态资源
+    if (
+        url.origin === location.origin &&
+        (url.pathname.startsWith("/build/") ||
+            url.pathname.startsWith("/images/") ||
+            url.pathname.endsWith(".css") ||
+            url.pathname.endsWith(".js") ||
+            url.pathname.endsWith(".png") ||
+            url.pathname.endsWith(".jpg") ||
+            url.pathname.endsWith(".jpeg") ||
+            url.pathname.endsWith(".svg") ||
+            url.pathname.endsWith(".webp") ||
+            url.pathname.endsWith(".woff") ||
+            url.pathname.endsWith(".woff2"))
+    ) {
+        event.respondWith(
+            caches.match(request).then((cached) => {
+                return (
+                    cached ||
+                    fetch(request).then((response) => {
+                        const responseClone = response.clone();
+                        caches
+                            .open(CACHE_NAME)
+                            .then((cache) => cache.put(request, responseClone));
+                        return response;
+                    })
+                );
+            }),
+        );
+    }
 });
