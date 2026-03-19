@@ -68,11 +68,11 @@
                                                 viewBox="0 0 24 24" class="h-6 w-6">
                                                 <path
                                                     d="M12 21.35l-1.45-1.32C5.4 15.36
-                                                                                                                       2 12.28 2 8.5 2 5.42 4.42
-                                                                                                                       3 7.5 3c1.74 0 3.41.81 4.5
-                                                                                                                       2.09C13.09 3.81 14.76 3 16.5
-                                                                                                                       3 19.58 3 22 5.42 22 8.5c0
-                                                                                                                       3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                                                                                                               2 12.28 2 8.5 2 5.42 4.42
+                                                                                                                                               3 7.5 3c1.74 0 3.41.81 4.5
+                                                                                                                                               2.09C13.09 3.81 14.76 3 16.5
+                                                                                                                                               3 19.58 3 22 5.42 22 8.5c0
+                                                                                                                                               3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                             </svg>
                                         </button>
                                     </form>
@@ -366,8 +366,13 @@
 
                             <hr class="border-gray-100 mb-8">
 
+                            @php
+                                $canAddToCart = auth()->check() && auth()->user()->is_verified;
+                            @endphp
+
                             {{-- Add to Cart + Variant Form（完整功能版） --}}
-                            <form method="POST" action="{{ route('cart.add', $product) }}" class="space-y-8">
+                            <form method="POST" action="{{ route('cart.add', $product) }}" class="space-y-8"
+                                data-can-add-to-cart="{{ $canAddToCart ? '1' : '0' }}">
                                 @csrf
 
                                 {{-- Variants：用你原本的 variantMap 结构 --}}
@@ -444,16 +449,77 @@
                                             class="block text-[11px] font-bold uppercase tracking-widest text-transparent mb-3">
                                             &nbsp;
                                         </label>
-                                        <button type="submit"
-                                            class="w-full h-14 bg-[#1a1a1a] text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-black/10 flex items-center justify-center gap-3 group">
-                                            <span>Add to Cart</span>
-                                            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                            </svg>
+                                        <button type="submit" @disabled(!$canAddToCart)
+                                            class="w-full h-14 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 group
+    {{ $canAddToCart
+        ? 'bg-[#1a1a1a] text-white hover:bg-black shadow-black/10'
+        : 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none' }}">
+                                            <span>{{ $canAddToCart ? 'Add to Cart' : 'Verified Account Required' }}</span>
+
+                                            @if ($canAddToCart)
+                                                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                </svg>
+                                            @endif
                                         </button>
                                     </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    @if (!auth()->check())
+                                        {{-- Login Required Prompt --}}
+                                        <div
+                                            class="flex items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm backdrop-blur-sm">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="flex-shrink-0 w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-bold text-amber-900">Authentication Required
+                                                    </p>
+                                                    <p class="text-xs text-amber-700/80">Please login to add this
+                                                        product to your cart.</p>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('login') }}"
+                                                class="whitespace-nowrap px-4 py-2 rounded-lg bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition-colors shadow-sm shadow-amber-200">
+                                                Login Now
+                                            </a>
+                                        </div>
+                                    @elseif (!auth()->user()->is_verified)
+                                        {{-- Verification Required Prompt --}}
+                                        <div
+                                            class="flex items-center justify-between gap-4 rounded-2xl border border-red-200 bg-red-50/50 p-4 shadow-sm backdrop-blur-sm">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="flex-shrink-0 w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-bold text-red-900">Account Not Verified</p>
+                                                    <p class="text-xs text-red-700/80">Verification is required for
+                                                        purchasing.</p>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('account.profile.edit') }}"
+                                                class="whitespace-nowrap px-4 py-2 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors shadow-sm shadow-red-200">
+                                                Verify Now
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
                             </form>
                         </div>
@@ -776,12 +842,13 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             // ===== Variant logic =====
-            // ===== Variant 组合选择逻辑（Color / Size 分组） =====
             const picker = document.getElementById('variant-picker');
             const variantInput = document.getElementById('variant_id');
             const statusEl = document.getElementById('variant-status');
             const priceEl = document.querySelector('[data-product-price]');
-            const addBtn = document.querySelector('form[action*="cart.add"] button[type="submit"]');
+            const formEl = document.querySelector('form[action*="cart.add"]');
+            const addBtn = formEl?.querySelector('button[type="submit"]');
+            const canAddToCart = formEl?.dataset.canAddToCart === '1';
 
             // 只要有 variant block 才跑
             if (!picker || !variantInput) return;
@@ -789,7 +856,6 @@
             // ---------- 1. 拿 variants，并处理 options 结构 ----------
             const raw = JSON.parse(picker.dataset.variants || '[]');
 
-            // 兼容：options 可能是 object，也可能是 JSON 字符串
             function normalizeOptions(opts) {
                 if (!opts) return {};
                 if (typeof opts === 'string') {
@@ -803,21 +869,21 @@
             }
 
             // 把 {"label":"Color / Size","value":"red / M"} 转成：
-            // optionsMap = { Color: "red", Size: "M" }
+            // optionsMap = { color: "red", size: "M" }
             function buildOptionsMap(variant) {
                 const optRaw = normalizeOptions(variant.options);
-                const labelStr = (optRaw.label || '').trim(); // "Color / Size"
-                const valueStr = (optRaw.value || '').trim(); // "red / M"
+                const labelStr = (optRaw.label || '').trim();
+                const valueStr = (optRaw.value || '').trim();
 
-                const labelParts = labelStr.split('/').map(s => s.trim()).filter(Boolean); // ["Color","Size"]
-                const valueParts = valueStr.split('/').map(s => s.trim()).filter(Boolean); // ["red","M"]
+                const labelParts = labelStr.split('/').map(s => s.trim()).filter(Boolean);
+                const valueParts = valueStr.split('/').map(s => s.trim()).filter(Boolean);
 
                 const map = {};
                 labelParts.forEach((label, index) => {
                     if (!label) return;
                     const val = valueParts[index];
                     if (val === undefined) return;
-                    map[label.toLowerCase()] = val; // key 统一用小写，方便比对
+                    map[label.toLowerCase()] = val;
                 });
 
                 return map;
@@ -829,7 +895,7 @@
             }));
 
             const pills = Array.from(picker.querySelectorAll('.variant-pill'));
-            const selections = {}; // 例如 { Color: "red", Size: "M" }
+            const selections = {};
 
             // 一开始先禁止下单
             if (addBtn) {
@@ -837,7 +903,7 @@
                 addBtn.classList.add('opacity-60', 'cursor-not-allowed');
             }
 
-            // 从 DOM 拿所有 option key：["Color","Size"]
+            // 从 DOM 拿所有 option key
             const optionKeys = Array.from(
                     picker.querySelectorAll('[data-option-key]')
                 )
@@ -866,13 +932,11 @@
             function findVariant() {
                 if (!variants.length) return null;
 
-                // 必须所有 option 都选好
                 const allSelected = optionKeys.every(k => selections[k]);
                 if (!allSelected) return null;
 
                 return variants.find(v => {
                     const map = v._optionsMap || {};
-                    // 每个 key 用小写匹配
                     return optionKeys.every(key => {
                         const want = (selections[key] || '').toLowerCase();
                         const have = (map[key.toLowerCase()] || '').toLowerCase();
@@ -885,6 +949,7 @@
                 refreshPills();
                 const variant = findVariant();
 
+                // 未找到 variant / 还没选完
                 if (!variant) {
                     variantInput.value = '';
 
@@ -907,6 +972,7 @@
                         addBtn.disabled = true;
                         addBtn.classList.add('opacity-60', 'cursor-not-allowed');
                     }
+
                     return;
                 }
 
@@ -926,28 +992,26 @@
 
                 if (addBtn) {
                     const outOfStock = variant.stock !== undefined && Number(variant.stock) <= 0;
-                    addBtn.disabled = outOfStock;
-                    addBtn.classList.toggle('opacity-60', outOfStock);
-                    addBtn.classList.toggle('cursor-not-allowed', outOfStock);
+                    const shouldDisable = !canAddToCart || outOfStock;
+
+                    addBtn.disabled = shouldDisable;
+                    addBtn.classList.toggle('opacity-60', shouldDisable);
+                    addBtn.classList.toggle('cursor-not-allowed', shouldDisable);
+
+                    if (!canAddToCart && statusEl) {
+                        statusEl.textContent = 'Your account must be verified before adding this product to cart.';
+                        statusEl.classList.remove('text-gray-500');
+                        statusEl.classList.add('text-red-500');
+                    }
+
+                    if (outOfStock && statusEl) {
+                        statusEl.textContent = 'This variant is out of stock.';
+                        statusEl.classList.remove('text-gray-500');
+                        statusEl.classList.add('text-red-500');
+                    }
                 }
             }
 
-            // 点击 Color / Size 的 pill 时更新 selections
-            // pills.forEach(btn => {
-            //     btn.addEventListener('click', () => {
-            //         const key = btn.dataset.optionKey; // "Color" 或 "Size"
-            //         const value = btn.dataset.optionValue; // "red" 或 "M"
-
-            //         // 再点一次同一个可以取消选中，你不想取消就把这一段 if 删掉
-            //         if (selections[key] === value) {
-            //             delete selections[key];
-            //         } else {
-            //             selections[key] = value;
-            //         }
-
-            //         updateState();
-            //     });
-            // });
             let touchTriggered = false;
 
             function pickFromBtn(btn) {
@@ -964,31 +1028,25 @@
             }
 
             pills.forEach(btn => {
-                // ✅ iOS / Android：第一下就生效（不靠 click）
                 btn.addEventListener('touchstart', (e) => {
                     touchTriggered = true;
-                    // 只在 touchstart 阻止默认（避免 iOS hover 机制）
                     e.preventDefault();
                     pickFromBtn(e.currentTarget);
                 }, {
                     passive: false
                 });
 
-                // ✅ 桌面/鼠标：正常 click
                 btn.addEventListener('click', (e) => {
-                    // 如果刚刚是 touchstart 触发的，就跳过合成 click
                     if (touchTriggered) return;
                     pickFromBtn(e.currentTarget);
                 });
 
-                // ✅ 手指离开后清掉 flag（避免下一次 click 被误伤）
                 btn.addEventListener('touchend', () => {
                     setTimeout(() => (touchTriggered = false), 0);
                 });
             });
 
-
-
+            updateState();
         });
     </script>
 
