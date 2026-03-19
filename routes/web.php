@@ -103,13 +103,12 @@ Route::get('/terms-of-service', [PageController::class, 'terms'])->name('terms')
 Route::post('/voucher/apply', [VoucherController::class, 'apply'])->name('voucher.apply');
 Route::post('/voucher/remove', [VoucherController::class, 'remove'])->name('voucher.remove');
 
-Route::get('/verify-agent', [PublicAgentController::class, 'index'])
-    ->name('agents.index');
-Route::get('/verify-agent/pdf', [PublicAgentController::class, 'pdf'])
-    ->name('agents.verify.pdf');
+Route::get('/verify-agent', [PublicAgentController::class, 'index']) ->name('agents.index');
+Route::get('/verify-agent/pdf', [PublicAgentController::class, 'pdf']) ->name('agents.verify.pdf');
 
-Route::get('/acca-professional-courses', [PageController::class, 'accaCourses'])
-    ->name('acca.courses');
+Route::get('/acca-professional-courses', [PageController::class, 'accaCourses']) ->name('acca.courses');
+
+Route::get('/revenue-monster', [PageController::class, 'revenueMonster']) ->name('revenue.monster');
 
 
 /*

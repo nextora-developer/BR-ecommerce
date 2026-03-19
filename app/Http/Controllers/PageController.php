@@ -46,6 +46,11 @@ class PageController extends Controller
         return view('pages.terms');
     }
 
+    public function revenueMonster()
+    {
+        return view('pages.revenue-monster');
+    }
+
 
 
     public function accaCourses()
