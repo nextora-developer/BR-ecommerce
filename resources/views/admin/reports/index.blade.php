@@ -2,66 +2,104 @@
 
 @section('content')
     {{-- Header --}}
-    {{-- Header --}}
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-10">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Analytics Overview</h1>
-            {{-- <p class="text-sm text-gray-500 mt-1">
-                Real-time insight into your sales performance and customer growth.
-            </p> --}}
-        </div>
+    <div class="mb-10 space-y-4">
+        {{-- Top Bar --}}
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+                    Analytics Overview
+                </h1>
+                <p class="text-sm text-gray-500 mt-1">
+                    Track sales, rewards usage, and export reports by date range.
+                </p>
+            </div>
 
-        {{-- Filters --}}
-        <div class="flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto justify-end">
             {{-- Quick Range --}}
-            <div
-                class="inline-flex p-1 bg-gray-100/50 rounded-2xl border border-gray-200/60 backdrop-blur-sm self-stretch md:self-auto">
+            <div class="inline-flex p-1 bg-white border border-gray-200 rounded-2xl shadow-sm self-start lg:self-auto">
                 @foreach (['today' => 'Today', '7d' => '7 Days', '30d' => '30 Days'] as $val => $label)
-                    <a href="{{ route('admin.reports.index', ['range' => $val]) }}"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 {{ ($activeRange ?? '30d') === $val ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                    <a href="{{ route('admin.reports.index', array_merge(request()->except(['page']), ['range' => $val])) }}"
+                        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200
+                    {{ ($activeRange ?? '30d') === $val
+                        ? 'bg-gray-900 text-white shadow-sm'
+                        : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50' }}">
                         {{ $label }}
                     </a>
                 @endforeach
             </div>
+        </div>
 
-            {{-- Date Range + Apply + Export --}}
-            <form method="GET" action="{{ route('admin.reports.index') }}" class="flex items-center gap-2 justify-end">
+        {{-- Filter + Export Toolbar --}}
+        <div class="bg-white border border-gray-200 rounded-[2rem] shadow-sm p-4 md:p-5">
+            <form method="GET" action="{{ route('admin.reports.index') }}" class="space-y-4">
                 <input type="hidden" name="range" value="custom">
 
-                {{-- Date inputs --}}
-                <div
-                    class="flex items-center bg-white border border-gray-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#D4AF37]/20">
-                    <input type="date" name="start_date" value="{{ request('start_date') }}"
-                        class="border-none text-xs bg-transparent py-1 focus:ring-0 min-w-[110px]">
-                    <span class="text-gray-300 px-1 text-xs">/</span>
-                    <input type="date" name="end_date" value="{{ request('end_date') }}"
-                        class="border-none text-xs bg-transparent py-1 focus:ring-0 min-w-[110px]">
+                {{-- Row 1: Date Filter --}}
+                <div class="flex flex-col xl:flex-row xl:items-center gap-3">
+                    <div class="flex-1">
+                        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
+                            Custom Date Range
+                        </p>
+
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#D4AF37]/20">
+                            <input type="date" name="start_date" value="{{ request('start_date') }}"
+                                class="border-none text-sm bg-transparent py-1 focus:ring-0 w-full min-w-0">
+                            <span class="hidden sm:inline text-gray-300 px-1 text-xs shrink-0">to</span>
+                            <input type="date" name="end_date" value="{{ request('end_date') }}"
+                                class="border-none text-sm bg-transparent py-1 focus:ring-0 w-full min-w-0">
+                        </div>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button type="submit"
+                            class="w-full xl:w-auto inline-flex items-center justify-center px-5 py-3 mt-4 rounded-2xl text-sm font-bold
+                        bg-[#D4AF37] hover:bg-[#bfa032] text-white shadow-lg shadow-[#D4AF37]/20
+                        transition-all active:scale-95 whitespace-nowrap">
+                            Apply Filter
+                        </button>
+                    </div>
                 </div>
 
-                {{-- Apply --}}
-                <button type="submit"
-                    class="bg-[#D4AF37] hover:bg-[#bfa032] text-white px-5 py-2 rounded-2xl text-xs font-bold shadow-lg shadow-[#D4AF37]/20 transition-all active:scale-95 whitespace-nowrap">
-                    Apply
-                </button>
+                {{-- Row 2: Export Actions --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                    {{-- Sales Export --}}
+                    <button type="submit" formaction="{{ route('admin.reports.export') }}" formmethod="GET"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl
+                    text-sm font-bold text-white bg-[#217346] border border-[#1b5c39]
+                    hover:bg-[#1b5c39] active:scale-95 shadow-lg shadow-[#217346]/25 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                        </svg>
+                        Export Sales CSV
+                    </button>
 
-                {{-- Export CSV：同一个 form，只是换 action --}}
-                <button type="submit" formaction="{{ route('admin.reports.export') }}" formmethod="GET"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl
-                        text-xs font-bold whitespace-nowrap
-                        text-white
-                        bg-[#217346]
-                        border border-[#1b5c39]
-                        hover:bg-[#1b5c39]
-                        active:scale-95
-                        shadow-lg shadow-[#217346]/25
-                        transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-                    </svg>
-                    Export CSV
-                </button>
+                    {{-- Rewards Mode --}}
+                    <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl px-3 py-2 shadow-sm">
+                        <label class="text-xs font-bold text-gray-500 whitespace-nowrap">
+                            Rewards Mode
+                        </label>
+                        <select name="mode"
+                            class="w-full bg-transparent border-none text-sm font-bold text-gray-700 focus:ring-0">
+                            <option value="daily" {{ request('mode', 'daily') === 'daily' ? 'selected' : '' }}>Daily
+                            </option>
+                            <option value="monthly" {{ request('mode') === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                        </select>
+                    </div>
 
+                    {{-- Rewards Export --}}
+                    <button type="submit" formaction="{{ route('admin.reports.order-referral-rewards.export') }}"
+                        formmethod="GET"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl
+                    text-sm font-bold text-white bg-indigo-600 border border-indigo-700
+                    hover:bg-indigo-700 active:scale-95 shadow-lg shadow-indigo-600/20 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                        </svg>
+                        Export Rewards Report
+                    </button>
+                </div>
             </form>
         </div>
     </div>

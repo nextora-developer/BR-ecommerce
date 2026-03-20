@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\PointTransaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -81,7 +82,6 @@ class AdminReportController extends Controller
             ->whereBetween('created_at', [$start, $end])
             ->count();
 
-        // Sales by Status（结构分析）
         $salesByStatusCollection = (clone $ordersQuery)
             ->selectRaw('status, COUNT(*) as orders, SUM(total) as total')
             ->groupBy('status')
@@ -153,17 +153,14 @@ class AdminReportController extends Controller
 
     public function export(Request $request)
     {
-        // 1) 时间范围
         [$range, $start, $end, $reportRangeLabel] = $this->resolveRange($request);
 
-        // 2) 基础订单 query（导出通常也建议只导 revenue；我这里导 revenue daily sales）
         $ordersQuery = Order::query()
             ->whereNotNull('created_at')
             ->whereBetween('created_at', [$start, $end]);
 
         $revenueOrdersQuery = (clone $ordersQuery)->revenue();
 
-        // 3) 按天汇总（revenue）
         $rawDaily = (clone $revenueOrdersQuery)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as orders, SUM(total) as total')
             ->groupBy(DB::raw('DATE(created_at)'))
@@ -171,7 +168,6 @@ class AdminReportController extends Controller
             ->get()
             ->keyBy('date');
 
-        // 4) 填补没订单的天
         $period = CarbonPeriod::create(
             $start->copy()->startOfDay(),
             $end->copy()->startOfDay()
@@ -195,7 +191,6 @@ class AdminReportController extends Controller
             ];
         }
 
-        // 5) CSV
         $filename = 'daily_sales_' . now()->format('Ymd_His') . '.csv';
 
         $headers = [
@@ -218,6 +213,156 @@ class AdminReportController extends Controller
                     number_format($day['total_sales'], 2, '.', ''),
                     number_format($day['avg_order'], 2, '.', ''),
                 ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->streamDownload($callback, $filename, $headers);
+    }
+
+    public function exportOrderReferralRewardsReport(Request $request)
+    {
+        [$range, $start, $end, $reportRangeLabel] = $this->resolveRange($request);
+
+        $mode = $request->get('mode', 'daily'); // daily / monthly
+
+        $orders = Order::query()
+            ->with(['user'])
+            ->revenue() // ✅ 关键！！
+            ->whereBetween('created_at', [$start, $end])
+            ->latest('created_at')
+            ->get();
+
+        $orderIds = $orders->pluck('id')->filter()->values();
+
+        $purchasePointsByOrder = PointTransaction::query()
+            ->selectRaw('order_id, SUM(points) as total_points')
+            ->whereIn('order_id', $orderIds)
+            ->where('type', 'earn')
+            ->where('source', 'purchase')
+            ->groupBy('order_id')
+            ->pluck('total_points', 'order_id');
+
+        $filename = 'order_rewards_report_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($orders, $purchasePointsByOrder, $reportRangeLabel, $mode) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['Order Rewards Report', $reportRangeLabel, strtoupper($mode)]);
+            fputcsv($handle, []);
+
+            if ($mode === 'monthly') {
+                fputcsv($handle, [
+                    'Month',
+                    'Total Orders',
+                    'Total Subtotal (RM)',
+                    'Total Shipping Fee (RM)',
+                    'Total Sales (RM)',
+                    'Total Voucher Discount (RM)',
+                    'Total Shipping Discount (RM)',
+                    'Total Points Redeemed',
+                    'Total Points Discount (RM)',
+                    'Total Purchase Points Earned',
+                    'Total Purchase Points Cost (RM)',
+                    'Net Amount (RM)',
+                ]);
+
+                $grouped = $orders->groupBy(function ($order) {
+                    return optional($order->created_at)->format('Y-m');
+                });
+
+                foreach ($grouped as $month => $items) {
+                    $totalOrders = $items->count();
+
+                    $totalSubtotal = (float) $items->sum(fn($order) => (float) $order->subtotal);
+                    $totalShippingFee = (float) $items->sum(fn($order) => (float) $order->shipping_fee);
+                    $totalSales = (float) $items->sum(fn($order) => (float) $order->total);
+                    $totalVoucherDiscount = (float) $items->sum(fn($order) => (float) ($order->voucher_discount ?? 0));
+                    $totalShippingDiscount = (float) $items->sum(fn($order) => (float) ($order->shipping_discount ?? 0));
+                    $totalPointsRedeemed = (int) $items->sum(fn($order) => (int) ($order->points_redeem ?? 0));
+                    $totalPointsDiscount = (float) $items->sum(fn($order) => (float) ($order->points_discount ?? 0));
+
+                    $totalPurchasePointsEarned = (int) $items->sum(function ($order) use ($purchasePointsByOrder) {
+                        return (int) ($purchasePointsByOrder[$order->id] ?? 0);
+                    });
+
+                    // 规则：100 points = RM1
+                    $totalPurchasePointsCost = (float) ($totalPurchasePointsEarned / 100);
+
+                    // total 已经扣了 points_discount，所以这里只再扣 purchase reward cost
+                    $netAmount = $totalSales - $totalPurchasePointsCost;
+
+                    fputcsv($handle, [
+                        $month,
+                        $totalOrders,
+                        number_format($totalSubtotal, 2, '.', ''),
+                        number_format($totalShippingFee, 2, '.', ''),
+                        number_format($totalSales, 2, '.', ''),
+                        number_format($totalVoucherDiscount, 2, '.', ''),
+                        number_format($totalShippingDiscount, 2, '.', ''),
+                        $totalPointsRedeemed,
+                        number_format($totalPointsDiscount, 2, '.', ''),
+                        $totalPurchasePointsEarned,
+                        number_format($totalPurchasePointsCost, 2, '.', ''),
+                        number_format($netAmount, 2, '.', ''),
+                    ]);
+                }
+            } else {
+                fputcsv($handle, [
+                    'Order Date',
+                    'Order No',
+                    'Customer Name',
+                    'Customer Email',
+                    'Customer Phone',
+                    'Order Status',
+                    'Payment Method',
+                    'Subtotal (RM)',
+                    'Shipping Fee (RM)',
+                    'Voucher Discount (RM)',
+                    'Shipping Discount (RM)',
+                    'Total (RM)',
+                    'Points Redeemed',
+                    'Points Discount (RM)',
+                    'Purchase Points Earned',
+                    'Purchase Points Cost (RM)',
+                    'Net Amount (RM)',
+                ]);
+
+                foreach ($orders as $order) {
+                    $purchaseEarnedPoints = (int) ($purchasePointsByOrder[$order->id] ?? 0);
+
+                    // 规则：100 points = RM1
+                    $purchasePointsCost = (float) ($purchaseEarnedPoints / 100);
+
+                    // total 已经扣掉 points_discount，所以不再重复扣 redeem
+                    $netAmount = (float) $order->total - $purchasePointsCost;
+
+                    fputcsv($handle, [
+                        optional($order->created_at)->format('Y-m-d H:i:s'),
+                        $order->order_no,
+                        $order->customer_name,
+                        $order->customer_email,
+                        $order->customer_phone,
+                        $order->status,
+                        $order->payment_method_name,
+                        number_format((float) $order->subtotal, 2, '.', ''),
+                        number_format((float) $order->shipping_fee, 2, '.', ''),
+                        number_format((float) ($order->voucher_discount ?? 0), 2, '.', ''),
+                        number_format((float) ($order->shipping_discount ?? 0), 2, '.', ''),
+                        number_format((float) $order->total, 2, '.', ''),
+                        (int) ($order->points_redeem ?? 0),
+                        number_format((float) ($order->points_discount ?? 0), 2, '.', ''),
+                        $purchaseEarnedPoints,
+                        number_format($purchasePointsCost, 2, '.', ''),
+                        number_format($netAmount, 2, '.', ''),
+                    ]);
+                }
             }
 
             fclose($handle);
