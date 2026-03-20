@@ -57,50 +57,37 @@ class AdminReportController extends Controller
 
     public function index(Request $request)
     {
-        // 1) 时间范围
         [$activeRange, $start, $end, $reportRangeLabel] = $this->resolveRange($request);
 
-        /**
-         * 2) 基础订单 query（用于“订单结构分析”）
-         * 你之后如果有 paid_at，可以改为 whereBetween('paid_at', ...)
-         */
         $ordersQuery = Order::query()
             ->whereNotNull('created_at')
             ->whereBetween('created_at', [$start, $end]);
 
-        /**
-         * ✅ 3) Revenue Orders（用于“钱相关指标”）
-         * 只算已入账/有效状态的订单
-         */
         $revenueOrdersQuery = (clone $ordersQuery)->revenue();
 
-        // ✅ 4) Total Sales（只算 revenue）
         $totalSales = (clone $revenueOrdersQuery)->sum('total');
-
-        // ✅ 5) Total Orders（两种做法：我这里用“所有订单数”，更适合运营报表）
         $totalOrders = (clone $ordersQuery)->count();
 
-        // ✅ 6) Orders per Day（基于 totalOrders：表示下单频率）
         $days = max($start->diffInDays($end) + 1, 1);
         $ordersPerDay = $days > 0 ? $totalOrders / $days : 0;
 
-        // ✅ 7) Average Order Value（AOV：必须用 revenue 订单来算）
         $revenueOrdersCount = (clone $revenueOrdersQuery)->count();
         $averageOrderValue = $revenueOrdersCount > 0
             ? $totalSales / $revenueOrdersCount
             : 0;
 
-        // 8) New Customers
         $newCustomers = User::query()
             ->where('is_admin', false)
             ->whereBetween('created_at', [$start, $end])
             ->count();
 
-        // 9) Sales by Status（结构分析：不 filter）
+        // Sales by Status（结构分析）
         $salesByStatusCollection = (clone $ordersQuery)
             ->selectRaw('status, COUNT(*) as orders, SUM(total) as total')
             ->groupBy('status')
             ->get();
+
+        $statusTotalSales = (float) $salesByStatusCollection->sum('total');
 
         $salesByStatus = $salesByStatusCollection
             ->mapWithKeys(function ($row) {
@@ -113,7 +100,6 @@ class AdminReportController extends Controller
             })
             ->toArray();
 
-        // ✅ 10) Sales by Payment Method（钱相关：要 filter revenue）
         $salesByPaymentCollection = (clone $revenueOrdersQuery)
             ->selectRaw('payment_method_name as payment_method, COUNT(*) as orders, SUM(total) as total')
             ->groupBy('payment_method_name')
@@ -130,7 +116,6 @@ class AdminReportController extends Controller
             })
             ->toArray();
 
-        // ✅ 11) Top Products（钱相关：必须 filter revenue）
         $topProducts = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
@@ -155,6 +140,7 @@ class AdminReportController extends Controller
             'activeRange'        => $activeRange,
             'reportRangeLabel'   => $reportRangeLabel,
             'totalSales'         => $totalSales,
+            'statusTotalSales'   => $statusTotalSales,
             'totalOrders'        => $totalOrders,
             'ordersPerDay'       => $ordersPerDay,
             'averageOrderValue'  => $averageOrderValue,

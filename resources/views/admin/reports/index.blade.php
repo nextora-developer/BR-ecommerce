@@ -150,7 +150,7 @@
                 <div class="space-y-6">
                     @forelse ($statusSummary as $status => $row)
                         @php
-                            $percentage = $totalSales > 0 ? ($row['total'] / $totalSales) * 100 : 0;
+                            $percentage = $statusTotalSales > 0 ? ($row['total'] / $statusTotalSales) * 100 : 0;
                         @endphp
                         <div>
                             <div class="flex justify-between text-sm mb-2">
