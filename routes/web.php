@@ -41,6 +41,8 @@ use App\Http\Controllers\AccountOrderInvoiceController;
 
 use App\Http\Controllers\HitpayController;
 use App\Http\Controllers\RevenueMonsterController;
+use App\Http\Controllers\CommercePayController;
+
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -103,12 +105,12 @@ Route::get('/terms-of-service', [PageController::class, 'terms'])->name('terms')
 Route::post('/voucher/apply', [VoucherController::class, 'apply'])->name('voucher.apply');
 Route::post('/voucher/remove', [VoucherController::class, 'remove'])->name('voucher.remove');
 
-Route::get('/verify-agent', [PublicAgentController::class, 'index']) ->name('agents.index');
-Route::get('/verify-agent/pdf', [PublicAgentController::class, 'pdf']) ->name('agents.verify.pdf');
+Route::get('/verify-agent', [PublicAgentController::class, 'index'])->name('agents.index');
+Route::get('/verify-agent/pdf', [PublicAgentController::class, 'pdf'])->name('agents.verify.pdf');
 
-Route::get('/acca-professional-courses', [PageController::class, 'accaCourses']) ->name('acca.courses');
+Route::get('/acca-professional-courses', [PageController::class, 'accaCourses'])->name('acca.courses');
 
-Route::get('/revenue-monster', [PageController::class, 'revenueMonster']) ->name('revenue.monster');
+Route::get('/revenue-monster', [PageController::class, 'revenueMonster'])->name('revenue.monster');
 
 
 /*
@@ -125,6 +127,19 @@ Route::middleware('auth')->group(function () {
         ->name('checkout.store');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])
         ->name('checkout.success');
+
+    // CommercePay
+    Route::get('/pay/commercepay/{order}', [CommercePayController::class, 'pay'])
+        ->name('pay.commercepay');
+
+    Route::get('/payment/commercepay/return/{order}', [CommercePayController::class, 'return'])
+        ->name('commercepay.return');
+
+    Route::get('/payment/pending/{order}', [CommercePayController::class, 'pending'])
+        ->name('payment.pending');
+
+    Route::get('/payment/status/{order}', [CommercePayController::class, 'status'])
+        ->name('payment.status');
 
 
     Route::get('/games/spin', [GameSpinController::class, 'index'])->name('games.spin');
@@ -257,7 +272,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/reports/customers', [AdminReportController::class, 'customers'])->name('reports.customers');
     Route::get('/reports/export', [AdminReportController::class, 'export'])->name('reports.export');
     Route::get('/reports/order-referral-rewards/export', [AdminReportController::class, 'exportOrderReferralRewardsReport'])->name('reports.order-referral-rewards.export');
-    
+
 
     // Banner
     Route::resource('banners', AdminBannerController::class);
@@ -328,22 +343,13 @@ Route::get('/pay/rm/{order}', [RevenueMonsterController::class, 'pay'])
 Route::get('/payment/rm/return', [RevenueMonsterController::class, 'handleReturn'])
     ->name('payment.rm.return');
 
+/*
+|--------------------------------------------------------------------------
+| CommercePay Payment Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('/payment/commercepay/callback', [CommercePayController::class, 'callback'])
+    ->name('commercepay.callback');
 
-Route::get('/system/test-mail', function (Request $request) {
-
-    // simple security
-    if ($request->key !== 'brifmailtest123') {
-        abort(403);
-    }
-
-    Mail::raw('BRIF Mail System Test - SMTP working', function ($message) {
-        $message->to('brinnovategroup@gmail.com')
-            ->subject('BRIF SMTP TEST');
-    });
-
-    return response()->json([
-        'status' => 'mail_sent_attempted'
-    ]);
-});
 
 require __DIR__ . '/auth.php';

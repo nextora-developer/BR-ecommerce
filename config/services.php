@@ -70,6 +70,21 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | CommercePay Payment Gateway 
+    |--------------------------------------------------------------------------
+    */
+
+    'commercepay' => [
+        'base_url'   => env('COMMERCEPAY_BASE_URL'),
+        'username'   => env('COMMERCEPAY_USERNAME'),
+        'password'   => env('COMMERCEPAY_PASSWORD'),
+        'tenant_id'  => env('COMMERCEPAY_TENANT_ID'),
+        'secret_key' => env('COMMERCEPAY_SECRET_KEY'),
+        'currency'   => env('COMMERCEPAY_CURRENCY', 'MYR'),
+    ],
+
 
 
 ];

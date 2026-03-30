@@ -38,7 +38,7 @@ class CheckoutController extends Controller
         $handlingPercent = max(0, min($handlingPercent, 100));
         $handlingLabel = (string) Setting::get('handling_fee_label', 'Handling Fee');
 
-        $gatewayCodes = ['revenue_monster', 'hitpay']; // 跟 store() 一样
+        $gatewayCodes = ['revenue_monster', 'commercepay']; // 跟 store() 一样
 
         $user           = auth()->user();
         $defaultAddress = $user?->defaultAddress;
@@ -205,7 +205,7 @@ class CheckoutController extends Controller
 
         $subtotal = (float) $items->sum(fn($i) => $i->unit_price * $i->qty);
 
-        $gatewayCodes = ['revenue_monster', 'hitpay']; // ✅ 你要的 gateway code 放这里
+        $gatewayCodes = ['revenue_monster', 'commercepay']; // ✅ 你要的 gateway code 放这里
         $isGateway = in_array($paymentMethod->code, $gatewayCodes, true);
 
         $handlingEnabled = (int) Setting::get('handling_fee_enabled', 0) === 1;
@@ -452,14 +452,14 @@ class CheckoutController extends Controller
 
 
         // 7️⃣ 发邮件
-        $isRM = $paymentMethod->code === 'revenue_monster';
+        $isGatewayPayment = in_array($paymentMethod->code, ['revenue_monster', 'commercepay'], true);
 
         if ($order) {
             Log::info('Checkout order created: ' . $order->order_no);
             Log::info('Config admin_address is: ' . (config('mail.admin_address') ?? 'NULL'));
 
             // ❌ Revenue Monster：不在这里发邮件（等 webhook）
-            if (! $isRM) {
+            if (! $isGatewayPayment) {
 
                 // ✅ Customer mail
                 if ($order->customer_email) {
@@ -491,8 +491,12 @@ class CheckoutController extends Controller
         /**
          * 8️⃣ Revenue Monster 付款方式：下单完成后直接跳 RM
          */
-        if ($isRM) {
+        if ($paymentMethod->code === 'revenue_monster') {
             return redirect()->route('pay.rm', $order);
+        }
+
+        if ($paymentMethod->code === 'commercepay') {
+            return redirect()->route('pay.commercepay', $order);
         }
 
 
