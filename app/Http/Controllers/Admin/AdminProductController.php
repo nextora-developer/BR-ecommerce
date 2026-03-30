@@ -69,6 +69,11 @@ class AdminProductController extends Controller
 
             'has_variants' => ['nullable', 'boolean'],
 
+            'is_open_amount' => ['nullable', 'boolean'],
+            'min_amount' => ['nullable', 'numeric', 'min:0'],
+            'max_amount' => ['nullable', 'numeric', 'gte:min_amount'],
+            'amount_step' => ['nullable', 'numeric', 'min:0.01'],
+
             // 没有 variants 时必须填 price；有 variants 时可以不用填 price
             'price'  => ['nullable', 'numeric', 'min:0', 'required_without:variants'],
             'stock'  => ['nullable', 'integer', 'min:0'],
@@ -120,6 +125,49 @@ class AdminProductController extends Controller
         $data['is_active']   = $request->boolean('is_active');
         $data['has_variants'] = $request->boolean('has_variants');
         $data['is_digital']   = $request->boolean('is_digital');
+        $data['is_open_amount'] = $request->boolean('is_open_amount');
+
+        // pricing mode guard
+        if ($data['is_open_amount'] && $data['has_variants']) {
+            return back()
+                ->withErrors(['is_open_amount' => 'Open Amount product cannot use variants at the same time.'])
+                ->withInput();
+        }
+
+        if ($data['is_open_amount']) {
+            if (!$request->filled('min_amount')) {
+                return back()->withErrors(['min_amount' => 'Min amount is required.'])->withInput();
+            }
+
+            if (!$request->filled('max_amount')) {
+                return back()->withErrors(['max_amount' => 'Max amount is required.'])->withInput();
+            }
+
+            if (!$request->filled('amount_step')) {
+                return back()->withErrors(['amount_step' => 'Amount step is required.'])->withInput();
+            }
+
+            $data['price'] = null;
+            $data['has_variants'] = false;
+        } elseif ($data['has_variants']) {
+            $hasAtLeastOneVariant = collect($request->input('variants', []))->contains(function ($variant) {
+                return filled($variant['label'] ?? null)
+                    || filled($variant['value'] ?? null)
+                    || filled($variant['price'] ?? null)
+                    || filled($variant['stock'] ?? null)
+                    || filled($variant['sku'] ?? null);
+            });
+
+            if (!$hasAtLeastOneVariant) {
+                return back()->withErrors(['variants' => 'Please add at least one variant.'])->withInput();
+            }
+
+            $data['price'] = null;
+        } else {
+            if (!$request->filled('price')) {
+                return back()->withErrors(['price' => 'Price is required for simple product.'])->withInput();
+            }
+        }
 
         // =========================
         // Digital fields: Builder first, JSON fallback
@@ -212,15 +260,16 @@ class AdminProductController extends Controller
             ->values()
             ->all();
 
-        // 如果使用 variants，可以把主 stock 当总和（可选）
-        if ($data['has_variants']) {
+        if ($data['is_open_amount']) {
+            // open amount 一般不看 stock；你可以固定 0 或 null
+            $data['stock'] = 0;
+        } elseif ($data['has_variants']) {
             $totalStock = 0;
             foreach ($variantsInput as $v) {
                 $totalStock += (int) ($v['stock'] ?? 0);
             }
             $data['stock'] = $totalStock;
         } else {
-            // 没有 variants：price 和 stock 在 validation 已经 required_without 处理
             $data['stock'] = $data['stock'] ?? 0;
         }
 
@@ -399,12 +448,16 @@ class AdminProductController extends Controller
 
             'has_variants' => ['nullable', 'boolean'],
 
-            // 没有 variants 时必须填 price；有 variants 时可以不用填 price
-            'price'  => ['nullable', 'numeric', 'min:0', 'required_without:variants'],
+            'is_open_amount' => ['nullable', 'boolean'],
+            'min_amount' => ['nullable', 'numeric', 'min:0'],
+            'max_amount' => ['nullable', 'numeric', 'gte:min_amount'],
+            'amount_step' => ['nullable', 'numeric', 'min:0.01'],
+
+            'price'  => ['nullable', 'numeric', 'min:0'],
             'stock'  => ['nullable', 'integer', 'min:0'],
 
             // variants 数组
-            'variants'              => ['nullable', 'array', 'required_without:price'],
+            'variants'              => ['nullable', 'array'],
             'variants.*.sku'        => ['nullable', 'string', 'max:100'],
             'variants.*.label'      => ['nullable', 'string', 'max:255'],
             'variants.*.value'      => ['nullable', 'string', 'max:255'],
@@ -450,6 +503,49 @@ class AdminProductController extends Controller
         $data['is_active']   = $request->boolean('is_active');
         $data['has_variants'] = $request->boolean('has_variants');
         $data['is_digital']   = $request->boolean('is_digital');
+        $data['is_open_amount'] = $request->boolean('is_open_amount');
+
+        // pricing mode guard
+        if ($data['is_open_amount'] && $data['has_variants']) {
+            return back()
+                ->withErrors(['is_open_amount' => 'Open Amount product cannot use variants at the same time.'])
+                ->withInput();
+        }
+
+        if ($data['is_open_amount']) {
+            if (!$request->filled('min_amount')) {
+                return back()->withErrors(['min_amount' => 'Min amount is required.'])->withInput();
+            }
+
+            if (!$request->filled('max_amount')) {
+                return back()->withErrors(['max_amount' => 'Max amount is required.'])->withInput();
+            }
+
+            if (!$request->filled('amount_step')) {
+                return back()->withErrors(['amount_step' => 'Amount step is required.'])->withInput();
+            }
+
+            $data['price'] = null;
+            $data['has_variants'] = false;
+        } elseif ($data['has_variants']) {
+            $hasAtLeastOneVariant = collect($request->input('variants', []))->contains(function ($variant) {
+                return filled($variant['label'] ?? null)
+                    || filled($variant['value'] ?? null)
+                    || filled($variant['price'] ?? null)
+                    || filled($variant['stock'] ?? null)
+                    || filled($variant['sku'] ?? null);
+            });
+
+            if (!$hasAtLeastOneVariant) {
+                return back()->withErrors(['variants' => 'Please add at least one variant.'])->withInput();
+            }
+
+            $data['price'] = null;
+        } else {
+            if (!$request->filled('price')) {
+                return back()->withErrors(['price' => 'Price is required for simple product.'])->withInput();
+            }
+        }
 
         // =========================
         // Digital fields: Builder first, JSON fallback
@@ -542,7 +638,9 @@ class AdminProductController extends Controller
             ->all();
 
         // 处理 stock（和 store() 一样）
-        if ($data['has_variants']) {
+        if ($data['is_open_amount']) {
+            $data['stock'] = 0;
+        } elseif ($data['has_variants']) {
             $totalStock = 0;
             foreach ($variantsInput as $v) {
                 $totalStock += (int) ($v['stock'] ?? 0);

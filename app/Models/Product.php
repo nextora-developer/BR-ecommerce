@@ -26,7 +26,11 @@ class Product extends Model
         'digital_fields',
         'has_variants',
         'is_active',
-        'image'
+        'image',
+        'is_open_amount',
+        'min_amount',
+        'max_amount',
+        'amount_step',
     ];
 
     protected $casts = [
@@ -34,6 +38,10 @@ class Product extends Model
         'highlights' => 'array',
         'digital_fields' => 'array',
         'is_digital' => 'boolean',
+        'is_open_amount' => 'boolean',
+        'min_amount' => 'decimal:2',
+        'max_amount' => 'decimal:2',
+        'amount_step' => 'decimal:2',
     ];
 
 

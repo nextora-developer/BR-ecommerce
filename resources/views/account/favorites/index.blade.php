@@ -148,6 +148,12 @@
                                                             </span>
                                                             RM {{ number_format($min, 2) }}
                                                         @endif
+                                                    @elseif ($product->is_open_amount)
+                                                        <span
+                                                            class="text-[10px] font-medium text-gray-400 uppercase align-middle mr-1">
+                                                            From
+                                                        </span>
+                                                        RM {{ number_format($product->min_amount ?? 0, 2) }}
                                                     @else
                                                         RM {{ number_format($product->price ?? 0, 2) }}
                                                     @endif

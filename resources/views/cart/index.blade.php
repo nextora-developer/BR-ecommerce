@@ -162,7 +162,12 @@
                                                     class="text-base sm:text-lg font-bold text-gray-900 leading-tight line-clamp-1">
                                                     {{ $p->name }}
                                                 </h2>
-                                                @if ($item->variant_label)
+                                                @if ($p?->is_open_amount)
+                                                    <span
+                                                        class="inline-block mt-1 px-2 py-0.5 bg-[#F9F4E5] text-[#8f6a10] text-xs rounded-md border border-[#D4AF37]/20">
+                                                        Custom Amount: RM {{ number_format($item->unit_price, 2) }}
+                                                    </span>
+                                                @elseif ($item->variant_label)
                                                     <span
                                                         class="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-md">
                                                         {{ $item->variant_label }}

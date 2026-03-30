@@ -370,14 +370,23 @@
                         <h2 class="font-bold text-gray-900">Pricing & Stock</h2>
                     </div>
 
-                    <label class="inline-flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" name="has_variants" value="1" class="rounded border-gray-300"
-                            @checked(old('has_variants', $product->has_variants ?? false))>
-                        <span class="text-gray-700">Use variations</span>
-                    </label>
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <label class="inline-flex items-center gap-2 text-sm cursor-pointer">
+                            <input type="checkbox" name="has_variants" value="1" class="rounded border-gray-300"
+                                @checked(old('has_variants', $product->has_variants ?? false))>
+                            <span class="text-gray-700">Use variations</span>
+                        </label>
+
+                        <label class="inline-flex items-center gap-2 text-sm cursor-pointer">
+                            <input type="checkbox" name="is_open_amount" value="1" class="rounded border-gray-300"
+                                @checked(old('is_open_amount', $product->is_open_amount ?? false))>
+                            <span class="text-gray-700">Open Amount</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="border rounded-xl p-5 space-y-6">
+                    
                     {{-- Simple price / stock --}}
                     <div id="simplePriceStock" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -388,6 +397,10 @@
                                 class="mt-1.5 w-full rounded-xl border-gray-200
                                           focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm"
                                 placeholder="e.g. 29.90">
+
+                            @error('price')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -398,6 +411,52 @@
                                 class="mt-1.5 w-full rounded-xl border-gray-200
                                           focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm"
                                 placeholder="e.g. 50">
+
+                            @error('stock')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Open Amount --}}
+                    <div id="openAmountFields" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-xs uppercase font-black tracking-widest text-gray-400">
+                                Min Amount
+                            </label>
+                            <input type="number" step="0.01" min="0" name="min_amount"
+                                value="{{ old('min_amount', $product->min_amount) }}"
+                                class="mt-1.5 w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm"
+                                placeholder="e.g. 10.00">
+                            @error('min_amount')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="text-xs uppercase font-black tracking-widest text-gray-400">
+                                Max Amount
+                            </label>
+                            <input type="number" step="0.01" min="0" name="max_amount"
+                                value="{{ old('max_amount', $product->max_amount) }}"
+                                class="mt-1.5 w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm"
+                                placeholder="e.g. 500.00">
+                            @error('max_amount')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="text-xs uppercase font-black tracking-widest text-gray-400">
+                                Amount Step
+                            </label>
+                            <input type="number" step="0.01" min="0.01" name="amount_step"
+                                value="{{ old('amount_step', $product->amount_step ?? 1) }}"
+                                class="mt-1.5 w-full rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 text-sm"
+                                placeholder="e.g. 1.00">
+                            @error('amount_step')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -744,7 +803,8 @@
                                             value="{{ $f['key'] ?? '' }}"
                                             class="mt-1 w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 text-sm font-mono"
                                             placeholder="e.g. game_id">
-                                        <p class="mt-1 text-[11px] text-gray-400">Only letters, numbers, and underscores are allowed.</p>
+                                        <p class="mt-1 text-[11px] text-gray-400">Only letters, numbers, and underscores
+                                            are allowed.</p>
                                     </div>
 
                                     <div>
@@ -1156,28 +1216,66 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // =========================
-            // Variants: show/hide
+            // Pricing mode: simple / variants / open amount
             // =========================
             const hasVariantsCheckbox = document.querySelector('input[name="has_variants"]');
+            const openAmountCheckbox = document.querySelector('input[name="is_open_amount"]');
+
             const simplePriceStock = document.getElementById('simplePriceStock');
             const variantsWrapper = document.getElementById('variantsWrapper');
+            const openAmountFields = document.getElementById('openAmountFields');
 
-            const toggleVariantUI = () => {
-                if (!hasVariantsCheckbox || !simplePriceStock || !variantsWrapper) return;
+            const togglePricingUI = () => {
+                if (!simplePriceStock || !variantsWrapper || !openAmountFields) return;
 
-                if (hasVariantsCheckbox.checked) {
+                const useVariants = !!hasVariantsCheckbox?.checked;
+                const useOpenAmount = !!openAmountCheckbox?.checked;
+
+                // reset
+                simplePriceStock.classList.remove('hidden', 'opacity-40', 'pointer-events-none');
+                variantsWrapper.classList.add('hidden');
+                openAmountFields.classList.add('hidden');
+
+                if (useOpenAmount) {
+                    // open amount 模式
+                    simplePriceStock.classList.add('hidden');
+                    variantsWrapper.classList.add('hidden');
+                    openAmountFields.classList.remove('hidden');
+
+                    if (hasVariantsCheckbox) {
+                        hasVariantsCheckbox.checked = false;
+                    }
+                } else if (useVariants) {
+                    // variant 模式
                     simplePriceStock.classList.add('opacity-40', 'pointer-events-none');
                     variantsWrapper.classList.remove('hidden');
-                } else {
-                    simplePriceStock.classList.remove('opacity-40', 'pointer-events-none');
-                    variantsWrapper.classList.add('hidden');
+
+                    if (openAmountCheckbox) {
+                        openAmountCheckbox.checked = false;
+                    }
                 }
+                // simple 模式 = 默认，不需要额外处理
             };
 
             if (hasVariantsCheckbox) {
-                toggleVariantUI();
-                hasVariantsCheckbox.addEventListener('change', toggleVariantUI);
+                hasVariantsCheckbox.addEventListener('change', () => {
+                    if (hasVariantsCheckbox.checked && openAmountCheckbox) {
+                        openAmountCheckbox.checked = false;
+                    }
+                    togglePricingUI();
+                });
             }
+
+            if (openAmountCheckbox) {
+                openAmountCheckbox.addEventListener('change', () => {
+                    if (openAmountCheckbox.checked && hasVariantsCheckbox) {
+                        hasVariantsCheckbox.checked = false;
+                    }
+                    togglePricingUI();
+                });
+            }
+
+            togglePricingUI();
 
             // =========================
             // Variants: add/remove rows 手动
@@ -1245,7 +1343,6 @@
                 addGroupBtn.addEventListener('click', () => {
                     const existing = variationGroupsWrapper.querySelectorAll('.variation-group').length;
 
-                    // 限制最多 2 个（像 Shopee）
                     if (existing >= 2) {
                         alert('最多只能有 2 个 Variation（例如 Color 和 Size）。');
                         return;
@@ -1255,7 +1352,7 @@
                     const html = variationGroupTemplate.innerHTML.replace(/__INDEX__/g, index);
                     const wrapper = document.createElement('div');
                     wrapper.innerHTML = html.trim();
-                    const node = wrapper.firstChild;
+                    const node = wrapper.firstElementChild;
 
                     variationGroupsWrapper.appendChild(node);
                     refreshVariationOrderLabels();
@@ -1266,7 +1363,9 @@
                 refreshVariationOrderLabels();
             }
 
+            // =========================
             // 笛卡儿积：生成所有组合
+            // =========================
             const cartesian = (arrays) => {
                 if (!arrays.length) return [];
                 return arrays.reduce((acc, curr) => {
@@ -1282,10 +1381,13 @@
                 ]);
             };
 
+            // =========================
             // 点击生成 Variation List
+            // =========================
             if (generateBtn && variationGroupsWrapper && variantTemplate && variantsBody) {
                 generateBtn.addEventListener('click', () => {
                     const groups = [];
+
                     variationGroupsWrapper.querySelectorAll('.variation-group').forEach(group => {
                         const nameInput = group.querySelector('[data-vg-name]');
                         const valuesInput = group.querySelector('[data-vg-values]');
@@ -1294,7 +1396,8 @@
 
                         if (!name || !values) return;
 
-                        const vals = values.split(',')
+                        const vals = values
+                            .split(',')
                             .map(v => v.trim())
                             .filter(Boolean);
 
@@ -1311,18 +1414,16 @@
                         return;
                     }
 
-                    // 生成所有组合
                     const valueArrays = groups.map(g => g.values);
                     const combos = cartesian(valueArrays);
 
-                    // 清空旧的 variants
                     variantsBody.innerHTML = '';
 
                     combos.forEach((combo, idx) => {
                         const clone = variantTemplate.content.cloneNode(true);
 
-                        const label = groups.map(g => g.name).join(' / '); // Color / Size
-                        const value = combo.join(' / '); // Red / 6
+                        const label = groups.map(g => g.name).join(' / ');
+                        const value = combo.join(' / ');
 
                         clone.querySelectorAll('[data-name]').forEach((input) => {
                             const base = input.getAttribute('data-name');

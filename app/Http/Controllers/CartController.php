@@ -70,27 +70,55 @@ class CartController extends Controller
 
     public function add(Request $request, Product $product)
     {
-        // 统一入口：游客 / 会员都可以
         $cart = $this->getOrCreateCart();
 
         $qty = max(1, (int) $request->input('quantity', 1));
 
         $variantId    = null;
         $variantLabel = null;
+        $customAmount = null;
         $unitPrice    = $product->price;
 
-        // 有 variant 的情况
-        if ($product->has_variants) {
+        // Open Amount product
+        if ($product->is_open_amount) {
+            $request->validate([
+                'custom_amount' => ['required', 'numeric'],
+            ]);
+
+            $customAmount = (float) $request->input('custom_amount');
+
+            $minAmount = (float) ($product->min_amount ?? 0);
+            $maxAmount = (float) ($product->max_amount ?? 0);
+            $stepAmount = (float) ($product->amount_step ?? 1);
+
+            if ($customAmount < $minAmount) {
+                return back()->with('error', 'The amount cannot be lower than RM ' . number_format($minAmount, 2) . '.');
+            }
+
+            if ($customAmount > $maxAmount) {
+                return back()->with('error', 'The amount cannot be higher than RM ' . number_format($maxAmount, 2) . '.');
+            }
+
+            if ($stepAmount > 0) {
+                $offset = round(($customAmount - $minAmount) / $stepAmount, 8);
+                if (abs($offset - round($offset)) > 0.0000001) {
+                    return back()->with('error', 'The amount must follow the allowed increment of RM ' . number_format($stepAmount, 2) . '.');
+                }
+            }
+
+            $unitPrice = $customAmount;
+        }
+        // Variant product
+        elseif ($product->has_variants) {
             $variantId = $request->input('variant_id');
 
             if (!$variantId) {
                 return back()->with('error', 'Please select a variant before adding to cart.');
             }
 
-            $variant   = $product->variants()->where('id', $variantId)->firstOrFail();
+            $variant = $product->variants()->where('id', $variantId)->firstOrFail();
             $unitPrice = $variant->price;
 
-            // 组 variant 显示文字
             $label = explode('/', $variant->options['label'] ?? '');
             $value = explode('/', $variant->options['value'] ?? '');
 
@@ -102,6 +130,7 @@ class CartController extends Controller
                     $parts[] = "{$name}: {$val}";
                 }
             }
+
             $variantLabel = implode(' & ', $parts);
         }
 
@@ -110,26 +139,22 @@ class CartController extends Controller
         }
 
         // ==============================
-        // ❗ Cart 不能混合 Digital / Physical
+        // Cart 不能混合 Digital / Physical
         // ==============================
-
         $isAddingDigital = (bool) $product->is_digital;
 
-        // Cart 内已有 digital？
         $cartHasDigital = $cart->items()
             ->whereHas('product', function ($q) {
                 $q->where('is_digital', true);
             })
             ->exists();
 
-        // Cart 内已有 physical？
         $cartHasPhysical = $cart->items()
             ->whereHas('product', function ($q) {
                 $q->where('is_digital', false);
             })
             ->exists();
 
-        // 已有 Digital → 禁止加 Physical
         if ($cartHasDigital && !$isAddingDigital) {
             return back()->with(
                 'error',
@@ -137,7 +162,6 @@ class CartController extends Controller
             );
         }
 
-        // 已有 Physical → 禁止加 Digital
         if ($cartHasPhysical && $isAddingDigital) {
             return back()->with(
                 'error',
@@ -145,14 +169,17 @@ class CartController extends Controller
             );
         }
 
-
-        // 同 product + variant 合并数量
+        // 同 product + variant + amount 合并数量
         $query = $cart->items()->where('product_id', $product->id);
 
         if ($variantId) {
             $query->where('product_variant_id', $variantId);
         } else {
             $query->whereNull('product_variant_id');
+        }
+
+        if ($product->is_open_amount) {
+            $query->where('unit_price', $unitPrice);
         }
 
         $item = $query->first();
@@ -166,7 +193,7 @@ class CartController extends Controller
                 'product_variant_id' => $variantId,
                 'qty'                => $qty,
                 'unit_price'         => $unitPrice,
-                'variant_label'      => $variantLabel,
+                'variant_label'      => $variantLabel ?? ($product->is_open_amount ? 'Amount: RM ' . number_format($unitPrice, 2) : null),
             ]);
         }
 

@@ -123,9 +123,16 @@
                                         @elseif ($min == $max)
                                             RM {{ number_format($min, 2) }}
                                         @else
-                                            <span class="text-[11px] text-gray-400 block font-normal uppercase">From</span>
+                                            <span class="text-[11px] text-gray-400 block font-normal uppercase">
+                                                From
+                                            </span>
                                             RM {{ number_format($min, 2) }} – {{ number_format($max, 2) }}
                                         @endif
+                                    @elseif ($p->is_open_amount)
+                                        <span class="text-[11px] text-gray-400 block font-normal uppercase">
+                                            From
+                                        </span>
+                                        RM {{ number_format($p->min_amount ?? 0, 2) }}
                                     @else
                                         RM {{ number_format($p->price ?? 0, 2) }}
                                     @endif
@@ -185,7 +192,7 @@
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414
-                                                                             a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                                 a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </a>
 

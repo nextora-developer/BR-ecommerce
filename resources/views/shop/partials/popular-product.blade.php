@@ -157,13 +157,22 @@
                                                 $min = $prices->min();
                                                 $max = $prices->max();
                                             @endphp
+
                                             @if ($min == $max)
                                                 RM {{ number_format($min, 2) }}
                                             @else
                                                 <span
-                                                    class="text-[10px] font-semibold text-gray-400 uppercase align-middle mr-1">From</span>
+                                                    class="text-[10px] font-semibold text-gray-400 uppercase align-middle mr-1">
+                                                    From
+                                                </span>
                                                 RM {{ number_format($min, 2) }}
                                             @endif
+                                        @elseif ($product->is_open_amount)
+                                            <span
+                                                class="text-[10px] font-semibold text-gray-400 uppercase align-middle mr-1">
+                                                From
+                                            </span>
+                                            RM {{ number_format($product->min_amount ?? 0, 2) }}
                                         @else
                                             RM {{ number_format($product->price ?? 0, 2) }}
                                         @endif
@@ -172,10 +181,10 @@
                                     {{-- Button --}}
                                     <a href="{{ route('shop.show', $product->slug) }}"
                                         class="w-full inline-flex items-center justify-center rounded-xl
-                                               bg-white border border-black/[0.08]
-                                               py-2.5 text-xs font-extrabold text-black/70
-                                               hover:bg-[#D4AF37] hover:text-black hover:border-[#D4AF37]
-                                               transition-all duration-300">
+               bg-white border border-black/[0.08]
+               py-2.5 text-xs font-extrabold text-black/70
+               hover:bg-[#D4AF37] hover:text-black hover:border-[#D4AF37]
+               transition-all duration-300">
                                         View Details
                                     </a>
                                 </div>

@@ -68,11 +68,11 @@
                                                 viewBox="0 0 24 24" class="h-6 w-6">
                                                 <path
                                                     d="M12 21.35l-1.45-1.32C5.4 15.36
-                                                                                                                                               2 12.28 2 8.5 2 5.42 4.42
-                                                                                                                                               3 7.5 3c1.74 0 3.41.81 4.5
-                                                                                                                                               2.09C13.09 3.81 14.76 3 16.5
-                                                                                                                                               3 19.58 3 22 5.42 22 8.5c0
-                                                                                                                                               3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                                                                                                                               2 12.28 2 8.5 2 5.42 4.42
+                                                                                                                                                               3 7.5 3c1.74 0 3.41.81 4.5
+                                                                                                                                                               2.09C13.09 3.81 14.76 3 16.5
+                                                                                                                                                               3 19.58 3 22 5.42 22 8.5c0
+                                                                                                                                                               3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                             </svg>
                                         </button>
                                     </form>
@@ -185,7 +185,15 @@
                             {{-- Price Display（用你原本的变体逻辑） --}}
                             <div class="mt-2 mb-5 flex items-end gap-3">
                                 <div class="text-3xl font-light text-[#8f6a10]" data-product-price>
-                                    @if ($product->has_variants && $product->variants->count())
+                                    @if ($product->is_open_amount)
+                                        <span class="font-semibold">
+                                            RM {{ number_format($product->min_amount ?? 0, 2) }}
+                                        </span>
+                                        <span class="text-gray-300 mx-1">–</span>
+                                        <span class="font-semibold">
+                                            RM {{ number_format($product->max_amount ?? 0, 2) }}
+                                        </span>
+                                    @elseif ($product->has_variants && $product->variants->count())
                                         @php
                                             $variantPrices = $product->variants->whereNotNull('price');
                                             $min = $variantPrices->min('price');
@@ -417,6 +425,70 @@
                                         </p>
 
                                         <input type="hidden" name="variant_id" id="variant_id">
+                                    </div>
+                                @endif
+
+                                @if ($product->is_open_amount)
+                                    <div class="space-y-4 p-1">
+                                        <label
+                                            class="block text-[11px] font-bold uppercase tracking-[0.1em] text-gray-500 ml-1">
+                                            Enter Amount
+                                        </label>
+
+                                        <div class="space-y-4">
+                                            <div class="group relative">
+                                                <div
+                                                    class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center border-r border-gray-200 pr-3 pointer-events-none group-focus-within:border-[#D4AF37]/40 transition-colors">
+                                                    <span class="text-gray-400 font-bold text-sm">RM</span>
+                                                </div>
+
+                                                <input type="number" name="custom_amount"
+                                                    min="{{ $product->min_amount }}"
+                                                    max="{{ $product->max_amount }}"
+                                                    step="{{ $product->amount_step ?? 1 }}"
+                                                    value="{{ old('custom_amount', $product->min_amount) }}"
+                                                    class="w-full h-16 pl-16 pr-4 rounded-2xl border border-gray-200 bg-gray-50/50 text-xl font-bold text-gray-900 
+                           transition-all duration-200
+                           placeholder:text-gray-300 placeholder:font-normal
+                           focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 focus:outline-none"
+                                                    placeholder="0.00" required>
+                                            </div>
+
+                                            <div class="flex flex-wrap gap-2">
+                                                <div
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-gray-100 shadow-sm">
+                                                    <span
+                                                        class="text-[10px] font-bold text-gray-400 uppercase mr-1.5">Min</span>
+                                                    <span
+                                                        class="text-xs font-semibold text-gray-700">RM{{ number_format($product->min_amount ?? 0, 2) }}</span>
+                                                </div>
+
+                                                <div
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-gray-100 shadow-sm">
+                                                    <span
+                                                        class="text-[10px] font-bold text-gray-400 uppercase mr-1.5">Max</span>
+                                                    <span
+                                                        class="text-xs font-semibold text-gray-700">RM{{ number_format($product->max_amount ?? 0, 2) }}</span>
+                                                </div>
+
+                                                @if ($product->amount_step > 1)
+                                                    <div
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-gray-100 shadow-sm text-blue-600">
+                                                        <span
+                                                            class="text-[10px] font-bold opacity-70 uppercase mr-1.5">Step</span>
+                                                        <span
+                                                            class="text-xs font-semibold">RM{{ number_format($product->amount_step, 2) }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            @error('custom_amount')
+                                                <div class="flex items-center gap-2 px-1">
+                                                    <span class="w-1 h-1 rounded-full bg-red-500"></span>
+                                                    <p class="text-xs font-medium text-red-500">{{ $message }}</p>
+                                                </div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 @endif
 
@@ -790,9 +862,9 @@
 
                                     <div class="mt-4 flex flex-col gap-3">
                                         <p class="text-base font-bold text-gray-900">
-                                            @if ($product->has_variants && $product->variants->count())
+                                            @if ($item->has_variants && $item->variants->count())
                                                 @php
-                                                    $prices = $product->variants->pluck('price')->filter();
+                                                    $prices = $item->variants->pluck('price')->filter();
                                                     $min = $prices->min();
                                                     $max = $prices->max();
                                                 @endphp
@@ -800,11 +872,15 @@
                                                     RM {{ number_format($min, 2) }}
                                                 @else
                                                     <span
-                                                        class="text-[10px] font-medium text-gray-400 uppercase align-middle mr-1">From</span>RM
-                                                    {{ number_format($min, 2) }}
+                                                        class="text-[10px] font-medium text-gray-400 uppercase align-middle mr-1">From</span>
+                                                    RM {{ number_format($min, 2) }}
                                                 @endif
+                                            @elseif ($item->is_open_amount)
+                                                <span
+                                                    class="text-[10px] font-medium text-gray-400 uppercase align-middle mr-1">From</span>
+                                                RM {{ number_format($item->min_amount ?? 0, 2) }}
                                             @else
-                                                RM {{ number_format($product->price ?? 0, 2) }}
+                                                RM {{ number_format($item->price ?? 0, 2) }}
                                             @endif
                                         </p>
 
