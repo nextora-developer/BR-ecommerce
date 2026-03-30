@@ -46,7 +46,7 @@ class OrderObserver
         if ($log->rewarded) return;
 
         // RM 1 = 1 point（向下取整）
-        $points = (int) floor($order->total);
+        $points = (int) floor((float) $order->subtotal);
         if ($points <= 0) return;
 
         app(PointsService::class)->creditReferral(
@@ -64,7 +64,7 @@ class OrderObserver
         if (!$buyer) return;
 
         // RM1 = 1 point（向下取整）
-        $points = (int) floor($order->total);
+        $points = (int) floor((float) $order->subtotal);
         if ($points <= 0) return;
 
         app(PointsService::class)->creditPurchase(
