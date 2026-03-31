@@ -66,6 +66,7 @@ class AdminProductController extends Controller
             'slug'        => ['nullable', 'string', 'max:255', 'unique:products,slug'],
             'short_description' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'reward_points' => ['nullable', 'integer', 'min:0'],
 
             'has_variants' => ['nullable', 'boolean'],
 
@@ -120,6 +121,7 @@ class AdminProductController extends Controller
 
         // slug auto
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
+        $data['reward_points'] = (int) ($data['reward_points'] ?? 0);
 
         // checkbox normalize
         $data['is_active']   = $request->boolean('is_active');
@@ -445,6 +447,7 @@ class AdminProductController extends Controller
             'slug'        => ['nullable', 'string', 'max:255', Rule::unique('products', 'slug')->ignore($product->id)],
             'short_description' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'reward_points' => ['nullable', 'integer', 'min:0'],
 
             'has_variants' => ['nullable', 'boolean'],
 
@@ -498,6 +501,7 @@ class AdminProductController extends Controller
 
         // slug auto
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
+        $data['reward_points'] = (int) ($data['reward_points'] ?? 0);
 
         // checkbox normalize
         $data['is_active']   = $request->boolean('is_active');

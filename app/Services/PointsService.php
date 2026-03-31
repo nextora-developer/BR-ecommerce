@@ -15,11 +15,22 @@ class PointsService
         User $referrer,
         ReferralLog $log,
         Order $order,
-        int $points,
-        string $note
+        ?string $note = null
     ): bool {
-        return DB::transaction(function () use ($referrer, $log, $order, $points, $note) {
+        $note = $note ?: 'Referral reward points';
 
+        $points = 0;
+
+        foreach ($order->items as $item) {
+            $product = $item->product;
+            if (!$product) continue;
+
+            $points += ((int) ($product->reward_points ?? 0)) * ((int) ($item->qty ?? 0));
+        }
+
+        if ($points <= 0) return false;
+
+        return DB::transaction(function () use ($referrer, $log, $order, $points, $note) {
             if ($log->rewarded) {
                 return false;
             }
@@ -27,6 +38,8 @@ class PointsService
             $lockedUser = User::whereKey($referrer->id)
                 ->lockForUpdate()
                 ->first();
+
+            if (!$lockedUser) return false;
 
             PointTransaction::create([
                 'user_id'         => $lockedUser->id,
@@ -54,26 +67,22 @@ class PointsService
     public function creditPurchase(
         User $buyer,
         Order $order,
-        $pointsOrNote = null,
         ?string $note = null
     ): bool {
+        $note = $note ?: 'Product reward points';
 
-        $defaultNote = 'Purchase cashback (RM 1 = 1 point, based on subtotal)';
+        $points = 0;
 
-        // ✅ 永远基于 subtotal
-        $points = (int) floor((float) $order->subtotal);
-        if ($points <= 0) return false;
+        foreach ($order->items as $item) {
+            $product = $item->product;
+            if (!$product) continue;
 
-        // ✅ 旧调用如果传了数字，直接忽略它（不再用它当 note）
-        if (is_numeric($pointsOrNote)) {
-            $note = $note ?: $defaultNote;
-        } else {
-            // 新调用：第三个参数是 note（string）
-            $note = (string) ($pointsOrNote ?: ($note ?: $defaultNote));
+            $points += ((int) ($product->reward_points ?? 0)) * ((int) ($item->qty ?? 0));
         }
 
-        return DB::transaction(function () use ($buyer, $order, $points, $note) {
+        if ($points <= 0) return false;
 
+        return DB::transaction(function () use ($buyer, $order, $points, $note) {
             $exists = PointTransaction::where('source', 'purchase')
                 ->where('order_id', $order->id)
                 ->where('user_id', $buyer->id)
@@ -82,6 +91,7 @@ class PointsService
             if ($exists) return false;
 
             $lockedBuyer = User::whereKey($buyer->id)->lockForUpdate()->first();
+            if (!$lockedBuyer) return false;
 
             PointTransaction::create([
                 'user_id'  => $lockedBuyer->id,
@@ -89,7 +99,7 @@ class PointsService
                 'source'   => 'purchase',
                 'order_id' => $order->id,
                 'points'   => $points,
-                'note'     => $note, // ✅ 不会再出现 40
+                'note'     => $note,
             ]);
 
             $lockedBuyer->increment('points_balance', $points);
@@ -97,7 +107,6 @@ class PointsService
             return true;
         });
     }
-
 
 
     public static function grantBirthdayPointsIfEligible($user, int $points = 50): bool

@@ -11,6 +11,10 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
+        if (! app()->environment('local')) {
+            return;
+        }
+
         // 你要更多就改这个数字：每个 sub category 生成多少个产品
         $perSub = 4;
 

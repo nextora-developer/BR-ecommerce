@@ -459,7 +459,10 @@
 
                                 @php
                                     $isCompleted = ($order->status ?? '') === 'completed';
-                                    $earnedPoints = (int) floor((float) ($order->subtotal ?? 0));
+
+                                    $earnedPoints = $order->items->sum(function ($item) {
+                                        return ((int) ($item->product->reward_points ?? 0)) * ((int) ($item->qty ?? 0));
+                                    });
                                 @endphp
 
                                 <div
@@ -480,8 +483,8 @@
                                             class="w-2 h-2 rounded-full {{ $isCompleted ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse' }}">
                                         </div>
                                         <span class="text-sm font-black text-gray-800">
-                                            {{ number_format($earnedPoints) }} <span
-                                                class="text-[9px] text-gray-400">PTS</span>
+                                            {{ number_format($earnedPoints) }}
+                                            <span class="text-[9px] text-gray-400">PTS</span>
                                         </span>
                                     </div>
                                 </div>

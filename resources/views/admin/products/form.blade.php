@@ -42,7 +42,7 @@
                 </div>
 
                 {{-- ROW 1 --}}
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div>
                         <label class="text-xs uppercase font-black tracking-widest text-gray-400">
                             Product Name
@@ -81,6 +81,26 @@
 
                         <p class="mt-2 text-xs text-gray-400">
                             Select a sub-category (recommended)
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="text-xs uppercase font-black tracking-widest text-gray-400">
+                            Reward Points
+                        </label>
+
+                        <input type="number" name="reward_points" min="0"
+                            value="{{ old('reward_points', $product->reward_points ?? 0) }}"
+                            class="mt-1.5 w-full rounded-xl border-gray-200
+               focus:border-[#D4AF37] focus:ring-[#D4AF37]/30 font-medium"
+                            placeholder="e.g. 10">
+
+                        @error('reward_points')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+
+                        <p class="mt-2 text-xs text-gray-400">
+                            Points earned per item
                         </p>
                     </div>
 
@@ -386,7 +406,7 @@
                 </div>
 
                 <div class="border rounded-xl p-5 space-y-6">
-                    
+
                     {{-- Simple price / stock --}}
                     <div id="simplePriceStock" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>

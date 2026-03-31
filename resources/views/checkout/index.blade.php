@@ -921,6 +921,10 @@
                                     $voucherCode = $applied['code'] ?? null;
                                     $voucherDiscount = (float) ($applied['discount'] ?? 0);
                                     $voucherBenefit = $applied['benefit'] ?? null; // ✅
+
+                                    $estimatedRewardPoints = $items->sum(function ($item) {
+                                        return ((int) ($item->product->reward_points ?? 0)) * ((int) ($item->qty ?? 0));
+                                    });
                                 @endphp
 
                                 {{-- 小计 / 运费 / 总额 --}}
@@ -1355,6 +1359,7 @@
             const hasPhysical = @json($hasPhysical);
             const shippingRates = @json($shippingRates);
             const subtotal = Number({{ $subtotal }});
+            const estimatedRewardPoints = Number({{ $estimatedRewardPoints }});
 
             // Voucher UI
             const voucherStateEl = document.getElementById('voucherState');
@@ -1593,9 +1598,9 @@
                 // Estimated Earn: 你现在是 RM1=1point（按 finalTotal）
                 // if (cashbackPointsText) cashbackPointsText.textContent = String(Math.floor(finalTotal));
 
-                // Estimated Earn: 你现在是 RM1=1point（按 subtotal）
+                // Estimated Earn: 你现在是 RM1=1point（按 rewardpoint）
                 if (cashbackPointsText) {
-                    cashbackPointsText.textContent = String(Math.floor(subtotal));
+                    cashbackPointsText.textContent = String(estimatedRewardPoints);
                 }
             }
 

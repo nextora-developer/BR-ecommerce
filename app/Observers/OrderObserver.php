@@ -40,21 +40,13 @@ class OrderObserver
             ->where('referred_user_id', $buyer->id)
             ->first();
 
-        if (!$log) return;
-
-        // 已奖励过就不跑了（一次性玩法）
-        if ($log->rewarded) return;
-
-        // RM 1 = 1 point（向下取整）
-        $points = (int) floor((float) $order->subtotal);
-        if ($points <= 0) return;
+        if (!$log || $log->rewarded) return;
 
         app(PointsService::class)->creditReferral(
             $buyer->referrer,
             $log,
             $order,
-            $points,
-            'Referral first order completed (RM 1 = 1 point)'
+            'Referral first order completed'
         );
     }
 
@@ -63,15 +55,10 @@ class OrderObserver
         $buyer = $order->user;
         if (!$buyer) return;
 
-        // RM1 = 1 point（向下取整）
-        $points = (int) floor((float) $order->subtotal);
-        if ($points <= 0) return;
-
         app(PointsService::class)->creditPurchase(
             $buyer,
             $order,
-            $points,
-            'Purchase cashback (RM 1 = 1 point)'
+            'Product reward points'
         );
     }
 

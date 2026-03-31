@@ -31,6 +31,7 @@ class Product extends Model
         'min_amount',
         'max_amount',
         'amount_step',
+        'reward_points',
     ];
 
     protected $casts = [
@@ -42,6 +43,7 @@ class Product extends Model
         'min_amount' => 'decimal:2',
         'max_amount' => 'decimal:2',
         'amount_step' => 'decimal:2',
+        'reward_points' => 'integer',
     ];
 
 

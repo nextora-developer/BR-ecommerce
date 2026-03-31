@@ -9,6 +9,10 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
+        if (! app()->environment('local')) {
+            return;
+        }
+
         $parents = [
             [
                 'name' => 'Accessories',

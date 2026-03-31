@@ -408,9 +408,12 @@
                                         {{-- Line Items --}}
                                         @php
                                             $isCompleted = $order->status === 'completed';
-                                            $earnedPoints = (int) floor($order->subtotal ?? 0);
-                                        @endphp
 
+                                            $earnedPoints = $order->items->sum(function ($item) {
+                                                return ((int) ($item->product->reward_points ?? 0)) *
+                                                    ((int) ($item->qty ?? 0));
+                                            });
+                                        @endphp
 
                                         <div class="space-y-3 text-sm">
 
@@ -484,7 +487,6 @@
                                             @endif
                                         </div>
 
-
                                         <div class="my-6 border-t border-dashed border-amber-300"></div>
 
                                         {{-- Grand Total --}}
@@ -505,7 +507,6 @@
                                                 +{{ number_format($earnedPoints) }} PTS
                                             </span>
                                         </div>
-
                                     </div>
 
                                     {{-- Payment Footer --}}
